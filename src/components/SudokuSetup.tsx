@@ -28,7 +28,7 @@ export default function SudokuSetup(props: Props) {
       <div class="flex items-center justify-between px-5 py-4">
         <a
           href="/"
-          class="flex items-center gap-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors duration-200"
+          class="flex items-center gap-2 text-fg-tertiary hover:text-fg transition-colors duration-200"
         >
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
             <path
@@ -48,13 +48,9 @@ export default function SudokuSetup(props: Props) {
       <div class="flex-1 flex flex-col items-center justify-center px-6 pb-16 gap-12">
         {/* Header */}
         <div class="text-center space-y-2" style={{ animation: "fadeIn 0.5s ease-out both" }}>
-          <h1 class="font-display text-5xl md:text-6xl text-[var(--color-text-primary)] italic tracking-tight">
-            Sudoku
-          </h1>
-          <p class="text-sm text-[var(--color-text-tertiary)] tracking-wide">
-            Choose your challenge
-          </p>
-          <div class="mx-auto mt-3 h-px w-12 bg-[var(--color-accent)] opacity-40" />
+          <h1 class="font-display text-5xl md:text-6xl text-fg italic tracking-tight">Sudoku</h1>
+          <p class="text-sm text-fg-tertiary tracking-wide">Choose your challenge</p>
+          <div class="mx-auto mt-3 h-px w-12 bg-accent opacity-40" />
         </div>
 
         {/* Options card */}
@@ -64,7 +60,7 @@ export default function SudokuSetup(props: Props) {
         >
           {/* Size selection */}
           <div class="space-y-3">
-            <label class="text-[11px] font-medium text-[var(--color-text-tertiary)] uppercase tracking-[0.15em]">
+            <label class="text-[11px] font-medium text-fg-tertiary uppercase tracking-[0.15em]">
               Grid size
             </label>
             <div class="grid grid-cols-3 gap-2.5">
@@ -73,15 +69,13 @@ export default function SudokuSetup(props: Props) {
                   onClick={() => setSelectedSize(s.value)}
                   class={`group flex flex-col items-center gap-1 py-4 px-3 rounded-xl border transition-all duration-200 ${
                     selectedSize() === s.value
-                      ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]"
-                      : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)]"
+                      ? "border-accent bg-accent-light"
+                      : "border-border bg-surface hover:border-border-strong"
                   } active:scale-[0.97]`}
                 >
                   <span
                     class={`text-lg font-bold leading-none transition-colors duration-200 ${
-                      selectedSize() === s.value
-                        ? "text-[var(--color-accent)]"
-                        : "text-[var(--color-text-primary)]"
+                      selectedSize() === s.value ? "text-accent" : "text-fg"
                     }`}
                   >
                     {s.label}
@@ -89,8 +83,8 @@ export default function SudokuSetup(props: Props) {
                   <span
                     class={`text-[10px] leading-tight transition-colors duration-200 ${
                       selectedSize() === s.value
-                        ? "text-[var(--color-accent)] opacity-80"
-                        : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]"
+                        ? "text-accent opacity-80"
+                        : "text-fg-tertiary group-hover:text-fg-secondary"
                     }`}
                   >
                     {s.description}
@@ -98,8 +92,8 @@ export default function SudokuSetup(props: Props) {
                   <span
                     class={`text-[10px] leading-tight transition-colors duration-200 ${
                       selectedSize() === s.value
-                        ? "text-[var(--color-accent)] opacity-50"
-                        : "text-[var(--color-text-tertiary)] opacity-60"
+                        ? "text-accent opacity-50"
+                        : "text-fg-tertiary opacity-60"
                     }`}
                   >
                     {s.time}
@@ -111,7 +105,7 @@ export default function SudokuSetup(props: Props) {
 
           {/* Difficulty selection */}
           <div class="space-y-3">
-            <label class="text-[11px] font-medium text-[var(--color-text-tertiary)] uppercase tracking-[0.15em]">
+            <label class="text-[11px] font-medium text-fg-tertiary uppercase tracking-[0.15em]">
               Difficulty
             </label>
             <div class="grid grid-cols-3 gap-2.5">
@@ -120,15 +114,13 @@ export default function SudokuSetup(props: Props) {
                   onClick={() => setSelectedDifficulty(d.value)}
                   class={`group flex flex-col items-center gap-1.5 py-4 px-3 rounded-xl border transition-all duration-200 ${
                     selectedDifficulty() === d.value
-                      ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]"
-                      : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)]"
+                      ? "border-accent bg-accent-light"
+                      : "border-border bg-surface hover:border-border-strong"
                   } active:scale-[0.97]`}
                 >
                   <span
                     class={`text-sm font-bold leading-none transition-colors duration-200 ${
-                      selectedDifficulty() === d.value
-                        ? "text-[var(--color-accent)]"
-                        : "text-[var(--color-text-primary)]"
+                      selectedDifficulty() === d.value ? "text-accent" : "text-fg"
                     }`}
                   >
                     {d.label}
@@ -136,8 +128,8 @@ export default function SudokuSetup(props: Props) {
                   <span
                     class={`text-[10px] leading-tight transition-colors duration-200 ${
                       selectedDifficulty() === d.value
-                        ? "text-[var(--color-accent)] opacity-70"
-                        : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]"
+                        ? "text-accent opacity-70"
+                        : "text-fg-tertiary group-hover:text-fg-secondary"
                     }`}
                   >
                     {d.description}
@@ -152,7 +144,7 @@ export default function SudokuSetup(props: Props) {
         <div style={{ animation: "fadeIn 0.4s ease-out 0.2s both" }}>
           <button
             onClick={() => props.onStart(selectedSize(), selectedDifficulty())}
-            class="px-12 py-3.5 rounded-xl bg-[var(--color-accent)] text-white font-semibold text-base transition-all duration-200 hover:bg-[var(--color-accent-hover)] active:scale-[0.97] shadow-lg shadow-[var(--color-shadow)]"
+            class="px-12 py-3.5 rounded-xl bg-accent text-white font-semibold text-base transition-all duration-200 hover:bg-accent-hover active:scale-[0.97] shadow-lg shadow-shadow"
           >
             Start Game
           </button>

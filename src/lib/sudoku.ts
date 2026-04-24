@@ -15,6 +15,12 @@ export type Board = Cell[][];
 export type GridSize = 4 | 6 | 9;
 export type Difficulty = "easy" | "medium" | "hard";
 
+export interface CompletingGroup {
+  type: "row" | "col" | "box";
+  index: number;
+  origin: [number, number];
+}
+
 interface PuzzleResult {
   puzzle: Board;
   solution: Board;
@@ -32,7 +38,7 @@ function isSupportedSize(size: number): size is GridSize {
 }
 
 /** Box dimensions for each grid size */
-function getBoxDims(size: GridSize): [number, number] {
+export function getBoxDims(size: GridSize): [number, number] {
   switch (size) {
     case 4:
       return [2, 2];
@@ -377,6 +383,40 @@ export function validate(board: Board): boolean {
   }
 
   return true;
+}
+
+/**
+ * Return every group (row, col, box) that was just completed by placing a
+ * value at (triggerRow, triggerCol). Only groups that contain the trigger cell
+ * and are now fully filled without duplicates are returned.
+ */
+export function getJustCompletedGroups(
+  board: Board,
+  triggerRow: number,
+  triggerCol: number
+): CompletingGroup[] {
+  const size = board.length;
+  if (!isSupportedSize(size)) return [];
+
+  const result: CompletingGroup[] = [];
+
+  if (isGroupComplete(board, "row", triggerRow)) {
+    result.push({ type: "row", index: triggerRow, origin: [triggerRow, triggerCol] });
+  }
+
+  if (isGroupComplete(board, "col", triggerCol)) {
+    result.push({ type: "col", index: triggerCol, origin: [triggerRow, triggerCol] });
+  }
+
+  const [boxRows, boxCols] = getBoxDims(size);
+  const numBoxCols = size / boxCols;
+  const boxIndex = Math.floor(triggerRow / boxRows) * numBoxCols + Math.floor(triggerCol / boxCols);
+
+  if (isGroupComplete(board, "box", boxIndex)) {
+    result.push({ type: "box", index: boxIndex, origin: [triggerRow, triggerCol] });
+  }
+
+  return result;
 }
 
 /** Solve a board (returns solution or null if unsolvable) */

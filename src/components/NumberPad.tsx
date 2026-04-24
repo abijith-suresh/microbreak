@@ -4,6 +4,8 @@ interface Props {
   size: GridSize;
   onNumber: (num: number) => void;
   onErase: () => void;
+  /** Reactive accessor: count of non-conflicted placements per digit */
+  placedCounts: () => Record<number, number>;
 }
 
 export default function NumberPad(props: Props) {
@@ -31,13 +33,22 @@ export default function NumberPad(props: Props) {
     }
   };
 
+  const isDone = (num: number) => (props.placedCounts()[num] ?? 0) >= props.size;
+
   return (
     <div class="flex flex-col items-center gap-2">
       <div class={`grid ${cols()} gap-1.5`}>
         {numbers().map((num) => (
           <button
             onClick={() => props.onNumber(num)}
-            class={`${buttonSize()} flex items-center justify-center rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-light)] active:scale-95`}
+            disabled={isDone(num)}
+            class={[
+              buttonSize(),
+              "relative flex items-center justify-center rounded-lg bg-surface border border-border font-medium transition-all",
+              isDone(num)
+                ? "opacity-35 pointer-events-none text-fg-tertiary"
+                : "text-fg hover:border-accent hover:text-accent hover:bg-accent-light active:scale-95",
+            ].join(" ")}
           >
             {num}
           </button>
@@ -45,7 +56,7 @@ export default function NumberPad(props: Props) {
       </div>
       <button
         onClick={() => props.onErase()}
-        class="px-5 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-error)] hover:text-[var(--color-error)] hover:bg-[var(--color-accent-light)] active:scale-95"
+        class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-secondary transition-all hover:border-error hover:text-error hover:bg-accent-light active:scale-95"
       >
         Erase
       </button>
