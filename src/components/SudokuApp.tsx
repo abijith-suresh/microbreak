@@ -1,4 +1,4 @@
-import { createSignal, createEffect, onMount, onCleanup } from "solid-js";
+import { createSignal, onMount, onCleanup } from "solid-js";
 import { generate, validate, type Board, type Cell, type Difficulty, type GridSize } from "@/lib/sudoku";
 import SudokuBoard from "./SudokuBoard";
 import SudokuControls from "./SudokuControls";
@@ -41,7 +41,7 @@ export default function SudokuApp() {
   const [timerRunning, setTimerRunning] = createSignal(false);
   const [completed, setCompleted] = createSignal(false);
 
-  let timerInterval: ReturnType<typeof setInterval> | undefined;
+  let timerInterval: ReturnType<typeof setInterval> | null = null;
   let hasStartedFilling = false;
 
   function newPuzzle(size?: GridSize, diff?: Difficulty) {
@@ -53,10 +53,11 @@ export default function SudokuApp() {
     setUserBoard(result.puzzle.map((row) => [...row]));
     setSelectedCell(null);
     setTimerSeconds(0);
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
     setTimerRunning(false);
     setCompleted(false);
     hasStartedFilling = false;
-    if (timerInterval) clearInterval(timerInterval);
   }
 
   function handleSelectCell(row: number, col: number) {
@@ -99,12 +100,19 @@ export default function SudokuApp() {
   }
 
   function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      setTimerSeconds((t) => t + 1);
+    }, 1000);
     setTimerRunning(true);
   }
 
   function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
     setTimerRunning(false);
-    if (timerInterval) clearInterval(timerInterval);
   }
 
   function handleSizeChange(newSize: GridSize) {
@@ -146,20 +154,8 @@ export default function SudokuApp() {
     }
   }
 
-  // Timer interval
-  createEffect(() => {
-    if (timerRunning()) {
-      timerInterval = setInterval(() => {
-        setTimerSeconds((t) => t + 1);
-      }, 1000);
-    } else {
-      if (timerInterval) clearInterval(timerInterval);
-    }
-
-    onCleanup(() => {
-      if (timerInterval) clearInterval(timerInterval);
-    });
-  });
+  // Timer logic is handled in startTimer/stopTimer directly
+  // No createEffect needed since we manage the interval manually
 
   // Visibility-based pause
   function handleVisibility() {
