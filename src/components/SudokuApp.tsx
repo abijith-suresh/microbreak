@@ -42,7 +42,7 @@ export default function SudokuApp() {
   const [completed, setCompleted] = createSignal(false);
   const [completing, setCompleting] = createSignal(false);
   const [completionOrigin, setCompletionOrigin] = createSignal<[number, number] | null>(null);
-  const [conflictedCells, setConflictedCells] = createSignal<Set<string>>(new Set());
+  const [conflictedCells, setConflictedCells] = createSignal<Set<string>>(new Set<string>());
 
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let pendingGeneration: number | null = null;
@@ -57,7 +57,7 @@ export default function SudokuApp() {
       setCompleted(false);
       setCompleting(false);
       setCompletionOrigin(null);
-      setConflictedCells(new Set());
+      setConflictedCells(new Set<string>());
     });
   }
 
