@@ -1,16 +1,8 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import ThemeToggle from "@/components/ThemeToggle";
 import SudokuApp from "@/components/SudokuApp";
 ---
 
 <BaseLayout title="Sudoku — Microbreak">
-  <div class="min-h-screen flex flex-col relative">
-    <!-- Theme toggle (absolute positioned in top bar area) -->
-    <div class="fixed top-3 right-4 z-40">
-      <ThemeToggle client:load />
-    </div>
-
-    <SudokuApp client:only="solid-js" />
-  </div>
+  <SudokuApp client:only="solid-js" />
 </BaseLayout>

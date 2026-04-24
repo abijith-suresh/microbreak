@@ -4,6 +4,7 @@ import SudokuBoard from "./SudokuBoard";
 import SudokuControls from "./SudokuControls";
 import NumberPad from "./NumberPad";
 import CompletionScreen from "./CompletionScreen";
+import ThemeToggle from "./ThemeToggle";
 
 const SIZE_KEY = "microbreak-grid-size";
 const DIFF_KEY = "microbreak-difficulty";
@@ -233,7 +234,7 @@ export default function SudokuApp() {
               </span>
             </div>
 
-            <div class="w-9" />
+            <ThemeToggle />
           </div>
 
           {/* Puzzle area */}
