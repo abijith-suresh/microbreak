@@ -1,0 +1,41 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Microbreak — Puzzles for the gaps between builds",
+  description = "Short, non-addictive puzzles to fill build wait time with healthy microbreaks.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#c45d3e" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <script is:inline>
+      (function () {
+        const stored = localStorage.getItem("microbreak-theme");
+        let theme = stored || "system";
+        if (theme === "system") {
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] font-body antialiased">
+    <slot />
+  </body>
+</html>

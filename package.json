@@ -17,5 +17,9 @@
     "astro": "^6.1.9",
     "solid-js": "^1.9.12",
     "tailwindcss": "^4.2.4"
+  },
+  "devDependencies": {
+    "@fontsource-variable/dm-sans": "^5.2.8",
+    "@fontsource/instrument-serif": "^5.2.8"
   }
 }

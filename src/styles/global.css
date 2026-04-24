@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+/* ─── Fonts ─── */
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/InstrumentSerif-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/DMSans-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/DMSans-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ─── Tailwind Theme ─── */
+@theme {
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+/* ─── Theme Tokens ─── */
+:root,
+[data-theme="light"] {
+  --color-bg: #faf9f6;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f5f4f0;
+  --color-border: #e8e6e1;
+  --color-border-strong: #d1cfc9;
+  --color-text-primary: #1a1917;
+  --color-text-secondary: #6b6961;
+  --color-text-tertiary: #9c9a92;
+  --color-accent: #c45d3e;
+  --color-accent-hover: #a94d32;
+  --color-accent-light: rgba(196, 93, 62, 0.08);
+  --color-accent-subtle: rgba(196, 93, 62, 0.15);
+  --color-given: #1a1917;
+  --color-user: #c45d3e;
+  --color-selected: rgba(196, 93, 62, 0.12);
+  --color-highlight: rgba(196, 93, 62, 0.06);
+  --color-error: #c43e3e;
+  --color-success: #3e8c5a;
+  --color-completion-bg: #faf9f6;
+  --color-shadow: rgba(26, 25, 23, 0.06);
+  --color-shadow-strong: rgba(26, 25, 23, 0.12);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --color-bg: #141413;
+  --color-surface: #1c1c1a;
+  --color-surface-hover: #242422;
+  --color-border: #2e2e2b;
+  --color-border-strong: #3e3e3a;
+  --color-text-primary: #eae8e2;
+  --color-text-secondary: #9c9a92;
+  --color-text-tertiary: #6b6961;
+  --color-accent: #e07a5a;
+  --color-accent-hover: #f09070;
+  --color-accent-light: rgba(224, 122, 90, 0.1);
+  --color-accent-subtle: rgba(224, 122, 90, 0.18);
+  --color-given: #eae8e2;
+  --color-user: #e07a5a;
+  --color-selected: rgba(224, 122, 90, 0.15);
+  --color-highlight: rgba(224, 122, 90, 0.06);
+  --color-error: #e05a5a;
+  --color-success: #5ab87a;
+  --color-completion-bg: #141413;
+  --color-shadow: rgba(0, 0, 0, 0.2);
+  --color-shadow-strong: rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+
+/* ─── Base ─── */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ─── Sudoku Grid ─── */
+.sudoku-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  user-select: none;
+  transition: background-color 0.1s ease;
+}
+
+.sudoku-cell.given {
+  font-weight: 700;
+  color: var(--color-given);
+}
+
+.sudoku-cell.user {
+  font-weight: 500;
+  color: var(--color-user);
+}
+
+.sudoku-cell.selected {
+  background-color: var(--color-selected) !important;
+}
+
+.sudoku-cell.highlighted {
+  background-color: var(--color-highlight);
+}
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 48;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes mini-fill {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out both;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
