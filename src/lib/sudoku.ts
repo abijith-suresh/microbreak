@@ -254,6 +254,116 @@ export function generate(size: GridSize, difficulty: Difficulty): PuzzleResult {
   return { puzzle, solution };
 }
 
+/**
+ * Return a set of "row,col" keys for every cell involved in at least one
+ * constraint conflict (row, column, or box duplicate).
+ *
+ * Only checks non-null cells. A cell is conflicted if its value appears
+ * more than once in its row, column, or box.
+ */
+export function getConflictingCells(board: Board): Set<string> {
+  const size = board.length;
+  if (!isSupportedSize(size)) return new Set();
+
+  const conflicted = new Set<string>();
+
+  // Row conflicts
+  for (let r = 0; r < size; r++) {
+    const seen = new Map<number, number[]>();
+    for (let c = 0; c < size; c++) {
+      const v = board[r][c];
+      if (v === null) continue;
+      if (!seen.has(v)) seen.set(v, []);
+      seen.get(v)!.push(c);
+    }
+    for (const cols of seen.values()) {
+      if (cols.length > 1) {
+        for (const c of cols) conflicted.add(`${r},${c}`);
+      }
+    }
+  }
+
+  // Column conflicts
+  for (let c = 0; c < size; c++) {
+    const seen = new Map<number, number[]>();
+    for (let r = 0; r < size; r++) {
+      const v = board[r][c];
+      if (v === null) continue;
+      if (!seen.has(v)) seen.set(v, []);
+      seen.get(v)!.push(r);
+    }
+    for (const rows of seen.values()) {
+      if (rows.length > 1) {
+        for (const r of rows) conflicted.add(`${r},${c}`);
+      }
+    }
+  }
+
+  // Box conflicts
+  const [boxRows, boxCols] = getBoxDims(size);
+  const numBoxRows = size / boxRows;
+  const numBoxCols = size / boxCols;
+
+  for (let br = 0; br < numBoxRows; br++) {
+    for (let bc = 0; bc < numBoxCols; bc++) {
+      const seen = new Map<number, [number, number][]>();
+      for (let r = br * boxRows; r < (br + 1) * boxRows; r++) {
+        for (let c = bc * boxCols; c < (bc + 1) * boxCols; c++) {
+          const v = board[r][c];
+          if (v === null) continue;
+          if (!seen.has(v)) seen.set(v, []);
+          seen.get(v)!.push([r, c]);
+        }
+      }
+      for (const cells of seen.values()) {
+        if (cells.length > 1) {
+          for (const [r, c] of cells) conflicted.add(`${r},${c}`);
+        }
+      }
+    }
+  }
+
+  return conflicted;
+}
+
+/**
+ * Check if a group (row, column, or box) is fully filled with no duplicates.
+ */
+export function isGroupComplete(board: Board, type: "row" | "col" | "box", index: number): boolean {
+  const size = board.length;
+  if (!isSupportedSize(size)) return false;
+
+  const values: number[] = [];
+
+  if (type === "row") {
+    for (let c = 0; c < size; c++) {
+      const v = board[index][c];
+      if (v === null) return false;
+      values.push(v);
+    }
+  } else if (type === "col") {
+    for (let r = 0; r < size; r++) {
+      const v = board[r][index];
+      if (v === null) return false;
+      values.push(v);
+    }
+  } else if (type === "box") {
+    const [boxRows, boxCols] = getBoxDims(size);
+    const br = Math.floor(index / (size / boxCols)) * boxRows;
+    const bc = (index % (size / boxCols)) * boxCols;
+    for (let r = br; r < br + boxRows; r++) {
+      for (let c = bc; c < bc + boxCols; c++) {
+        const v = board[r][c];
+        if (v === null) return false;
+        values.push(v);
+      }
+    }
+  }
+
+  // No duplicates means the set size equals the array length
+  return new Set(values).size === values.length;
+}
+
 /** Validate a completed board */
 export function validate(board: Board): boolean {
   if (!hasValidShape(board) || hasConflictingGivens(board)) return false;
