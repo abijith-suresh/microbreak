@@ -98,6 +98,107 @@ function getBoxDims(size: number): [number, number] {
   return [3, 3];
 }
 
+/** Parse a board string using . as blank */
+function parseBoard(input: string, size: GridSize): Board {
+  const chars = input.split("");
+  const board: Board = [];
+  for (let row = 0; row < size; row++) {
+    const rowValues: (number | null)[] = [];
+    for (let col = 0; col < size; col++) {
+      const ch = chars[row * size + col];
+      rowValues.push(ch === "." ? null : Number(ch));
+    }
+    board.push(rowValues);
+  }
+  return board;
+}
+
+/** Independent solution counter used to verify uniqueness claims */
+function countSolutionsIndependent(board: Board, limit = 2): number {
+  const size = board.length;
+  const [boxRows, boxCols] = getBoxDims(size);
+  const working = board.map((row) => [...row]);
+  let count = 0;
+
+  function candidatesFor(row: number, col: number): number[] {
+    const candidates: number[] = [];
+
+    for (let num = 1; num <= size; num++) {
+      let valid = true;
+
+      for (let c = 0; c < size; c++) {
+        if (working[row][c] === num) {
+          valid = false;
+          break;
+        }
+      }
+      if (!valid) continue;
+
+      for (let r = 0; r < size; r++) {
+        if (working[r][col] === num) {
+          valid = false;
+          break;
+        }
+      }
+      if (!valid) continue;
+
+      const startRow = Math.floor(row / boxRows) * boxRows;
+      const startCol = Math.floor(col / boxCols) * boxCols;
+      for (let r = startRow; r < startRow + boxRows; r++) {
+        for (let c = startCol; c < startCol + boxCols; c++) {
+          if (working[r][c] === num) {
+            valid = false;
+            break;
+          }
+        }
+        if (!valid) break;
+      }
+
+      if (valid) candidates.push(num);
+    }
+
+    return candidates;
+  }
+
+  function findNextCell(): { row: number; col: number; candidates: number[] } | null {
+    let best: { row: number; col: number; candidates: number[] } | null = null;
+
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        if (working[row][col] !== null) continue;
+        const candidates = candidatesFor(row, col);
+        if (candidates.length === 0) return { row, col, candidates };
+        if (!best || candidates.length < best.candidates.length) {
+          best = { row, col, candidates };
+        }
+      }
+    }
+
+    return best;
+  }
+
+  function search(): void {
+    if (count >= limit) return;
+
+    const next = findNextCell();
+    if (next === null) {
+      count++;
+      return;
+    }
+    if (next.candidates.length === 0) return;
+
+    for (const candidate of next.candidates) {
+      working[next.row][next.col] = candidate;
+      search();
+      working[next.row][next.col] = null;
+      if (count >= limit) return;
+    }
+  }
+
+  search();
+  return count;
+}
+
 // ─── Generation Tests ───────────────────────────────────────────────────────
 
 describe("generate", () => {
@@ -191,6 +292,13 @@ describe("generate", () => {
     expect(mediumClues).toBeLessThanOrEqual(easyClues);
     expect(mediumClues).toBeGreaterThanOrEqual(hardClues);
   });
+
+  it("generated puzzles should be uniquely solvable by an independent counter", () => {
+    for (const size of [4, 6, 9] as GridSize[]) {
+      const { puzzle } = generate(size, "easy");
+      expect(countSolutionsIndependent(puzzle, 2)).toBe(1);
+    }
+  });
 });
 
 // ─── Solve Tests ────────────────────────────────────────────────────────────
@@ -200,6 +308,18 @@ describe("solve", () => {
     const { puzzle, solution } = generate(9, "easy");
     const solved = solve(puzzle);
     expect(solved).toEqual(solution);
+  });
+
+  it("should solve a known 9×9 reference puzzle from sudoku.js", () => {
+    const puzzle = parseBoard(
+      ".17..69..356194.2..89..71.6.65...273872563419.43...685521......798..53..634...59.",
+      9
+    );
+    const expected = parseBoard(
+      "217386954356194728489257136165948273872563419943712685521439867798625341634871592",
+      9
+    );
+    expect(solve(puzzle)).toEqual(expected);
   });
 
   it("should solve a 4×4 puzzle", () => {
@@ -295,6 +415,28 @@ describe("validate", () => {
     const board = solution.map((r) => [...r]);
     board[0][0] = 0;
     expect(validate(board)).toBe(false);
+  });
+
+  it("should reject unsupported board sizes", () => {
+    const board = [
+      [1, 2, 3, 4, 5],
+      [2, 3, 4, 5, 1],
+      [3, 4, 5, 1, 2],
+      [4, 5, 1, 2, 3],
+      [5, 1, 2, 3, 4],
+    ] as Board;
+    expect(validate(board)).toBe(false);
+  });
+
+  it("should reject ragged board shapes", () => {
+    const board = [
+      [1, 2, 3, 4],
+      [3, 4, 1],
+      [2, 1, 4, 3],
+      [4, 3, 2, 1],
+    ] as Board;
+    expect(validate(board)).toBe(false);
+    expect(solve(board)).toBeNull();
   });
 });
 

@@ -2,6 +2,11 @@
  * Sudoku engine — hand-rolled generator, solver, and validator.
  *
  * Supports 4×4 (2×2 boxes), 6×6 (2×3 boxes), and 9×9 (3×3 boxes).
+ *
+ * Implementation note:
+ * - Uses a minimum-remaining-values (MRV) search heuristic, similar to the
+ *   approach used by robust open-source Sudoku solvers, to reduce branching
+ *   and make solving / uniqueness checks more reliable.
  */
 
 export type Cell = number | null;
@@ -15,6 +20,17 @@ interface PuzzleResult {
   solution: Board;
 }
 
+interface EmptyCellChoice {
+  row: number;
+  col: number;
+  candidates: number[];
+}
+
+/** Supported grid sizes */
+function isSupportedSize(size: number): size is GridSize {
+  return size === 4 || size === 6 || size === 9;
+}
+
 /** Box dimensions for each grid size */
 function getBoxDims(size: GridSize): [number, number] {
   switch (size) {
@@ -25,6 +41,12 @@ function getBoxDims(size: GridSize): [number, number] {
     case 9:
       return [3, 3];
   }
+}
+
+/** Ensure the board shape is square and supported */
+function hasValidShape(board: Board): boolean {
+  const size = board.length;
+  return isSupportedSize(size) && board.every((row) => row.length === size);
 }
 
 /** Create an empty board filled with nulls */
@@ -40,6 +62,7 @@ function cloneBoard(board: Board): Board {
 /** Check if placing `num` at (row, col) is valid */
 function isValid(board: Board, row: number, col: number, num: number): boolean {
   const size = board.length;
+  if (!isSupportedSize(size)) return false;
 
   // Check row
   for (let c = 0; c < size; c++) {
@@ -52,7 +75,7 @@ function isValid(board: Board, row: number, col: number, num: number): boolean {
   }
 
   // Check box
-  const [boxRows, boxCols] = getBoxDims(size as GridSize);
+  const [boxRows, boxCols] = getBoxDims(size);
   const boxStartRow = Math.floor(row / boxRows) * boxRows;
   const boxStartCol = Math.floor(col / boxCols) * boxCols;
 
@@ -65,6 +88,67 @@ function isValid(board: Board, row: number, col: number, num: number): boolean {
   return true;
 }
 
+/** Return all legal candidates for a cell */
+function getCandidates(board: Board, row: number, col: number): number[] {
+  const size = board.length;
+  const candidates: number[] = [];
+
+  for (let num = 1; num <= size; num++) {
+    if (isValid(board, row, col, num)) {
+      candidates.push(num);
+    }
+  }
+
+  return candidates;
+}
+
+/**
+ * Find the next empty cell with the fewest legal candidates (MRV heuristic).
+ * Returns null when the board has no empty cells.
+ */
+function findBestEmptyCell(board: Board): EmptyCellChoice | null {
+  const size = board.length;
+  let best: EmptyCellChoice | null = null;
+
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      if (board[row][col] !== null) continue;
+
+      const candidates = getCandidates(board, row, col);
+      if (candidates.length === 0) {
+        return { row, col, candidates };
+      }
+
+      if (best === null || candidates.length < best.candidates.length) {
+        best = { row, col, candidates };
+        if (candidates.length === 1) return best;
+      }
+    }
+  }
+
+  return best;
+}
+
+/** Validate that the board's existing givens do not conflict */
+function hasConflictingGivens(board: Board): boolean {
+  const size = board.length;
+
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const value = board[row][col];
+      if (value === null) continue;
+
+      board[row][col] = null;
+      const valid = isValid(board, row, col, value);
+      board[row][col] = value;
+
+      if (!valid) return true;
+    }
+  }
+
+  return false;
+}
+
 /** Shuffle an array in place (Fisher-Yates) */
 function shuffle<T>(arr: T[]): T[] {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -74,64 +158,56 @@ function shuffle<T>(arr: T[]): T[] {
   return arr;
 }
 
-/** Generate a fully solved valid board using backtracking with randomization */
+/** Generate a fully solved valid board using MRV-guided backtracking */
 function generateSolved(size: GridSize): Board {
   const board = emptyBoard(size);
 
-  function solve(pos: number): boolean {
-    if (pos === size * size) return true;
+  function solveInner(): boolean {
+    const choice = findBestEmptyCell(board);
+    if (choice === null) return true;
+    if (choice.candidates.length === 0) return false;
 
-    const row = Math.floor(pos / size);
-    const col = pos % size;
-    const nums = shuffle(Array.from({ length: size }, (_, i) => i + 1));
-
-    for (const num of nums) {
-      if (isValid(board, row, col, num)) {
-        board[row][col] = num;
-        if (solve(pos + 1)) return true;
-        board[row][col] = null;
-      }
+    for (const num of shuffle([...choice.candidates])) {
+      board[choice.row][choice.col] = num;
+      if (solveInner()) return true;
+      board[choice.row][choice.col] = null;
     }
 
     return false;
   }
 
-  solve(0);
+  if (!solveInner()) {
+    throw new Error(`Failed to generate solved ${size}×${size} Sudoku board`);
+  }
+
   return board;
 }
 
-/** Count the number of solutions (up to `limit`) using backtracking */
+/** Count the number of solutions (up to `limit`) using MRV-guided backtracking */
 function countSolutions(board: Board, limit: number = 2): number {
-  const size = board.length;
+  if (!hasValidShape(board) || hasConflictingGivens(board)) return 0;
+
   let count = 0;
 
-  function solve(pos: number): void {
+  function solveInner(): void {
     if (count >= limit) return;
 
-    // Find next empty cell starting from pos
-    while (pos < size * size && board[Math.floor(pos / size)][pos % size] !== null) {
-      pos++;
-    }
-
-    if (pos === size * size) {
+    const choice = findBestEmptyCell(board);
+    if (choice === null) {
       count++;
       return;
     }
+    if (choice.candidates.length === 0) return;
 
-    const row = Math.floor(pos / size);
-    const col = pos % size;
-
-    for (let num = 1; num <= size; num++) {
-      if (isValid(board, row, col, num)) {
-        board[row][col] = num;
-        solve(pos + 1);
-        board[row][col] = null;
-        if (count >= limit) return;
-      }
+    for (const num of choice.candidates) {
+      board[choice.row][choice.col] = num;
+      solveInner();
+      board[choice.row][choice.col] = null;
+      if (count >= limit) return;
     }
   }
 
-  solve(0);
+  solveInner();
   return count;
 }
 
@@ -141,7 +217,7 @@ function targetClues(size: GridSize, difficulty: Difficulty): number {
 
   // Proportional clue percentages
   const percentages: Record<GridSize, Record<Difficulty, number>> = {
-    4: { easy: 0.62, medium: 0.50, hard: 0.38 },
+    4: { easy: 0.62, medium: 0.5, hard: 0.38 },
     6: { easy: 0.55, medium: 0.44, hard: 0.34 },
     9: { easy: 0.45, medium: 0.33, hard: 0.25 },
   };
@@ -153,14 +229,12 @@ function targetClues(size: GridSize, difficulty: Difficulty): number {
 export function generate(size: GridSize, difficulty: Difficulty): PuzzleResult {
   const solution = generateSolved(size);
   const puzzle = cloneBoard(solution);
-  const sizeNum = size;
-  const totalCells = sizeNum * sizeNum;
+  const totalCells = size * size;
   const target = targetClues(size, difficulty);
   const toRemove = totalCells - target;
 
-  // Create list of all positions and shuffle
   const positions = shuffle(
-    Array.from({ length: totalCells }, (_, i) => [Math.floor(i / sizeNum), i % sizeNum])
+    Array.from({ length: totalCells }, (_, i) => [Math.floor(i / size), i % size] as const)
   );
 
   let removed = 0;
@@ -170,9 +244,7 @@ export function generate(size: GridSize, difficulty: Difficulty): PuzzleResult {
     const backup = puzzle[row][col];
     puzzle[row][col] = null;
 
-    // Check unique solvability
-    const testBoard = cloneBoard(puzzle);
-    if (countSolutions(testBoard, 2) === 1) {
+    if (countSolutions(cloneBoard(puzzle), 2) === 1) {
       removed++;
     } else {
       puzzle[row][col] = backup;
@@ -184,47 +256,13 @@ export function generate(size: GridSize, difficulty: Difficulty): PuzzleResult {
 
 /** Validate a completed board */
 export function validate(board: Board): boolean {
+  if (!hasValidShape(board) || hasConflictingGivens(board)) return false;
   const size = board.length;
 
-  // Check all cells are filled
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (board[r][c] === null) return false;
-    }
-  }
-
-  // Check rows
-  for (let r = 0; r < size; r++) {
-    const seen = new Set<number>();
-    for (let c = 0; c < size; c++) {
-      const val = board[r][c]!;
-      if (val < 1 || val > size || seen.has(val)) return false;
-      seen.add(val);
-    }
-  }
-
-  // Check columns
-  for (let c = 0; c < size; c++) {
-    const seen = new Set<number>();
-    for (let r = 0; r < size; r++) {
-      const val = board[r][c]!;
-      if (seen.has(val)) return false;
-      seen.add(val);
-    }
-  }
-
-  // Check boxes
-  const [boxRows, boxCols] = getBoxDims(size as GridSize);
-  for (let boxR = 0; boxR < size / boxRows; boxR++) {
-    for (let boxC = 0; boxC < size / boxCols; boxC++) {
-      const seen = new Set<number>();
-      for (let r = boxR * boxRows; r < (boxR + 1) * boxRows; r++) {
-        for (let c = boxC * boxCols; c < (boxC + 1) * boxCols; c++) {
-          const val = board[r][c]!;
-          if (seen.has(val)) return false;
-          seen.add(val);
-        }
-      }
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const value = board[row][col];
+      if (value === null || value < 1 || value > size) return false;
     }
   }
 
@@ -233,44 +271,24 @@ export function validate(board: Board): boolean {
 
 /** Solve a board (returns solution or null if unsolvable) */
 export function solve(board: Board): Board | null {
-  const size = board.length;
+  if (!hasValidShape(board)) return null;
+
   const result = cloneBoard(board);
+  if (hasConflictingGivens(result)) return null;
 
-  // Pre-validate: check that existing givens don't conflict
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      const val = result[r][c];
-      if (val !== null) {
-        // Temporarily remove the value to check if it's still valid
-        result[r][c] = null;
-        if (!isValid(result, r, c, val)) {
-          return null; // Conflicting givens
-        }
-        result[r][c] = val;
-      }
-    }
-  }
+  function solveInner(): boolean {
+    const choice = findBestEmptyCell(result);
+    if (choice === null) return true;
+    if (choice.candidates.length === 0) return false;
 
-  function solveInner(pos: number): boolean {
-    while (pos < size * size && result[Math.floor(pos / size)][pos % size] !== null) {
-      pos++;
-    }
-
-    if (pos === size * size) return true;
-
-    const row = Math.floor(pos / size);
-    const col = pos % size;
-
-    for (let num = 1; num <= size; num++) {
-      if (isValid(result, row, col, num)) {
-        result[row][col] = num;
-        if (solveInner(pos + 1)) return true;
-        result[row][col] = null;
-      }
+    for (const num of choice.candidates) {
+      result[choice.row][choice.col] = num;
+      if (solveInner()) return true;
+      result[choice.row][choice.col] = null;
     }
 
     return false;
   }
 
-  return solveInner(0) ? result : null;
+  return solveInner() ? result : null;
 }
