@@ -1,43 +1,73 @@
-# Astro Starter Kit: Minimal
+# Microbreak
 
-```sh
-bun create astro@latest -- --template minimal
+Short, non-addictive puzzle games for build wait times.
+
+Microbreak is a static Astro app with SolidJS islands and Tailwind CSS v4. The
+first shipped game is Sudoku, with support for 4×4, 6×6, and 9×9 boards.
+
+## Stack
+
+- Astro 6
+- SolidJS
+- Tailwind CSS v4
+- TypeScript (strict)
+- Bun
+- Vitest
+
+## Features
+
+- Static output (`output: "static"`)
+- Client-side Sudoku flow with setup screen before play
+- Hand-rolled Sudoku generator / solver / validator
+- Theme toggle that starts from system preference and then becomes manual
+- Local font hosting
+- Bun-first scripts and workflow
+
+## Commands
+
+```bash
+bun install
+bun run dev
+bun run type-check
+bun run test
+bun run build
+bun run verify
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## Project Structure
 
 ```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/
+├── components/
+│   ├── SudokuApp.tsx
+│   ├── SudokuBoard.tsx
+│   ├── SudokuSetup.tsx
+│   └── ...
+├── layouts/
+│   └── BaseLayout.astro
+├── lib/
+│   ├── sudoku.ts
+│   └── __tests__/
+├── pages/
+│   ├── index.astro
+│   └── sudoku.astro
+└── styles/
+    └── global.css
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Quality Gate
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Before pushing changes:
 
-Any static assets, like images, can be placed in the `public/` directory.
+```bash
+bun run verify
+```
 
-## 🧞 Commands
+This runs:
+- Astro type-checking
+- Vitest
+- Production build
 
-All commands are run from the root of the project, from a terminal:
+## License
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+MIT

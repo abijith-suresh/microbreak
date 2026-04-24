@@ -52,7 +52,7 @@ function MiniSudokuGrid() {
 
     const interval = setInterval(() => {
       if (idx >= 81) {
-        setVisibleCells(new Set());
+        setVisibleCells(new Set<number>());
         idx = 0;
         return;
       }
