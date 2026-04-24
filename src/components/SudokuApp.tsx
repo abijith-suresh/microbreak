@@ -14,6 +14,12 @@ function formatTimer(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+function sizeLabel(size: GridSize): string {
+  if (size === 4) return "4×4";
+  if (size === 6) return "6×6";
+  return "9×9";
+}
+
 export default function SudokuApp() {
   const [phase, setPhase] = createSignal<Phase>("setup");
   const [gridSize, setGridSize] = createSignal<GridSize>(9);
@@ -49,7 +55,6 @@ export default function SudokuApp() {
   }
 
   function handleRestart() {
-    // Go back to setup
     if (timerInterval) {
       clearInterval(timerInterval);
       timerInterval = null;
@@ -58,7 +63,6 @@ export default function SudokuApp() {
   }
 
   function handlePlayAgain() {
-    // Generate a new puzzle with same settings
     const size = gridSize();
     const diff = difficulty();
     const result = generate(size, diff);
@@ -80,7 +84,7 @@ export default function SudokuApp() {
   function setCellValue(row: number, col: number, value: Cell) {
     const puz = puzzle();
     if (!puz.length) return;
-    if (puz[row][col] !== null) return; // given cell — immutable
+    if (puz[row][col] !== null) return;
 
     const newBoard = userBoard().map((r) => [...r]);
     newBoard[row][col] = value;
@@ -193,12 +197,12 @@ export default function SudokuApp() {
   return (
     <div class="flex flex-col min-h-screen">
       {/* Top bar */}
-      <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
+      <div class="flex items-center justify-between px-5 py-3">
         <button
           onClick={handleRestart}
-          class="flex items-center gap-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+          class="flex items-center gap-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors duration-200"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="shrink-0">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
             <path
               d="M12.5 15L7.5 10L12.5 5"
               stroke="currentColor"
@@ -210,8 +214,12 @@ export default function SudokuApp() {
           <span class="text-sm font-medium hidden sm:inline">New Game</span>
         </button>
 
-        <div class="flex items-center gap-3">
-          <span class="text-sm font-mono text-[var(--color-text-secondary)] tabular-nums tracking-wider">
+        <div class="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
+          <span>{sizeLabel(size)}</span>
+          <span class="opacity-40">·</span>
+          <span class="capitalize">{difficulty()}</span>
+          <span class="opacity-40 mx-1">|</span>
+          <span class="font-mono tabular-nums tracking-wider text-[var(--color-text-secondary)]">
             {formatTimer(timerSeconds())}
           </span>
         </div>
@@ -219,17 +227,11 @@ export default function SudokuApp() {
         <ThemeToggle />
       </div>
 
-      {/* Game info bar */}
-      <div class="flex items-center justify-center gap-3 py-2 text-xs text-[var(--color-text-tertiary)]">
-        <span>
-          {size === 4 ? "4×4" : size === 6 ? "6×6" : "9×9"}
-        </span>
-        <span>·</span>
-        <span class="capitalize">{difficulty()}</span>
-      </div>
+      {/* Thin separator */}
+      <div class="h-px bg-[var(--color-border)]" />
 
       {/* Puzzle area */}
-      <div class="flex-1 flex flex-col items-center justify-center gap-6 py-4 px-4">
+      <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4">
         {puz.length > 0 ? (
           <>
             <SudokuBoard
@@ -248,11 +250,11 @@ export default function SudokuApp() {
         )}
       </div>
 
-      {/* Bottom bar — restart only */}
-      <div class="border-t border-[var(--color-border)] px-4 py-3 flex justify-center">
+      {/* Bottom bar */}
+      <div class="px-4 pb-5 flex justify-center">
         <button
           onClick={handleRestart}
-          class="px-5 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] active:scale-95"
+          class="px-5 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-tertiary)] transition-all duration-200 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] active:scale-95"
         >
           Restart
         </button>

@@ -1,5 +1,5 @@
-import { createSignal, createEffect, onCleanup } from "solid-js";
-import type { Cell, Board, GridSize } from "@/lib/sudoku";
+import { createEffect, onCleanup } from "solid-js";
+import type { Board, GridSize } from "@/lib/sudoku";
 
 interface Props {
   puzzle: Board;
@@ -8,6 +8,12 @@ interface Props {
   selectedCell: [number, number] | null;
   onSelectCell: (row: number, col: number) => void;
   userBoard: Board;
+}
+
+function getBoxDims(s: GridSize): [number, number] {
+  if (s === 4) return [2, 2];
+  if (s === 6) return [2, 3];
+  return [3, 3];
 }
 
 export default function SudokuBoard(props: Props) {
@@ -27,7 +33,6 @@ export default function SudokuBoard(props: Props) {
     if (!sel) return false;
     if (row === sel[0] || col === sel[1]) return true;
 
-    // Check same box
     const [boxRows, boxCols] = getBoxDims(size());
     const boxR = Math.floor(row / boxRows);
     const boxC = Math.floor(col / boxCols);
@@ -36,15 +41,21 @@ export default function SudokuBoard(props: Props) {
     return boxR === selBoxR && boxC === selBoxC;
   }
 
-  function getBoxDims(s: GridSize): [number, number] {
-    switch (s) {
-      case 4:
-        return [2, 2];
-      case 6:
-        return [2, 3];
-      case 9:
-        return [3, 3];
-    }
+  /** Check if a user-entered value conflicts with the solution */
+  function isError(row: number, col: number): boolean {
+    if (isGiven(row, col)) return false;
+    const val = props.userBoard[row][col];
+    if (val === null) return false;
+    return val !== props.solution[row][col];
+  }
+
+  /** Check if a cell has the same value as the selected cell */
+  function isSameValue(row: number, col: number): boolean {
+    const sel = props.selectedCell;
+    if (!sel) return false;
+    const selVal = props.userBoard[sel[0]][sel[1]];
+    if (selVal === null) return false;
+    return props.userBoard[row][col] === selVal && !(row === sel[0] && col === sel[1]);
   }
 
   // Keyboard navigation
@@ -84,13 +95,15 @@ export default function SudokuBoard(props: Props) {
         break;
       case "Escape":
         e.preventDefault();
-        props.onSelectCell(-1, -1); // deselect signal
+        props.onSelectCell(-1, -1);
         break;
       default: {
         const num = parseInt(e.key);
         if (num >= 1 && num <= size()) {
           e.preventDefault();
-          window.dispatchEvent(new CustomEvent("sudoku-number-input", { detail: { row, col, num } }));
+          window.dispatchEvent(
+            new CustomEvent("sudoku-number-input", { detail: { row, col, num } })
+          );
         }
         break;
       }
@@ -107,6 +120,7 @@ export default function SudokuBoard(props: Props) {
     const [boxRows, boxCols] = getBoxDims(size());
     const borders: string[] = [];
 
+    // Right border
     if (col === size() - 1) {
       borders.push("border-r-[2.5px]");
     } else if ((col + 1) % boxCols === 0) {
@@ -115,6 +129,7 @@ export default function SudokuBoard(props: Props) {
       borders.push("border-r");
     }
 
+    // Bottom border
     if (row === size() - 1) {
       borders.push("border-b-[2.5px]");
     } else if ((row + 1) % boxRows === 0) {
@@ -123,6 +138,7 @@ export default function SudokuBoard(props: Props) {
       borders.push("border-b");
     }
 
+    // Top/left outer edges
     if (row === 0) borders.push("border-t-[2.5px]");
     if (col === 0) borders.push("border-l-[2.5px]");
 
@@ -130,25 +146,15 @@ export default function SudokuBoard(props: Props) {
   }
 
   function fontSize(): string {
-    switch (size()) {
-      case 4:
-        return "text-3xl md:text-4xl";
-      case 6:
-        return "text-2xl md:text-3xl";
-      case 9:
-        return "text-lg md:text-xl";
-    }
+    if (size() === 4) return "text-3xl md:text-4xl";
+    if (size() === 6) return "text-2xl md:text-3xl";
+    return "text-lg md:text-xl";
   }
 
   function cellSize(): string {
-    switch (size()) {
-      case 4:
-        return "w-16 h-16 md:w-20 md:h-20";
-      case 6:
-        return "w-13 h-13 md:w-16 md:h-16";
-      case 9:
-        return "w-9 h-9 md:w-12 md:h-12";
-    }
+    if (size() === 4) return "w-16 h-16 md:w-20 md:h-20";
+    if (size() === 6) return "w-13 h-13 md:w-16 md:h-16";
+    return "w-9 h-9 md:w-12 md:h-12";
   }
 
   return (
@@ -159,18 +165,37 @@ export default function SudokuBoard(props: Props) {
       }}
     >
       {Array.from({ length: size() }, (_, row) =>
-        Array.from({ length: size() }, (_, col) => (
-          <button
-            class={`sudoku-cell ${cellSize()} ${fontSize()} border-[var(--color-border)] ${cellBorderStyle(row, col)} 
-              ${isGiven(row, col) ? "given bg-[var(--color-surface)]" : "user bg-[var(--color-bg)]"}
-              ${isSelected(row, col) ? "selected" : ""}
-              ${isHighlighted(row, col) && !isSelected(row, col) ? "highlighted" : ""}
-              transition-colors duration-75 focus:outline-none cursor-pointer hover:bg-[var(--color-surface-hover)]`}
-            onClick={() => props.onSelectCell(row, col)}
-          >
-            {props.userBoard[row][col]}
-          </button>
-        ))
+        Array.from({ length: size() }, (_, col) => {
+          const selected = isSelected(row, col);
+          const highlighted = isHighlighted(row, col) && !selected;
+          const given = isGiven(row, col);
+          const error = isError(row, col);
+          const sameValue = isSameValue(row, col);
+
+          return (
+            <button
+              class={[
+                "sudoku-cell",
+                cellSize(),
+                fontSize(),
+                cellBorderStyle(row, col),
+                "border-[var(--color-border)]",
+                given ? "given bg-[var(--color-surface)]" : "user bg-[var(--color-bg)]",
+                selected ? "selected" : "",
+                highlighted ? "highlighted" : "",
+                sameValue && !selected ? "same-value" : "",
+                error ? "error" : "",
+                "transition-colors duration-75 focus:outline-none cursor-pointer",
+                "hover:bg-[var(--color-surface-hover)]",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={() => props.onSelectCell(row, col)}
+            >
+              {props.userBoard[row][col]}
+            </button>
+          );
+        })
       )}
     </div>
   );

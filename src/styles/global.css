@@ -134,6 +134,15 @@ body {
   background-color: var(--color-highlight);
 }
 
+.sudoku-cell.same-value {
+  background-color: var(--color-accent-subtle);
+}
+
+.sudoku-cell.error {
+  color: var(--color-error) !important;
+  background-color: rgba(196, 62, 62, 0.06) !important;
+}
+
 /* ─── Animations ─── */
 @keyframes fadeIn {
   from {
