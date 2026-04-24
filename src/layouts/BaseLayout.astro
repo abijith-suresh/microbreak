@@ -29,15 +29,15 @@ const {
         if (stored === "light" || stored === "dark") {
           theme = stored;
         } else {
-          theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         }
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
   </head>
-  <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] font-body antialiased">
+  <body
+    class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] font-body antialiased"
+  >
     <slot />
   </body>
 </html>

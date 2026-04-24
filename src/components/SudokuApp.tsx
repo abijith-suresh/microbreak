@@ -1,5 +1,12 @@
 import { batch, createSignal, onMount, onCleanup, Show } from "solid-js";
-import { generate, validate, type Board, type Cell, type Difficulty, type GridSize } from "@/lib/sudoku";
+import {
+  generate,
+  validate,
+  type Board,
+  type Cell,
+  type Difficulty,
+  type GridSize,
+} from "@/lib/sudoku";
 import SudokuBoard from "./SudokuBoard";
 import SudokuSetup from "./SudokuSetup";
 import NumberPad from "./NumberPad";
@@ -34,7 +41,7 @@ export default function SudokuApp() {
   const [completed, setCompleted] = createSignal(false);
 
   let timerInterval: ReturnType<typeof setInterval> | null = null;
-  let pendingGeneration: ReturnType<typeof setTimeout> | null = null;
+  let pendingGeneration: number | null = null;
   let hasStartedFilling = false;
 
   function resetProgress() {
@@ -220,73 +227,75 @@ export default function SudokuApp() {
       {/* ── Playing Phase ────────────────────────────────────────── */}
       <Show when={phase() === "playing" && !completed()}>
         <div class="flex flex-col min-h-screen">
-            {/* Top bar */}
-            <div class="flex items-center justify-between px-5 py-3">
-              <button
-                onClick={handleRestart}
-                class="flex items-center gap-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors duration-200"
-              >
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
-                  <path
-                    d="M12.5 15L7.5 10L12.5 5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                <span class="text-sm font-medium hidden sm:inline">New Game</span>
-              </button>
-
-              <div class="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
-                <span>{sizeLabel(gridSize())}</span>
-                <span class="opacity-40">·</span>
-                <span class="capitalize">{difficulty()}</span>
-                <span class="opacity-40 mx-1">|</span>
-                <span class="font-mono tabular-nums tracking-wider text-[var(--color-text-secondary)]">
-                  {formatTimer(timerSeconds())}
-                </span>
-              </div>
-
-              <ThemeToggle />
-            </div>
-
-            {/* Thin separator */}
-            <div class="h-px bg-[var(--color-border)]" />
-
-            {/* Puzzle area */}
-            <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4">
-              <Show
-                when={
-                  puzzle().length === gridSize() &&
-                  solution().length === gridSize() &&
-                  userBoard().length === gridSize()
-                }
-                fallback={<div class="text-[var(--color-text-tertiary)] text-sm">Loading puzzle…</div>}
-              >
-                <SudokuBoard
-                  puzzle={puzzle()}
-                  solution={solution()}
-                  size={gridSize()}
-                  selectedCell={selectedCell()}
-                  onSelectCell={handleSelectCell}
-                  userBoard={userBoard()}
+          {/* Top bar */}
+          <div class="flex items-center justify-between px-5 py-3">
+            <button
+              onClick={handleRestart}
+              class="flex items-center gap-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] transition-colors duration-200"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
+                <path
+                  d="M12.5 15L7.5 10L12.5 5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                 />
+              </svg>
+              <span class="text-sm font-medium hidden sm:inline">New Game</span>
+            </button>
 
-                <NumberPad size={gridSize()} onNumber={handleNumber} onErase={handleErase} />
-              </Show>
+            <div class="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
+              <span>{sizeLabel(gridSize())}</span>
+              <span class="opacity-40">·</span>
+              <span class="capitalize">{difficulty()}</span>
+              <span class="opacity-40 mx-1">|</span>
+              <span class="font-mono tabular-nums tracking-wider text-[var(--color-text-secondary)]">
+                {formatTimer(timerSeconds())}
+              </span>
             </div>
 
-            {/* Bottom bar */}
-            <div class="px-4 pb-5 flex justify-center">
-              <button
-                onClick={handleRestart}
-                class="px-5 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-tertiary)] transition-all duration-200 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] active:scale-95"
-              >
-                Restart
-              </button>
-            </div>
+            <ThemeToggle />
           </div>
+
+          {/* Thin separator */}
+          <div class="h-px bg-[var(--color-border)]" />
+
+          {/* Puzzle area */}
+          <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4">
+            <Show
+              when={
+                puzzle().length === gridSize() &&
+                solution().length === gridSize() &&
+                userBoard().length === gridSize()
+              }
+              fallback={
+                <div class="text-[var(--color-text-tertiary)] text-sm">Loading puzzle…</div>
+              }
+            >
+              <SudokuBoard
+                puzzle={puzzle()}
+                solution={solution()}
+                size={gridSize()}
+                selectedCell={selectedCell()}
+                onSelectCell={handleSelectCell}
+                userBoard={userBoard()}
+              />
+
+              <NumberPad size={gridSize()} onNumber={handleNumber} onErase={handleErase} />
+            </Show>
+          </div>
+
+          {/* Bottom bar */}
+          <div class="px-4 pb-5 flex justify-center">
+            <button
+              onClick={handleRestart}
+              class="px-5 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-tertiary)] transition-all duration-200 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] active:scale-95"
+            >
+              Restart
+            </button>
+          </div>
+        </div>
       </Show>
     </>
   );
