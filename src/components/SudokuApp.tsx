@@ -31,6 +31,7 @@ function formatTimer(seconds: number): string {
 export default function SudokuApp() {
   const [gridSize, setGridSize] = createSignal<GridSize>(9);
   const [difficulty, setDifficulty] = createSignal<Difficulty>("medium");
+  const [loaded, setLoaded] = createSignal(false);
 
   const [puzzle, setPuzzle] = createSignal<Board>([]);
   const [solution, setSolution] = createSignal<Board>([]);
@@ -173,6 +174,7 @@ export default function SudokuApp() {
     setGridSize(storedSize);
     setDifficulty(storedDiff);
     newPuzzle(storedSize, storedDiff);
+    setLoaded(true);
 
     document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("sudoku-number-input", handleSudokuNumberInput);
@@ -180,6 +182,7 @@ export default function SudokuApp() {
   });
 
   onCleanup(() => {
+    if (typeof window === "undefined") return;
     document.removeEventListener("visibilitychange", handleVisibility);
     window.removeEventListener("sudoku-number-input", handleSudokuNumberInput);
     window.removeEventListener("sudoku-erase", handleSudokuErase);
@@ -235,16 +238,22 @@ export default function SudokuApp() {
 
           {/* Puzzle area */}
           <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4">
-            <SudokuBoard
-              puzzle={puzzle()}
-              solution={solution()}
-              size={gridSize()}
-              selectedCell={selectedCell()}
-              onSelectCell={handleSelectCell}
-              userBoard={userBoard()}
-            />
+            {loaded() && puzzle().length > 0 ? (
+              <>
+                <SudokuBoard
+                  puzzle={puzzle()}
+                  solution={solution()}
+                  size={gridSize()}
+                  selectedCell={selectedCell()}
+                  onSelectCell={handleSelectCell}
+                  userBoard={userBoard()}
+                />
 
-            <NumberPad size={gridSize()} onNumber={handleNumber} onErase={handleErase} />
+                <NumberPad size={gridSize()} onNumber={handleNumber} onErase={handleErase} />
+              </>
+            ) : (
+              <div class="text-[var(--color-text-tertiary)] text-sm">Loading puzzle…</div>
+            )}
           </div>
 
           {/* Bottom bar */}

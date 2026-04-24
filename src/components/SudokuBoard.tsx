@@ -98,6 +98,7 @@ export default function SudokuBoard(props: Props) {
   }
 
   createEffect(() => {
+    if (typeof window === "undefined") return;
     window.addEventListener("keydown", handleKeyDown);
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });
