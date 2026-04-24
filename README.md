@@ -13,6 +13,7 @@ first shipped game is Sudoku, with support for 4×4, 6×6, and 9×9 boards.
 - TypeScript (strict)
 - Bun
 - Vitest
+- ESLint + Prettier + Husky
 
 ## Features
 
@@ -29,6 +30,8 @@ first shipped game is Sudoku, with support for 4×4, 6×6, and 9×9 boards.
 bun install
 bun run dev
 bun run type-check
+bun run lint
+bun run format:check
 bun run test
 bun run build
 bun run verify
@@ -64,9 +67,20 @@ bun run verify
 ```
 
 This runs:
+
 - Astro type-checking
+- ESLint
+- Prettier check
 - Vitest
 - Production build
+
+## Git Hooks
+
+Local hooks are managed with Husky:
+
+- `pre-commit`: runs `lint-staged`
+- `commit-msg`: validates Conventional Commits with `commitlint`
+- `pre-push`: runs `bun run verify`
 
 ## License
 

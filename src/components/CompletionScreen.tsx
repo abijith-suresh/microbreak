@@ -46,7 +46,7 @@ export default function CompletionScreen(props: Props) {
     <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--color-bg)]">
       {/* Checkmark */}
       <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
-        <svg ref={svgRef} width="80" height="80" viewBox="0 0 96 96" fill="none">
+        <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
           <circle
             class="checkmark-circle"
             cx="48"
@@ -89,7 +89,8 @@ export default function CompletionScreen(props: Props) {
         class="mt-1 text-xs text-[var(--color-text-tertiary)] tracking-wide"
         style={{ animation: "fadeIn 0.5s ease-out 0.5s both" }}
       >
-        {sizeLabel(props.gridSize)} · {props.difficulty.charAt(0).toUpperCase() + props.difficulty.slice(1)}
+        {sizeLabel(props.gridSize)} ·{" "}
+        {props.difficulty.charAt(0).toUpperCase() + props.difficulty.slice(1)}
       </p>
 
       {/* Actions */}

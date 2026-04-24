@@ -69,7 +69,7 @@ export default function SudokuBoard(props: Props) {
       return;
     }
 
-    let [row, col] = sel;
+    const [row, col] = sel;
 
     switch (e.key) {
       case "ArrowUp":
