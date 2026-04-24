@@ -160,9 +160,9 @@ export default function SudokuApp() {
   // Visibility-based pause
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
-      setTimerRunning(false);
+      stopTimer();
     } else if (hasStartedFilling && !completed()) {
-      setTimerRunning(true);
+      startTimer();
     }
   }
 
