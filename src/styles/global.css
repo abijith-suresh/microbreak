@@ -115,7 +115,10 @@ body {
   font-family: var(--font-body);
   font-weight: 500;
   user-select: none;
-  transition: background-color 0.1s ease;
+  position: relative;
+  transition:
+    background-color 0.15s ease-out,
+    border-color 0.2s ease-out;
 }
 
 .sudoku-cell.given {
@@ -132,17 +135,25 @@ body {
   background-color: var(--color-selected) !important;
 }
 
-.sudoku-cell.highlighted {
-  background-color: var(--color-highlight);
-}
-
-.sudoku-cell.same-value {
-  background-color: var(--color-accent-subtle);
+@keyframes errorAppear {
+  0% {
+    border-color: var(--color-border);
+  }
+  40% {
+    border-color: var(--color-error);
+  }
+  100% {
+    border-color: var(--color-error);
+  }
 }
 
 .sudoku-cell.error {
   color: var(--color-error) !important;
-  background-color: rgba(196, 62, 62, 0.06) !important;
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-color: var(--color-error) !important;
+  animation: errorAppear 0.2s ease-out;
+  z-index: 1;
 }
 
 /* ─── Animations ─── */
@@ -186,6 +197,25 @@ body {
     transform: scale(2.5);
     opacity: 0;
   }
+}
+
+@keyframes completionWave {
+  0% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+  40% {
+    background-color: color-mix(in srgb, var(--color-accent) 18%, var(--color-success));
+    transform: scale(1.03);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.sudoku-cell.completing {
+  animation: completionWave 0.5s ease-out forwards;
 }
 
 @keyframes mini-fill {
