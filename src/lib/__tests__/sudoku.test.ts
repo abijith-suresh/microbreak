@@ -5,7 +5,16 @@
  * for 4×4, 6×6, and 9×9 grids at all difficulty levels.
  */
 import { describe, it, expect } from "vitest";
-import { generate, validate, solve, type Board, type GridSize, type Difficulty } from "../sudoku";
+import {
+  generate,
+  validate,
+  solve,
+  getConflictingCells,
+  isGroupComplete,
+  type Board,
+  type GridSize,
+  type Difficulty,
+} from "../sudoku";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -507,5 +516,165 @@ describe("edge cases", () => {
       expect(validate(solution)).toBe(true);
       expect(cluesMatchSolution(puzzle, solution)).toBe(true);
     }
+  });
+});
+
+// ─── Conflict Detection Tests ────────────────────────────────────────────
+
+describe("getConflictingCells", () => {
+  it("should return empty set for a valid solved board", () => {
+    const { solution } = generate(9, "easy");
+    const conflicts = getConflictingCells(solution);
+    expect(conflicts.size).toBe(0);
+  });
+
+  it("should detect a row conflict", () => {
+    const { solution } = generate(9, "easy");
+    const board = solution.map((r) => [...r]);
+    // Create a duplicate in row 0
+    board[0][1] = board[0][0];
+    const conflicts = getConflictingCells(board);
+    expect(conflicts.has("0,0")).toBe(true);
+    expect(conflicts.has("0,1")).toBe(true);
+    expect(conflicts.size).toBeGreaterThanOrEqual(2);
+  });
+
+  it("should detect a column conflict", () => {
+    const { solution } = generate(9, "easy");
+    const board = solution.map((r) => [...r]);
+    // Create a duplicate in column 0
+    board[1][0] = board[0][0];
+    const conflicts = getConflictingCells(board);
+    expect(conflicts.has("0,0")).toBe(true);
+    expect(conflicts.has("1,0")).toBe(true);
+    expect(conflicts.size).toBeGreaterThanOrEqual(2);
+  });
+
+  it("should detect a box conflict", () => {
+    const board: Board = [
+      [1, 2, 3, 4],
+      [3, 4, 1, 2],
+      [2, 1, 4, 3],
+      [4, 3, 2, 1],
+    ];
+    // Force a box conflict: (0,0)=1 and make (1,1)=1
+    board[1][1] = 1;
+    const conflicts = getConflictingCells(board);
+    expect(conflicts.has("0,0")).toBe(true);
+    expect(conflicts.has("1,1")).toBe(true);
+  });
+
+  it("should ignore null cells", () => {
+    const board: Board = [
+      [1, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
+    const conflicts = getConflictingCells(board);
+    expect(conflicts.size).toBe(0);
+  });
+
+  it("should detect multiple independent conflicts", () => {
+    const board: Board = [
+      [1, 1, null, null],
+      [null, null, 2, 2],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
+    const conflicts = getConflictingCells(board);
+    // Row 0: 1,1 conflict
+    expect(conflicts.has("0,0")).toBe(true);
+    expect(conflicts.has("0,1")).toBe(true);
+    // Row 1: 2,2 conflict
+    expect(conflicts.has("1,2")).toBe(true);
+    expect(conflicts.has("1,3")).toBe(true);
+  });
+
+  it("should work for 6×6 boards", () => {
+    const { solution } = generate(6, "easy");
+    const board = solution.map((r) => [...r]);
+    board[0][1] = board[0][0]; // row conflict
+    const conflicts = getConflictingCells(board);
+    expect(conflicts.size).toBeGreaterThan(0);
+    expect(conflicts.has("0,0")).toBe(true);
+    expect(conflicts.has("0,1")).toBe(true);
+  });
+});
+
+// ─── Group Completion Tests ──────────────────────────────────────────────
+
+describe("isGroupComplete", () => {
+  it("should return true for a complete row in a solved board", () => {
+    const { solution } = generate(9, "easy");
+    for (let r = 0; r < 9; r++) {
+      expect(isGroupComplete(solution, "row", r)).toBe(true);
+    }
+  });
+
+  it("should return true for a complete column in a solved board", () => {
+    const { solution } = generate(9, "easy");
+    for (let c = 0; c < 9; c++) {
+      expect(isGroupComplete(solution, "col", c)).toBe(true);
+    }
+  });
+
+  it("should return true for a complete box in a solved board", () => {
+    const { solution } = generate(9, "easy");
+    for (let i = 0; i < 9; i++) {
+      expect(isGroupComplete(solution, "box", i)).toBe(true);
+    }
+  });
+
+  it("should return false for a row with a null cell", () => {
+    const { solution } = generate(9, "easy");
+    const board = solution.map((r) => [...r]);
+    board[0][0] = null;
+    expect(isGroupComplete(board, "row", 0)).toBe(false);
+  });
+
+  it("should return false for a row with a duplicate", () => {
+    const { solution } = generate(9, "easy");
+    const board = solution.map((r) => [...r]);
+    board[0][1] = board[0][0]; // duplicate in row 0
+    expect(isGroupComplete(board, "row", 0)).toBe(false);
+  });
+
+  it("should return false for a column with a null cell", () => {
+    const { solution } = generate(9, "easy");
+    const board = solution.map((r) => [...r]);
+    board[0][0] = null;
+    expect(isGroupComplete(board, "col", 0)).toBe(false);
+  });
+
+  it("should work for 4×4 boards", () => {
+    const { solution } = generate(4, "easy");
+    expect(isGroupComplete(solution, "row", 0)).toBe(true);
+    expect(isGroupComplete(solution, "col", 0)).toBe(true);
+    expect(isGroupComplete(solution, "box", 0)).toBe(true);
+    expect(isGroupComplete(solution, "box", 3)).toBe(true);
+  });
+
+  it("should work for 6×6 boards", () => {
+    const { solution } = generate(6, "easy");
+    expect(isGroupComplete(solution, "row", 0)).toBe(true);
+    expect(isGroupComplete(solution, "col", 0)).toBe(true);
+    expect(isGroupComplete(solution, "box", 0)).toBe(true);
+    expect(isGroupComplete(solution, "box", 5)).toBe(true);
+  });
+
+  it("should detect an incomplete box", () => {
+    const { solution } = generate(9, "easy");
+    const board = solution.map((r) => [...r]);
+    board[0][0] = null; // top-left box
+    expect(isGroupComplete(board, "box", 0)).toBe(false);
+  });
+
+  it("should detect a duplicate in a box", () => {
+    const { solution } = generate(9, "easy");
+    const board = solution.map((r) => [...r]);
+    // Force a duplicate in box 0 (rows 0-2, cols 0-2)
+    board[1][1] = board[0][0];
+    expect(isGroupComplete(board, "box", 0)).toBe(false);
   });
 });

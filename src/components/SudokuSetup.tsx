@@ -75,7 +75,7 @@ export default function SudokuSetup(props: Props) {
                     selectedSize() === s.value
                       ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]"
                       : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)]"
-                  }`}
+                  } active:scale-[0.97]`}
                 >
                   <span
                     class={`text-lg font-bold leading-none transition-colors duration-200 ${
@@ -122,7 +122,7 @@ export default function SudokuSetup(props: Props) {
                     selectedDifficulty() === d.value
                       ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]"
                       : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)]"
-                  }`}
+                  } active:scale-[0.97]`}
                 >
                   <span
                     class={`text-sm font-bold leading-none transition-colors duration-200 ${

@@ -8,6 +8,9 @@ interface Props {
   selectedCell: [number, number] | null;
   onSelectCell: (row: number, col: number) => void;
   userBoard: Board;
+  conflictedCells: Set<string>;
+  completing: boolean;
+  completionOrigin: [number, number] | null;
 }
 
 function getBoxDims(s: GridSize): [number, number] {
@@ -26,36 +29,6 @@ export default function SudokuBoard(props: Props) {
   function isSelected(row: number, col: number): boolean {
     const sel = props.selectedCell;
     return sel !== null && sel[0] === row && sel[1] === col;
-  }
-
-  function isHighlighted(row: number, col: number): boolean {
-    const sel = props.selectedCell;
-    if (!sel) return false;
-    if (row === sel[0] || col === sel[1]) return true;
-
-    const [boxRows, boxCols] = getBoxDims(size());
-    const boxR = Math.floor(row / boxRows);
-    const boxC = Math.floor(col / boxCols);
-    const selBoxR = Math.floor(sel[0] / boxRows);
-    const selBoxC = Math.floor(sel[1] / boxCols);
-    return boxR === selBoxR && boxC === selBoxC;
-  }
-
-  /** Check if a user-entered value conflicts with the solution */
-  function isError(row: number, col: number): boolean {
-    if (isGiven(row, col)) return false;
-    const val = props.userBoard[row][col];
-    if (val === null) return false;
-    return val !== props.solution[row][col];
-  }
-
-  /** Check if a cell has the same value as the selected cell */
-  function isSameValue(row: number, col: number): boolean {
-    const sel = props.selectedCell;
-    if (!sel) return false;
-    const selVal = props.userBoard[sel[0]][sel[1]];
-    if (selVal === null) return false;
-    return props.userBoard[row][col] === selVal && !(row === sel[0] && col === sel[1]);
   }
 
   // Keyboard navigation
@@ -167,10 +140,13 @@ export default function SudokuBoard(props: Props) {
       {Array.from({ length: size() }, (_, row) =>
         Array.from({ length: size() }, (_, col) => {
           const selected = isSelected(row, col);
-          const highlighted = isHighlighted(row, col) && !selected;
           const given = isGiven(row, col);
-          const error = isError(row, col);
-          const sameValue = isSameValue(row, col);
+          const conflicted = props.conflictedCells.has(`${row},${col}`);
+
+          // Board completion: calculate Manhattan distance for staggered animation
+          const origin = props.completionOrigin;
+          const staggerDelay =
+            props.completing && origin ? Math.abs(row - origin[0]) + Math.abs(col - origin[1]) : 0;
 
           return (
             <button
@@ -182,14 +158,14 @@ export default function SudokuBoard(props: Props) {
                 "border-[var(--color-border)]",
                 given ? "given bg-[var(--color-surface)]" : "user bg-[var(--color-bg)]",
                 selected ? "selected" : "",
-                highlighted ? "highlighted" : "",
-                sameValue && !selected ? "same-value" : "",
-                error ? "error" : "",
-                "transition-colors duration-75 focus:outline-none cursor-pointer",
+                conflicted ? "error" : "",
+                props.completing ? "completing" : "",
+                "focus:outline-none cursor-pointer",
                 "hover:bg-[var(--color-surface-hover)]",
               ]
                 .filter(Boolean)
                 .join(" ")}
+              style={props.completing ? { "animation-delay": `${staggerDelay * 50}ms` } : undefined}
               onClick={() => props.onSelectCell(row, col)}
             >
               {props.userBoard[row][col]}

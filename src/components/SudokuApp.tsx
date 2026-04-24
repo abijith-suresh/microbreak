@@ -2,6 +2,7 @@ import { batch, createSignal, onMount, onCleanup, Show } from "solid-js";
 import {
   generate,
   validate,
+  getConflictingCells,
   type Board,
   type Cell,
   type Difficulty,
@@ -39,6 +40,9 @@ export default function SudokuApp() {
   const [selectedCell, setSelectedCell] = createSignal<[number, number] | null>(null);
   const [timerSeconds, setTimerSeconds] = createSignal(0);
   const [completed, setCompleted] = createSignal(false);
+  const [completing, setCompleting] = createSignal(false);
+  const [completionOrigin, setCompletionOrigin] = createSignal<[number, number] | null>(null);
+  const [conflictedCells, setConflictedCells] = createSignal<Set<string>>(new Set<string>());
 
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let pendingGeneration: number | null = null;
@@ -51,6 +55,9 @@ export default function SudokuApp() {
       setSelectedCell(null);
       setTimerSeconds(0);
       setCompleted(false);
+      setCompleting(false);
+      setCompletionOrigin(null);
+      setConflictedCells(new Set<string>());
     });
   }
 
@@ -114,6 +121,11 @@ export default function SudokuApp() {
     setSelectedCell(row === -1 ? null : [row, col]);
   }
 
+  /** Update conflicted cells set based on the current board */
+  function updateConflicts(board: Board) {
+    setConflictedCells(getConflictingCells(board));
+  }
+
   function setCellValue(row: number, col: number, value: Cell) {
     const puz = puzzle();
     if (!puz.length) return;
@@ -128,9 +140,18 @@ export default function SudokuApp() {
       startTimer();
     }
 
+    // Update constraint-based conflict detection
+    updateConflicts(newBoard);
+
+    // Check for full board completion
     if (value !== null && isBoardFull(newBoard) && validate(newBoard)) {
       stopTimer();
-      setCompleted(true);
+      setCompletionOrigin([row, col]);
+      setCompleting(true);
+      // Delay CompletionScreen to let the board animation play
+      setTimeout(() => {
+        setCompleted(true);
+      }, 900);
     }
   }
 
@@ -280,6 +301,9 @@ export default function SudokuApp() {
                 selectedCell={selectedCell()}
                 onSelectCell={handleSelectCell}
                 userBoard={userBoard()}
+                conflictedCells={conflictedCells()}
+                completing={completing()}
+                completionOrigin={completionOrigin()}
               />
 
               <NumberPad size={gridSize()} onNumber={handleNumber} onErase={handleErase} />
