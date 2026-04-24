@@ -5,12 +5,10 @@ import SudokuControls from "./SudokuControls";
 import NumberPad from "./NumberPad";
 import CompletionScreen from "./CompletionScreen";
 
-const THEME_KEY = "microbreak-theme";
 const SIZE_KEY = "microbreak-grid-size";
 const DIFF_KEY = "microbreak-difficulty";
 
 function getStoredSize(): GridSize {
-  if (typeof window === "undefined") return 9;
   const val = localStorage.getItem(SIZE_KEY);
   if (val === "4") return 4;
   if (val === "6") return 6;
@@ -18,7 +16,6 @@ function getStoredSize(): GridSize {
 }
 
 function getStoredDifficulty(): Difficulty {
-  if (typeof window === "undefined") return "medium";
   const val = localStorage.getItem(DIFF_KEY);
   if (val === "easy" || val === "medium" || val === "hard") return val;
   return "medium";
@@ -31,13 +28,14 @@ function formatTimer(seconds: number): string {
 }
 
 export default function SudokuApp() {
-  const [gridSize, setGridSize] = createSignal<GridSize>(getStoredSize());
-  const [difficulty, setDifficulty] = createSignal<Difficulty>(getStoredDifficulty());
+  const [gridSize, setGridSize] = createSignal<GridSize>(9);
+  const [difficulty, setDifficulty] = createSignal<Difficulty>("medium");
 
-  const initialPuzzle = generate(getStoredSize(), getStoredDifficulty());
-  const [puzzle, setPuzzle] = createSignal<Board>(initialPuzzle.puzzle);
-  const [solution, setSolution] = createSignal<Board>(initialPuzzle.solution);
+  const [puzzle, setPuzzle] = createSignal<Board>([]);
+  const [solution, setSolution] = createSignal<Board>([]);
+  const [userBoard, setUserBoard] = createSignal<Board>([]);
 
+  const [selectedCell, setSelectedCell] = createSignal<[number, number] | null>(null);
   const [timerSeconds, setTimerSeconds] = createSignal(0);
   const [timerRunning, setTimerRunning] = createSignal(false);
   const [completed, setCompleted] = createSignal(false);
@@ -51,11 +49,61 @@ export default function SudokuApp() {
     const result = generate(s, d);
     setPuzzle(result.puzzle);
     setSolution(result.solution);
+    setUserBoard(result.puzzle.map((row) => [...row]));
+    setSelectedCell(null);
     setTimerSeconds(0);
     setTimerRunning(false);
     setCompleted(false);
     hasStartedFilling = false;
-    clearInterval(timerInterval);
+    if (timerInterval) clearInterval(timerInterval);
+  }
+
+  function handleSelectCell(row: number, col: number) {
+    if (row === -1 && col === -1) {
+      setSelectedCell(null);
+    } else {
+      setSelectedCell([row, col]);
+    }
+  }
+
+  function setCellValue(row: number, col: number, value: Cell) {
+    const puz = puzzle();
+    if (!puz.length) return;
+    if (puz[row][col] !== null) return; // given cell
+
+    const newBoard = userBoard().map((r) => [...r]);
+    newBoard[row][col] = value;
+    setUserBoard(newBoard);
+
+    if (!hasStartedFilling && value !== null) {
+      hasStartedFilling = true;
+      startTimer();
+    }
+
+    // Check completion
+    if (value !== null && isBoardFull(newBoard) && validate(newBoard)) {
+      stopTimer();
+      setCompleted(true);
+    }
+  }
+
+  function isBoardFull(board: Board): boolean {
+    const s = gridSize();
+    for (let r = 0; r < s; r++) {
+      for (let c = 0; c < s; c++) {
+        if (board[r][c] === null) return false;
+      }
+    }
+    return true;
+  }
+
+  function startTimer() {
+    setTimerRunning(true);
+  }
+
+  function stopTimer() {
+    setTimerRunning(false);
+    if (timerInterval) clearInterval(timerInterval);
   }
 
   function handleSizeChange(newSize: GridSize) {
@@ -70,55 +118,43 @@ export default function SudokuApp() {
     newPuzzle(undefined, newDiff);
   }
 
-  function handleCellChange(row: number, col: number, value: Cell) {
-    if (!hasStartedFilling && value !== null) {
-      hasStartedFilling = true;
-      setTimerRunning(true);
+  function handleNumber(num: number) {
+    const sel = selectedCell();
+    if (!sel) return;
+    setCellValue(sel[0], sel[1], num);
+  }
+
+  function handleErase() {
+    const sel = selectedCell();
+    if (!sel) return;
+    setCellValue(sel[0], sel[1], null);
+  }
+
+  // Listen for keyboard number inputs from SudokuBoard
+  function handleSudokuNumberInput(e: Event) {
+    const detail = (e as CustomEvent).detail;
+    if (detail) {
+      setCellValue(detail.row, detail.col, detail.num);
     }
   }
 
-  function handleComplete() {
-    // Validate the current board
-    const board = getCurrentBoard();
-    if (validate(board)) {
-      setTimerRunning(false);
-      clearInterval(timerInterval);
-      setCompleted(true);
-    }
-  }
-
-  function getCurrentBoard(): Board {
-    // Access the user board from SudokuBoard via DOM
-    // We'll reconstruct from the rendered cells
-    const s = gridSize();
-    const board: Board = Array.from({ length: s }, () => Array(s).fill(null));
-    const gridEl = document.querySelector("[data-sudoku-board]");
-    if (!gridEl) return board;
-
-    const cells = gridEl.querySelectorAll(".sudoku-cell");
-    cells.forEach((cell, idx) => {
-      const r = Math.floor(idx / s);
-      const c = idx % s;
-      const val = cell.textContent?.trim();
-      board[r][c] = val ? parseInt(val) : null;
-    });
-    return board;
-  }
-
-  // Timer logic
+  // Timer interval
   createEffect(() => {
     if (timerRunning()) {
       timerInterval = setInterval(() => {
         setTimerSeconds((t) => t + 1);
       }, 1000);
     } else {
-      clearInterval(timerInterval);
+      if (timerInterval) clearInterval(timerInterval);
     }
+
+    onCleanup(() => {
+      if (timerInterval) clearInterval(timerInterval);
+    });
   });
 
   // Visibility-based pause
   function handleVisibility() {
-    if (typeof document === "undefined") return;
     if (document.visibilityState === "hidden") {
       setTimerRunning(false);
     } else if (hasStartedFilling && !completed()) {
@@ -127,44 +163,22 @@ export default function SudokuApp() {
   }
 
   onMount(() => {
+    // Load stored preferences
+    const storedSize = getStoredSize();
+    const storedDiff = getStoredDifficulty();
+    setGridSize(storedSize);
+    setDifficulty(storedDiff);
+    newPuzzle(storedSize, storedDiff);
+
     document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("sudoku-number-input", handleSudokuNumberInput);
   });
 
   onCleanup(() => {
-    if (typeof document !== "undefined") {
-      document.removeEventListener("visibilitychange", handleVisibility);
-    }
-    clearInterval(timerInterval);
+    document.removeEventListener("visibilitychange", handleVisibility);
+    window.removeEventListener("sudoku-number-input", handleSudokuNumberInput);
+    if (timerInterval) clearInterval(timerInterval);
   });
-
-  // Number pad handler
-  function handleNumber(num: number) {
-    const selFn = (window as unknown as Record<string, unknown>).__sudokuSelectedCell as
-      | (() => [number, number] | null)
-      | undefined;
-    const setFn = (window as unknown as Record<string, unknown>).__sudokuSetCellValue as
-      | ((r: number, c: number, v: Cell) => void)
-      | undefined;
-    if (!selFn || !setFn) return;
-
-    const sel = selFn();
-    if (!sel) return;
-    setFn(sel[0], sel[1], num);
-  }
-
-  function handleErase() {
-    const selFn = (window as unknown as Record<string, unknown>).__sudokuSelectedCell as
-      | (() => [number, number] | null)
-      | undefined;
-    const setFn = (window as unknown as Record<string, unknown>).__sudokuSetCellValue as
-      | ((r: number, c: number, v: Cell) => void)
-      | undefined;
-    if (!selFn || !setFn) return;
-
-    const sel = selFn();
-    if (!sel) return;
-    setFn(sel[0], sel[1], null);
-  }
 
   function handleBackToGames() {
     window.location.href = "/";
@@ -173,19 +187,6 @@ export default function SudokuApp() {
   function handlePlayAgain() {
     newPuzzle();
   }
-
-  // Theme toggle clone for completion screen
-  let themeToggleEl: HTMLElement | undefined;
-
-  onMount(() => {
-    themeToggleEl = document.querySelector("[data-theme-toggle]")?.cloneNode(true) as HTMLElement;
-    if (themeToggleEl) {
-      themeToggleEl.addEventListener("click", () => {
-        const toggle = document.querySelector("[data-theme-toggle]");
-        if (toggle) (toggle as HTMLButtonElement).click();
-      });
-    }
-  });
 
   return (
     <div class="flex flex-col min-h-screen">
@@ -196,7 +197,6 @@ export default function SudokuApp() {
           difficulty={difficulty()}
           onBackToGames={handleBackToGames}
           onPlayAgain={handlePlayAgain}
-          themeToggle={themeToggleEl!}
         />
       ) : (
         <>
@@ -219,27 +219,24 @@ export default function SudokuApp() {
             </a>
 
             <div class="flex items-center gap-3">
-              <span class="text-sm font-mono text-[var(--color-text-secondary)] tabular-nums">
+              <span class="text-sm font-mono text-[var(--color-text-secondary)] tabular-nums tracking-wider">
                 {formatTimer(timerSeconds())}
               </span>
             </div>
 
-            <div class="w-9">
-              {/* Spacer for balance — theme toggle is in layout */}
-            </div>
+            <div class="w-9" />
           </div>
 
           {/* Puzzle area */}
           <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4">
-            <div data-sudoku-board>
-              <SudokuBoard
-                puzzle={puzzle()}
-                solution={solution()}
-                size={gridSize()}
-                onCellChange={handleCellChange}
-                onComplete={handleComplete}
-              />
-            </div>
+            <SudokuBoard
+              puzzle={puzzle()}
+              solution={solution()}
+              size={gridSize()}
+              selectedCell={selectedCell()}
+              onSelectCell={handleSelectCell}
+              userBoard={userBoard()}
+            />
 
             <NumberPad size={gridSize()} onNumber={handleNumber} onErase={handleErase} />
           </div>

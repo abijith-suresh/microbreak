@@ -5,23 +5,12 @@ interface Props {
   puzzle: Board;
   solution: Board;
   size: GridSize;
-  onCellChange: (row: number, col: number, value: Cell) => void;
-  onComplete: () => void;
+  selectedCell: [number, number] | null;
+  onSelectCell: (row: number, col: number) => void;
+  userBoard: Board;
 }
 
 export default function SudokuBoard(props: Props) {
-  const [selectedCell, setSelectedCell] = createSignal<[number, number] | null>(null);
-  const [userBoard, setUserBoard] = createSignal<Board>(
-    props.puzzle.map((row) => [...row])
-  );
-
-  // Reset user board when puzzle changes
-  createEffect(() => {
-    const _ = props.puzzle;
-    setUserBoard(props.puzzle.map((row) => [...row]));
-    setSelectedCell(null);
-  });
-
   const size = () => props.size;
 
   function isGiven(row: number, col: number): boolean {
@@ -29,12 +18,12 @@ export default function SudokuBoard(props: Props) {
   }
 
   function isSelected(row: number, col: number): boolean {
-    const sel = selectedCell();
+    const sel = props.selectedCell;
     return sel !== null && sel[0] === row && sel[1] === col;
   }
 
   function isHighlighted(row: number, col: number): boolean {
-    const sel = selectedCell();
+    const sel = props.selectedCell;
     if (!sel) return false;
     if (row === sel[0] || col === sel[1]) return true;
 
@@ -58,38 +47,13 @@ export default function SudokuBoard(props: Props) {
     }
   }
 
-  function selectCell(row: number, col: number) {
-    setSelectedCell([row, col]);
-  }
-
-  function setCellValue(row: number, col: number, value: Cell) {
-    if (isGiven(row, col)) return;
-    const newBoard = userBoard().map((r) => [...r]);
-    newBoard[row][col] = value;
-    setUserBoard(newBoard);
-    props.onCellChange(row, col, value);
-
-    // Check completion
-    if (isBoardComplete(newBoard)) {
-      props.onComplete();
-    }
-  }
-
-  function isBoardComplete(board: Board): boolean {
-    for (let r = 0; r < size(); r++) {
-      for (let c = 0; c < size(); c++) {
-        if (board[r][c] === null) return false;
-      }
-    }
-    return true;
-  }
-
+  // Keyboard navigation
   function handleKeyDown(e: KeyboardEvent) {
-    const sel = selectedCell();
+    const sel = props.selectedCell;
     if (!sel) {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         e.preventDefault();
-        setSelectedCell([0, 0]);
+        props.onSelectCell(0, 0);
       }
       return;
     }
@@ -99,59 +63,46 @@ export default function SudokuBoard(props: Props) {
     switch (e.key) {
       case "ArrowUp":
         e.preventDefault();
-        if (row > 0) setSelectedCell([row - 1, col]);
+        if (row > 0) props.onSelectCell(row - 1, col);
         break;
       case "ArrowDown":
         e.preventDefault();
-        if (row < size() - 1) setSelectedCell([row + 1, col]);
+        if (row < size() - 1) props.onSelectCell(row + 1, col);
         break;
       case "ArrowLeft":
         e.preventDefault();
-        if (col > 0) setSelectedCell([row, col - 1]);
+        if (col > 0) props.onSelectCell(row, col - 1);
         break;
       case "ArrowRight":
         e.preventDefault();
-        if (col < size() - 1) setSelectedCell([row, col + 1]);
-        break;
-      case "Backspace":
-      case "Delete":
-        e.preventDefault();
-        setCellValue(row, col, null);
+        if (col < size() - 1) props.onSelectCell(row, col + 1);
         break;
       case "Escape":
         e.preventDefault();
-        setSelectedCell(null);
+        props.onSelectCell(-1, -1); // deselect signal
         break;
       default: {
         const num = parseInt(e.key);
         if (num >= 1 && num <= size()) {
           e.preventDefault();
-          setCellValue(row, col, num);
+          // This will be handled by parent via a custom event pattern
+          const event = new CustomEvent("sudoku-number-input", { detail: { row, col, num } });
+          window.dispatchEvent(event);
         }
         break;
       }
     }
   }
 
-  // Expose handleKeyDown and selectedCell for parent components
-  if (typeof window !== "undefined") {
-    (window as unknown as Record<string, unknown>).__sudokuSelectedCell = selectedCell;
-    (window as unknown as Record<string, unknown>).__sudokuSetCellValue = setCellValue;
-  }
-
-  onMount(() => {
-    (window as unknown as Record<string, unknown>).__sudokuSelectedCell = selectedCell;
-    (window as unknown as Record<string, unknown>).__sudokuSetCellValue = setCellValue;
+  createEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });
 
-  // Grid border styles — thicker lines for box boundaries
   function cellBorderStyle(row: number, col: number): string {
     const [boxRows, boxCols] = getBoxDims(size());
     const borders: string[] = [];
 
-    // Right border
     if (col === size() - 1) {
       borders.push("border-r-[2.5px]");
     } else if ((col + 1) % boxCols === 0) {
@@ -160,7 +111,6 @@ export default function SudokuBoard(props: Props) {
       borders.push("border-r");
     }
 
-    // Bottom border
     if (row === size() - 1) {
       borders.push("border-b-[2.5px]");
     } else if ((row + 1) % boxRows === 0) {
@@ -169,10 +119,7 @@ export default function SudokuBoard(props: Props) {
       borders.push("border-b");
     }
 
-    // Top border
     if (row === 0) borders.push("border-t-[2.5px]");
-
-    // Left border
     if (col === 0) borders.push("border-l-[2.5px]");
 
     return borders.join(" ");
@@ -202,7 +149,7 @@ export default function SudokuBoard(props: Props) {
 
   return (
     <div
-      class="inline-grid border-[var(--color-border-strong)]"
+      class="inline-grid border-[var(--color-border-strong)] rounded-sm overflow-hidden shadow-md shadow-[var(--color-shadow)]"
       style={{
         "grid-template-columns": `repeat(${size()}, auto)`,
       }}
@@ -215,9 +162,9 @@ export default function SudokuBoard(props: Props) {
               ${isSelected(row, col) ? "selected" : ""}
               ${isHighlighted(row, col) && !isSelected(row, col) ? "highlighted" : ""}
               transition-colors duration-75 focus:outline-none cursor-pointer hover:bg-[var(--color-surface-hover)]`}
-            onClick={() => selectCell(row, col)}
+            onClick={() => props.onSelectCell(row, col)}
           >
-            {userBoard()[row][col]}
+            {props.userBoard[row][col]}
           </button>
         ))
       )}

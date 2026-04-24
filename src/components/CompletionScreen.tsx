@@ -2,12 +2,11 @@ import type { Difficulty, GridSize } from "@/lib/sudoku";
 import { onMount } from "solid-js";
 
 interface Props {
-  solveTime: number; // in seconds
+  solveTime: number;
   gridSize: GridSize;
   difficulty: Difficulty;
   onBackToGames: () => void;
   onPlayAgain: () => void;
-  themeToggle: Element;
 }
 
 function formatTime(seconds: number): string {
@@ -49,12 +48,9 @@ export default function CompletionScreen(props: Props) {
   });
 
   return (
-    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--color-completion-bg)] animate-fade-in">
-      {/* Theme toggle */}
-      <div class="absolute top-4 right-4" ref={(el) => el.replaceChildren(props.themeToggle)} />
-
+    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--color-completion-bg)]">
       {/* Success animation */}
-      <div class="mb-8 animate-scale-in" style={{ "animation-delay": "0.1s" }}>
+      <div class="mb-8" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
         <svg ref={svgRef} width="96" height="96" viewBox="0 0 96 96" fill="none">
           <circle
             class="checkmark-circle"
@@ -78,22 +74,34 @@ export default function CompletionScreen(props: Props) {
       </div>
 
       {/* Solved heading */}
-      <h1 class="font-display text-5xl md:text-7xl text-[var(--color-text-primary)] mb-4 animate-fade-in" style={{ "animation-delay": "0.3s" }}>
+      <h1
+        class="font-display text-5xl md:text-7xl text-[var(--color-text-primary)] mb-4"
+        style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
+      >
         Solved
       </h1>
 
       {/* Solve time */}
-      <p class="text-2xl md:text-3xl font-light text-[var(--color-accent)] mb-2 animate-fade-in" style={{ "animation-delay": "0.4s" }}>
+      <p
+        class="text-2xl md:text-3xl font-light text-[var(--color-accent)] mb-2"
+        style={{ animation: "fadeIn 0.5s ease-out 0.4s both" }}
+      >
         {formatTime(props.solveTime)}
       </p>
 
       {/* Grid info */}
-      <p class="text-sm text-[var(--color-text-tertiary)] mb-10 animate-fade-in" style={{ "animation-delay": "0.5s" }}>
+      <p
+        class="text-sm text-[var(--color-text-tertiary)] mb-10"
+        style={{ animation: "fadeIn 0.5s ease-out 0.5s both" }}
+      >
         {sizeLabel(props.gridSize)} · {props.difficulty.charAt(0).toUpperCase() + props.difficulty.slice(1)}
       </p>
 
       {/* Actions */}
-      <div class="flex flex-col sm:flex-row items-center gap-3 animate-fade-in" style={{ "animation-delay": "0.6s" }}>
+      <div
+        class="flex flex-col sm:flex-row items-center gap-3"
+        style={{ animation: "fadeIn 0.5s ease-out 0.6s both" }}
+      >
         <button
           onClick={() => props.onBackToGames()}
           class="px-8 py-3 rounded-xl bg-[var(--color-accent)] text-white font-medium text-base transition-all hover:bg-[var(--color-accent-hover)] active:scale-[0.97]"
@@ -109,7 +117,10 @@ export default function CompletionScreen(props: Props) {
       </div>
 
       {/* Subtle nudge */}
-      <p class="mt-8 text-xs text-[var(--color-text-tertiary)] animate-fade-in" style={{ "animation-delay": "0.8s" }}>
+      <p
+        class="mt-8 text-xs text-[var(--color-text-tertiary)]"
+        style={{ animation: "fadeIn 0.5s ease-out 0.8s both" }}
+      >
         Nice break. Now back to building.
       </p>
     </div>
