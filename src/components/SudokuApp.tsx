@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup, Show } from "solid-js";
+import { batch, createSignal, onMount, onCleanup, Show } from "solid-js";
 import { generate, validate, type Board, type Cell, type Difficulty, type GridSize } from "@/lib/sudoku";
 import SudokuBoard from "./SudokuBoard";
 import SudokuSetup from "./SudokuSetup";
@@ -34,50 +34,73 @@ export default function SudokuApp() {
   const [completed, setCompleted] = createSignal(false);
 
   let timerInterval: ReturnType<typeof setInterval> | null = null;
+  let pendingGeneration: ReturnType<typeof setTimeout> | null = null;
   let hasStartedFilling = false;
 
-  function handleStartGame(size: GridSize, diff: Difficulty) {
-    setGridSize(size);
-    setDifficulty(diff);
-    setPhase("playing"); // switch view immediately
+  function resetProgress() {
+    stopTimer();
+    hasStartedFilling = false;
+    batch(() => {
+      setSelectedCell(null);
+      setTimerSeconds(0);
+      setCompleted(false);
+    });
+  }
 
-    // Defer generation so the UI transitions first
-    setTimeout(() => {
-      const result = generate(size, diff);
+  function clearPendingGeneration() {
+    if (pendingGeneration) {
+      clearTimeout(pendingGeneration);
+      pendingGeneration = null;
+    }
+  }
+
+  function applyPuzzle(size: GridSize, diff: Difficulty) {
+    const result = generate(size, diff);
+
+    batch(() => {
       setPuzzle(result.puzzle);
       setSolution(result.solution);
       setUserBoard(result.puzzle.map((row) => [...row]));
-    }, 50);
+    });
+  }
 
-    setSelectedCell(null);
-    setTimerSeconds(0);
-    setCompleted(false);
-    hasStartedFilling = false;
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = null;
+  function prepareLoadingState() {
+    resetProgress();
+    batch(() => {
+      setPuzzle([]);
+      setSolution([]);
+      setUserBoard([]);
+    });
+  }
+
+  function queuePuzzleGeneration(size: GridSize, diff: Difficulty) {
+    clearPendingGeneration();
+    prepareLoadingState();
+
+    pendingGeneration = window.setTimeout(() => {
+      pendingGeneration = null;
+      applyPuzzle(size, diff);
+    }, 0);
+  }
+
+  function handleStartGame(size: GridSize, diff: Difficulty) {
+    batch(() => {
+      setGridSize(size);
+      setDifficulty(diff);
+      setPhase("playing");
+    });
+
+    queuePuzzleGeneration(size, diff);
   }
 
   function handleRestart() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
+    clearPendingGeneration();
+    prepareLoadingState();
     setPhase("setup");
   }
 
   function handlePlayAgain() {
-    const size = gridSize();
-    const diff = difficulty();
-    const result = generate(size, diff);
-    setPuzzle(result.puzzle);
-    setSolution(result.solution);
-    setUserBoard(result.puzzle.map((row) => [...row]));
-    setSelectedCell(null);
-    setTimerSeconds(0);
-    setCompleted(false);
-    hasStartedFilling = false;
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = null;
+    queuePuzzleGeneration(gridSize(), difficulty());
   }
 
   function handleSelectCell(row: number, col: number) {
@@ -168,6 +191,7 @@ export default function SudokuApp() {
     document.removeEventListener("visibilitychange", handleVisibility);
     window.removeEventListener("sudoku-number-input", handleSudokuNumberInput);
     window.removeEventListener("sudoku-erase", handleSudokuErase);
+    clearPendingGeneration();
     if (timerInterval) clearInterval(timerInterval);
   });
 
@@ -195,8 +219,7 @@ export default function SudokuApp() {
 
       {/* ── Playing Phase ────────────────────────────────────────── */}
       <Show when={phase() === "playing" && !completed()}>
-        {(/* entering playing phase */) => (
-          <div class="flex flex-col min-h-screen">
+        <div class="flex flex-col min-h-screen">
             {/* Top bar */}
             <div class="flex items-center justify-between px-5 py-3">
               <button
@@ -234,7 +257,11 @@ export default function SudokuApp() {
             {/* Puzzle area */}
             <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4">
               <Show
-                when={puzzle().length > 0}
+                when={
+                  puzzle().length === gridSize() &&
+                  solution().length === gridSize() &&
+                  userBoard().length === gridSize()
+                }
                 fallback={<div class="text-[var(--color-text-tertiary)] text-sm">Loading puzzle…</div>}
               >
                 <SudokuBoard
@@ -260,7 +287,6 @@ export default function SudokuApp() {
               </button>
             </div>
           </div>
-        )}
       </Show>
     </>
   );
