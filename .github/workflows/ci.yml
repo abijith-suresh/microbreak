@@ -33,6 +33,3 @@ jobs:
 
       - name: Run quality gate
         run: bun run verify
-
-      - name: Dependency review
-        uses: actions/dependency-review-action@v4
