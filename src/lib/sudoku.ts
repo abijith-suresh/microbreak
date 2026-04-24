@@ -236,6 +236,21 @@ export function solve(board: Board): Board | null {
   const size = board.length;
   const result = cloneBoard(board);
 
+  // Pre-validate: check that existing givens don't conflict
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const val = result[r][c];
+      if (val !== null) {
+        // Temporarily remove the value to check if it's still valid
+        result[r][c] = null;
+        if (!isValid(result, r, c, val)) {
+          return null; // Conflicting givens
+        }
+        result[r][c] = val;
+      }
+    }
+  }
+
   function solveInner(pos: number): boolean {
     while (pos < size * size && result[Math.floor(pos / size)][pos % size] !== null) {
       pos++;
