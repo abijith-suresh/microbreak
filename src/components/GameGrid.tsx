@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup, For } from "solid-js";
+import { createSignal, onMount, onCleanup, For, Show } from "solid-js";
 
 interface GameCard {
   name: string;
@@ -66,18 +66,17 @@ function MiniSudokuGrid() {
   });
 
   return (
-    <div class="grid grid-cols-9 gap-[1px] p-2 w-full max-w-[160px] mx-auto rounded-lg bg-[var(--color-border)] overflow-hidden">
+    <div class="grid grid-cols-9 gap-[1px] p-2 w-full max-w-[160px] mx-auto rounded-lg bg-border overflow-hidden">
       <For each={cellValues()}>
         {(val, i) => {
           const row = Math.floor(i() / 9);
           const col = i() % 9;
-          // Determine if this cell is at a box boundary for thicker visual gaps
           const isBoxRight = (col + 1) % 3 === 0 && col !== 8;
           const isBoxBottom = (row + 1) % 3 === 0 && row !== 8;
 
           return (
             <div
-              class="flex items-center justify-center aspect-square bg-[var(--color-surface)] text-[7px] font-medium text-[var(--color-accent)] transition-all duration-300"
+              class="flex items-center justify-center aspect-square bg-surface text-[7px] font-medium text-accent transition-all duration-300"
               style={{
                 opacity: visibleCells().has(i()) ? "0.9" : "0",
                 transform: visibleCells().has(i()) ? "scale(1)" : "scale(0.3)",
@@ -107,15 +106,13 @@ function GameIcon(props: { name: string }) {
         stroke-width="1.2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="text-[var(--color-text-tertiary)]"
+        class="text-fg-tertiary"
       >
         <path d={path()} />
       </svg>
     </Show>
   );
 }
-
-import { Show } from "solid-js";
 
 export default function GameGrid() {
   return (
@@ -125,26 +122,22 @@ export default function GameGrid() {
           game.active ? (
             <a
               href={game.href}
-              class="group relative flex flex-col items-center gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 pb-4 transition-all duration-300 hover:border-[var(--color-accent)] hover:shadow-xl hover:shadow-[var(--color-shadow-strong)] hover:-translate-y-1"
+              class="group relative flex flex-col items-center gap-4 rounded-2xl border border-border bg-surface p-6 pb-4 transition-all duration-300 hover:border-accent hover:shadow-xl hover:shadow-shadow-strong hover:-translate-y-1"
             >
-              <div class="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-[var(--color-success)] opacity-70" />
-              <h3 class="font-display text-3xl text-[var(--color-text-primary)] italic">
-                {game.name}
-              </h3>
+              <div class="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-success opacity-70" />
+              <h3 class="font-display text-3xl text-fg italic">{game.name}</h3>
               <MiniSudokuGrid />
-              <span class="text-xs text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] transition-colors">
+              <span class="text-xs text-fg-tertiary group-hover:text-accent transition-colors">
                 Click to play →
               </span>
             </a>
           ) : (
-            <div class="relative flex flex-col items-center gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 pb-5 opacity-40 cursor-default select-none">
-              <h3 class="font-display text-3xl text-[var(--color-text-secondary)] italic">
-                {game.name}
-              </h3>
+            <div class="relative flex flex-col items-center gap-4 rounded-2xl border border-border bg-surface p-6 pb-5 opacity-40 cursor-default select-none">
+              <h3 class="font-display text-3xl text-fg-secondary italic">{game.name}</h3>
               <div class="flex items-center justify-center w-full aspect-[4/3] max-h-[100px]">
                 <GameIcon name={game.name} />
               </div>
-              <span class="inline-flex items-center rounded-full bg-[var(--color-surface-hover)] border border-[var(--color-border)] px-3 py-0.5 text-[10px] font-semibold text-[var(--color-text-tertiary)] tracking-widest uppercase">
+              <span class="inline-flex items-center rounded-full bg-surface-hover border border-border px-3 py-0.5 text-[10px] font-semibold text-fg-tertiary tracking-widest uppercase">
                 Coming Soon
               </span>
             </div>

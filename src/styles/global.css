@@ -33,11 +33,51 @@
   font-display: swap;
 }
 
-/* ─── Tailwind Theme ─── */
+/* ─── Tailwind Static Theme ─── */
 @theme {
   --font-display: "Instrument Serif", Georgia, serif;
   --font-body: "DM Sans", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+/* ─── Tailwind Runtime Token Aliases ─── */
+/* @theme inline tells Tailwind to emit utility classes that reference the CSS  */
+/* variables at runtime rather than baking in static values. The actual values  */
+/* live in :root / [data-theme="dark"] below and change on theme switch.        */
+@theme inline {
+  /* Text aliases — cleaner names for text-primary/secondary/tertiary */
+  --color-fg: var(--color-text-primary);
+  --color-fg-secondary: var(--color-text-secondary);
+  --color-fg-tertiary: var(--color-text-tertiary);
+
+  /* Surface / background */
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-hover: var(--color-surface-hover);
+
+  /* Borders */
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  /* Accent */
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-light: var(--color-accent-light);
+  --color-accent-subtle: var(--color-accent-subtle);
+
+  /* Semantic */
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
+
+  /* Sudoku-specific highlights */
+  --color-selected: var(--color-selected);
+  --color-highlight: var(--color-highlight);
+  --color-number-highlight: var(--color-number-highlight);
+
+  /* Misc */
+  --color-shadow: var(--color-shadow);
+  --color-shadow-strong: var(--color-shadow-strong);
+  --color-completion-bg: var(--color-completion-bg);
 }
 
 /* ─── Theme Tokens ─── */
@@ -59,6 +99,7 @@
   --color-user: #c45d3e;
   --color-selected: rgba(196, 93, 62, 0.12);
   --color-highlight: rgba(196, 93, 62, 0.06);
+  --color-number-highlight: rgba(196, 93, 62, 0.1);
   --color-error: #c43e3e;
   --color-success: #3e8c5a;
   --color-completion-bg: #faf9f6;
@@ -84,6 +125,7 @@
   --color-user: #e07a5a;
   --color-selected: rgba(224, 122, 90, 0.15);
   --color-highlight: rgba(224, 122, 90, 0.06);
+  --color-number-highlight: rgba(224, 122, 90, 0.12);
   --color-error: #e05a5a;
   --color-success: #5ab87a;
   --color-completion-bg: #141413;
@@ -107,13 +149,15 @@ body {
     color 0.2s ease;
 }
 
-/* ─── Sudoku Grid ─── */
+/* ─── Sudoku Cell Base ─── */
+/* Non-stateful shared properties only.                                         */
+/* All visual states (color, weight, highlight, error) are Tailwind classes     */
+/* applied conditionally in SudokuCell.tsx.                                     */
 .sudoku-cell {
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
-  font-weight: 500;
   user-select: none;
   position: relative;
   transition:
@@ -121,20 +165,7 @@ body {
     border-color 0.2s ease-out;
 }
 
-.sudoku-cell.given {
-  font-weight: 700;
-  color: var(--color-given);
-}
-
-.sudoku-cell.user {
-  font-weight: 500;
-  color: var(--color-user);
-}
-
-.sudoku-cell.selected {
-  background-color: var(--color-selected) !important;
-}
-
+/* ─── Animations ─── */
 @keyframes errorAppear {
   0% {
     border-color: var(--color-border);
@@ -147,16 +178,6 @@ body {
   }
 }
 
-.sudoku-cell.error {
-  color: var(--color-error) !important;
-  border-width: 2px !important;
-  border-style: solid !important;
-  border-color: var(--color-error) !important;
-  animation: errorAppear 0.2s ease-out;
-  z-index: 1;
-}
-
-/* ─── Animations ─── */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -204,9 +225,13 @@ body {
     background-color: transparent;
     transform: scale(1);
   }
-  40% {
-    background-color: color-mix(in srgb, var(--color-accent) 18%, var(--color-success));
-    transform: scale(1.03);
+  30% {
+    background-color: color-mix(in srgb, var(--color-accent) 28%, var(--color-success) 20%);
+    transform: scale(1.06);
+  }
+  65% {
+    background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+    transform: scale(1.02);
   }
   100% {
     background-color: transparent;
@@ -214,8 +239,19 @@ body {
   }
 }
 
-.sudoku-cell.completing {
-  animation: completionWave 0.5s ease-out forwards;
+@keyframes groupSweep {
+  0% {
+    background-color: transparent;
+  }
+  25% {
+    background-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+  }
+  60% {
+    background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
 @keyframes mini-fill {

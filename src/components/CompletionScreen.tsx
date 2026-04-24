@@ -43,7 +43,7 @@ export default function CompletionScreen(props: Props) {
   });
 
   return (
-    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--color-bg)]">
+    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg">
       {/* Checkmark */}
       <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
         <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
@@ -70,7 +70,7 @@ export default function CompletionScreen(props: Props) {
 
       {/* Heading */}
       <h1
-        class="font-display text-5xl md:text-6xl text-[var(--color-text-primary)] italic tracking-tight"
+        class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
         style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
       >
         Solved
@@ -78,7 +78,7 @@ export default function CompletionScreen(props: Props) {
 
       {/* Time */}
       <p
-        class="mt-3 text-2xl md:text-3xl font-light text-[var(--color-accent)] tabular-nums"
+        class="mt-3 text-2xl md:text-3xl font-light text-accent tabular-nums"
         style={{ animation: "fadeIn 0.5s ease-out 0.4s both" }}
       >
         {formatTime(props.solveTime)}
@@ -86,7 +86,7 @@ export default function CompletionScreen(props: Props) {
 
       {/* Info */}
       <p
-        class="mt-1 text-xs text-[var(--color-text-tertiary)] tracking-wide"
+        class="mt-1 text-xs text-fg-tertiary tracking-wide"
         style={{ animation: "fadeIn 0.5s ease-out 0.5s both" }}
       >
         {sizeLabel(props.gridSize)} ·{" "}
@@ -100,13 +100,13 @@ export default function CompletionScreen(props: Props) {
       >
         <button
           onClick={() => props.onPlayAgain()}
-          class="px-8 py-3 rounded-xl bg-[var(--color-accent)] text-white font-medium text-sm transition-all duration-200 hover:bg-[var(--color-accent-hover)] active:scale-[0.97]"
+          class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm transition-all duration-200 hover:bg-accent-hover active:scale-[0.97]"
         >
           Play Again
         </button>
         <button
           onClick={() => props.onBackToGames()}
-          class="px-8 py-3 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] font-medium text-sm transition-all duration-200 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] active:scale-[0.97]"
+          class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm transition-all duration-200 hover:border-accent hover:text-accent active:scale-[0.97]"
         >
           Back to Games
         </button>
@@ -114,7 +114,7 @@ export default function CompletionScreen(props: Props) {
 
       {/* Tagline */}
       <p
-        class="mt-10 text-[11px] text-[var(--color-text-tertiary)] tracking-widest uppercase"
+        class="mt-10 text-[11px] text-fg-tertiary tracking-widest uppercase"
         style={{ animation: "fadeIn 0.5s ease-out 0.8s both" }}
       >
         Nice break · Now back to building

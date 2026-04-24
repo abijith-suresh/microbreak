@@ -1,5 +1,12 @@
 import { createEffect, onCleanup } from "solid-js";
-import type { Board, GridSize } from "@/lib/sudoku";
+import {
+  getBoxDims,
+  type Board,
+  type Cell,
+  type CompletingGroup,
+  type GridSize,
+} from "@/lib/sudoku";
+import SudokuCell, { type CellHighlight } from "./SudokuCell";
 
 interface Props {
   puzzle: Board;
@@ -11,27 +18,13 @@ interface Props {
   conflictedCells: Set<string>;
   completing: boolean;
   completionOrigin: [number, number] | null;
-}
-
-function getBoxDims(s: GridSize): [number, number] {
-  if (s === 4) return [2, 2];
-  if (s === 6) return [2, 3];
-  return [3, 3];
+  completingGroups: CompletingGroup[];
 }
 
 export default function SudokuBoard(props: Props) {
   const size = () => props.size;
 
-  function isGiven(row: number, col: number): boolean {
-    return props.puzzle[row][col] !== null;
-  }
-
-  function isSelected(row: number, col: number): boolean {
-    const sel = props.selectedCell;
-    return sel !== null && sel[0] === row && sel[1] === col;
-  }
-
-  // Keyboard navigation
+  // ── Keyboard navigation ───────────────────────────────────────────────────
   function handleKeyDown(e: KeyboardEvent) {
     const sel = props.selectedCell;
     if (!sel) {
@@ -43,7 +36,6 @@ export default function SudokuBoard(props: Props) {
     }
 
     const [row, col] = sel;
-
     switch (e.key) {
       case "ArrowUp":
         e.preventDefault();
@@ -89,33 +81,90 @@ export default function SudokuBoard(props: Props) {
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });
 
-  function cellBorderStyle(row: number, col: number): string {
+  // ── Per-cell computations ─────────────────────────────────────────────────
+
+  /** Border width/side classes based on position in the grid */
+  function cellBorderClasses(row: number, col: number): string {
     const [boxRows, boxCols] = getBoxDims(size());
     const borders: string[] = [];
 
-    // Right border
-    if (col === size() - 1) {
-      borders.push("border-r-[2.5px]");
-    } else if ((col + 1) % boxCols === 0) {
-      borders.push("border-r-[2px]");
-    } else {
-      borders.push("border-r");
-    }
+    if (col === size() - 1) borders.push("border-r-[2.5px]");
+    else if ((col + 1) % boxCols === 0) borders.push("border-r-[2px]");
+    else borders.push("border-r");
 
-    // Bottom border
-    if (row === size() - 1) {
-      borders.push("border-b-[2.5px]");
-    } else if ((row + 1) % boxRows === 0) {
-      borders.push("border-b-[2px]");
-    } else {
-      borders.push("border-b");
-    }
+    if (row === size() - 1) borders.push("border-b-[2.5px]");
+    else if ((row + 1) % boxRows === 0) borders.push("border-b-[2px]");
+    else borders.push("border-b");
 
-    // Top/left outer edges
     if (row === 0) borders.push("border-t-[2.5px]");
     if (col === 0) borders.push("border-l-[2.5px]");
 
     return borders.join(" ");
+  }
+
+  /**
+   * Compute the highlight tier for a cell relative to the selected cell.
+   *
+   * Priority (high → low):
+   *   selected > row-col > box > number > null
+   *
+   * 'row-col' beats 'number': a cell in the same row/col that shares a value
+   * gets row-col, not number.
+   */
+  function computeHighlight(row: number, col: number, value: Cell): CellHighlight {
+    const sel = props.selectedCell;
+    if (!sel) return null;
+
+    const [sr, sc] = sel;
+    if (row === sr && col === sc) return "selected";
+    if (row === sr || col === sc) return "row-col";
+
+    const [boxRows, boxCols] = getBoxDims(size());
+    const bsr = Math.floor(sr / boxRows) * boxRows;
+    const bsc = Math.floor(sc / boxCols) * boxCols;
+    if (row >= bsr && row < bsr + boxRows && col >= bsc && col < bsc + boxCols) return "box";
+
+    const selValue = props.userBoard[sr][sc];
+    if (selValue !== null && value === selValue) return "number";
+
+    return null;
+  }
+
+  /**
+   * Compute the sweep animation delay (ms) for a cell based on which groups
+   * are currently completing. Returns null if the cell is not in any group.
+   * When a cell qualifies for multiple groups, the minimum delay is used so
+   * it lights up as early as possible.
+   */
+  function computeSweepDelay(row: number, col: number): number | null {
+    const groups = props.completingGroups;
+    if (!groups.length) return null;
+
+    const [boxRows, boxCols] = getBoxDims(size());
+    const numBoxCols = size() / boxCols;
+    let minDelay: number | null = null;
+
+    for (const group of groups) {
+      let delay: number | null = null;
+
+      if (group.type === "row" && row === group.index) {
+        delay = Math.abs(col - group.origin[1]) * 45;
+      } else if (group.type === "col" && col === group.index) {
+        delay = Math.abs(row - group.origin[0]) * 45;
+      } else if (group.type === "box") {
+        const br = Math.floor(group.index / numBoxCols) * boxRows;
+        const bc = (group.index % numBoxCols) * boxCols;
+        if (row >= br && row < br + boxRows && col >= bc && col < bc + boxCols) {
+          delay = (Math.abs(row - group.origin[0]) + Math.abs(col - group.origin[1])) * 45;
+        }
+      }
+
+      if (delay !== null && (minDelay === null || delay < minDelay)) {
+        minDelay = delay;
+      }
+    }
+
+    return minDelay;
   }
 
   function fontSize(): string {
@@ -132,44 +181,39 @@ export default function SudokuBoard(props: Props) {
 
   return (
     <div
-      class="inline-grid border-[var(--color-border-strong)] rounded-sm overflow-hidden shadow-md shadow-[var(--color-shadow)]"
-      style={{
-        "grid-template-columns": `repeat(${size()}, auto)`,
-      }}
+      class="inline-grid border-border-strong rounded-sm overflow-hidden shadow-md shadow-shadow"
+      style={{ "grid-template-columns": `repeat(${size()}, auto)` }}
     >
       {Array.from({ length: size() }, (_, row) =>
         Array.from({ length: size() }, (_, col) => {
-          const selected = isSelected(row, col);
-          const given = isGiven(row, col);
-          const conflicted = props.conflictedCells.has(`${row},${col}`);
+          const isGiven = props.puzzle[row][col] !== null;
+          const value = props.userBoard[row][col];
+          const isError = props.conflictedCells.has(`${row},${col}`);
+          const highlight = computeHighlight(row, col, value);
 
-          // Board completion: calculate Manhattan distance for staggered animation
+          // Full-board completion wave: stagger by Manhattan distance from origin
           const origin = props.completionOrigin;
-          const staggerDelay =
-            props.completing && origin ? Math.abs(row - origin[0]) + Math.abs(col - origin[1]) : 0;
+          const completingDelay =
+            props.completing && origin
+              ? (Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 50
+              : 0;
+
+          const sweepDelay = props.completing ? null : computeSweepDelay(row, col);
 
           return (
-            <button
-              class={[
-                "sudoku-cell",
-                cellSize(),
-                fontSize(),
-                cellBorderStyle(row, col),
-                "border-[var(--color-border)]",
-                given ? "given bg-[var(--color-surface)]" : "user bg-[var(--color-bg)]",
-                selected ? "selected" : "",
-                conflicted ? "error" : "",
-                props.completing ? "completing" : "",
-                "focus:outline-none cursor-pointer",
-                "hover:bg-[var(--color-surface-hover)]",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-              style={props.completing ? { "animation-delay": `${staggerDelay * 50}ms` } : undefined}
-              onClick={() => props.onSelectCell(row, col)}
-            >
-              {props.userBoard[row][col]}
-            </button>
+            <SudokuCell
+              value={value}
+              isGiven={isGiven}
+              highlight={highlight}
+              isError={isError}
+              isCompleting={props.completing}
+              completingDelay={completingDelay}
+              sweepDelay={sweepDelay}
+              borderClasses={cellBorderClasses(row, col)}
+              cellSize={cellSize()}
+              fontSize={fontSize()}
+              onSelect={() => props.onSelectCell(row, col)}
+            />
           );
         })
       )}
