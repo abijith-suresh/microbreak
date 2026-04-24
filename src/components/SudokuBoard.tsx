@@ -77,6 +77,11 @@ export default function SudokuBoard(props: Props) {
         e.preventDefault();
         if (col < size() - 1) props.onSelectCell(row, col + 1);
         break;
+      case "Backspace":
+      case "Delete":
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("sudoku-erase", { detail: { row, col } }));
+        break;
       case "Escape":
         e.preventDefault();
         props.onSelectCell(-1, -1); // deselect signal
@@ -85,9 +90,7 @@ export default function SudokuBoard(props: Props) {
         const num = parseInt(e.key);
         if (num >= 1 && num <= size()) {
           e.preventDefault();
-          // This will be handled by parent via a custom event pattern
-          const event = new CustomEvent("sudoku-number-input", { detail: { row, col, num } });
-          window.dispatchEvent(event);
+          window.dispatchEvent(new CustomEvent("sudoku-number-input", { detail: { row, col, num } }));
         }
         break;
       }

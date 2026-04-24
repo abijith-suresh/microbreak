@@ -130,11 +130,18 @@ export default function SudokuApp() {
     setCellValue(sel[0], sel[1], null);
   }
 
-  // Listen for keyboard number inputs from SudokuBoard
+  // Listen for keyboard inputs from SudokuBoard
   function handleSudokuNumberInput(e: Event) {
     const detail = (e as CustomEvent).detail;
     if (detail) {
       setCellValue(detail.row, detail.col, detail.num);
+    }
+  }
+
+  function handleSudokuErase(e: Event) {
+    const detail = (e as CustomEvent).detail;
+    if (detail) {
+      setCellValue(detail.row, detail.col, null);
     }
   }
 
@@ -172,11 +179,13 @@ export default function SudokuApp() {
 
     document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("sudoku-number-input", handleSudokuNumberInput);
+    window.addEventListener("sudoku-erase", handleSudokuErase);
   });
 
   onCleanup(() => {
     document.removeEventListener("visibilitychange", handleVisibility);
     window.removeEventListener("sudoku-number-input", handleSudokuNumberInput);
+    window.removeEventListener("sudoku-erase", handleSudokuErase);
     if (timerInterval) clearInterval(timerInterval);
   });
 
