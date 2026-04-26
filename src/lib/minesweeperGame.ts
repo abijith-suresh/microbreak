@@ -41,8 +41,14 @@ export function createMinesweeperGame() {
   const [digMode, setDigMode] = createSignal(true);
   const [wrongFlags, setWrongFlags] = createSignal<[number, number][]>([]);
 
+  /** True while the pre-result animation is playing (before result screen shows) */
+  const [completing, setCompleting] = createSignal(false);
+  /** The cell that triggered the end of the game (last reveal for win, mine for loss) */
+  const [completionOrigin, setCompletionOrigin] = createSignal<[number, number] | null>(null);
+
   // ── Internal mutable state ───────────────────────────────────────────────
   let timerInterval: ReturnType<typeof setInterval> | null = null;
+  let completionTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedPlaying = false;
   let boardGenerated = false;
 
@@ -62,6 +68,10 @@ export function createMinesweeperGame() {
   // ── Helpers ───────────────────────────────────────────────────────────────
   function resetProgress() {
     stopTimer();
+    if (completionTimer !== null) {
+      clearTimeout(completionTimer);
+      completionTimer = null;
+    }
     hasStartedPlaying = false;
     boardGenerated = false;
     batch(() => {
@@ -71,7 +81,39 @@ export function createMinesweeperGame() {
       setTriggeredMine(null);
       setDigMode(true);
       setWrongFlags([]);
+      setCompleting(false);
+      setCompletionOrigin(null);
     });
+  }
+
+  // ── Completion helper ─────────────────────────────────────────────────────
+  /**
+   * Plays the pre-result animation then shows the result screen.
+   * Mirrors sudokuGame's `setCompleting(true) → setTimeout → setCompleted(true)`.
+   *
+   * @param result  "won" | "lost"
+   * @param originRow  Row of the cell that ended the game (for stagger origin).
+   * @param originCol  Col of the cell that ended the game.
+   * @param delay  How long (ms) to wait before revealing the result screen.
+   *               Defaults to 800 ms — enough for the board animation to land.
+   */
+  function triggerCompletion(
+    result: "won" | "lost",
+    originRow: number,
+    originCol: number,
+    delay = 800
+  ) {
+    batch(() => {
+      setCompletionOrigin([originRow, originCol]);
+      setCompleting(true);
+    });
+    completionTimer = setTimeout(() => {
+      completionTimer = null;
+      batch(() => {
+        setGameResult(result);
+        setCompleting(false);
+      });
+    }, delay);
   }
 
   // ── Public actions ────────────────────────────────────────────────────────
@@ -136,7 +178,7 @@ export function createMinesweeperGame() {
         // Check win (technically impossible on first click, but be safe)
         if (checkWin(revealed)) {
           stopTimer();
-          setGameResult("won");
+          triggerCompletion("won", row, col);
         }
         return;
       }
@@ -146,11 +188,13 @@ export function createMinesweeperGame() {
         // ── Loss ─────────────────────────────────────────────────────────
         const revealed = revealCell(currentBoard, row, col);
         const allMinesRevealed = revealAllMines(revealed);
-        setBoard(allMinesRevealed);
-        setTriggeredMine([row, col]);
-        setWrongFlags(getWrongFlags(currentBoard));
+        batch(() => {
+          setBoard(allMinesRevealed);
+          setTriggeredMine([row, col]);
+          setWrongFlags(getWrongFlags(currentBoard));
+        });
         stopTimer();
-        setGameResult("lost");
+        triggerCompletion("lost", row, col);
         return;
       }
 
@@ -166,7 +210,7 @@ export function createMinesweeperGame() {
       // Check win
       if (checkWin(revealed)) {
         stopTimer();
-        setGameResult("won");
+        triggerCompletion("won", row, col);
       }
     } else {
       // ── Flag mode ──────────────────────────────────────────────────────
@@ -230,6 +274,7 @@ export function createMinesweeperGame() {
     window.removeEventListener("minesweeper-action", handleMinesweeperAction);
     window.removeEventListener("minesweeper-flag", handleMinesweeperFlag);
     if (timerInterval) clearInterval(timerInterval);
+    if (completionTimer) clearTimeout(completionTimer);
   });
 
   return {
@@ -246,6 +291,8 @@ export function createMinesweeperGame() {
     triggeredMine,
     digMode,
     wrongFlags,
+    completing,
+    completionOrigin,
     // Derived
     mineCounter,
     // Actions

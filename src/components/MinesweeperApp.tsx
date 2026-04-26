@@ -107,6 +107,8 @@ export default function MinesweeperApp() {
                 wrongFlags={game.wrongFlags()}
                 gameOver={false}
                 onCellClick={game.handleCellClick}
+                isCompleting={game.completing()}
+                completionOrigin={game.completionOrigin()}
               />
             </Show>
 

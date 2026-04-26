@@ -1,4 +1,4 @@
-import { For, createEffect, createMemo, onCleanup } from "solid-js";
+import { For, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import type { Board } from "@/lib/minesweeper";
 import MinesweeperCell from "./MinesweeperCell";
 
@@ -12,11 +12,29 @@ interface Props {
   wrongFlags: [number, number][];
   gameOver: boolean;
   onCellClick: (row: number, col: number) => void;
+  /** True while the pre-result animation is playing */
+  isCompleting: boolean;
+  /** The cell that triggered game-end — origin for animation stagger */
+  completionOrigin: [number, number] | null;
 }
 
 export default function MinesweeperBoard(props: Props) {
   const rows = () => props.rows;
   const cols = () => props.cols;
+
+  // ── Entrance animation ─────────────────────────────────────────────────────
+  /**
+   * True from mount until the last cell's entrance animation finishes.
+   * Stagger step scales with board size so all three difficulty boards
+   * complete in roughly the same 750–850 ms window.
+   */
+  const [entering, setEntering] = createSignal(true);
+  onMount(() => {
+    const maxDist = Math.floor(rows() / 2) + Math.floor(cols() / 2);
+    const step = Math.round(250 / Math.max(maxDist, 1));
+    const timer = setTimeout(() => setEntering(false), maxDist * step + 520);
+    onCleanup(() => clearTimeout(timer));
+  });
 
   // ── Keyboard navigation ────────────────────────────────────────────────────
   function handleKeyDown(e: KeyboardEvent) {
@@ -134,6 +152,22 @@ export default function MinesweeperBoard(props: Props) {
           };
           const isWrongFlag = () => wrongFlagsSet().has(`${row},${col}`);
 
+          // ── Per-cell animation values ──────────────────────────────────────
+          const centerRow = (rows() - 1) / 2;
+          const centerCol = (cols() - 1) / 2;
+          const maxDist = Math.floor(rows() / 2) + Math.floor(cols() / 2);
+          const step = Math.round(250 / Math.max(maxDist, 1));
+          const entranceDelay = Math.round(
+            (Math.abs(row - centerRow) + Math.abs(col - centerCol)) * step
+          );
+
+          const completingDelay = () => {
+            const origin = props.completionOrigin;
+            return props.isCompleting && origin
+              ? (Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 35
+              : 0;
+          };
+
           const borders = cellBorderClasses(row, col);
           const cs = cellSize();
           const fs = fontSize();
@@ -150,6 +184,11 @@ export default function MinesweeperBoard(props: Props) {
               cellSize={cs}
               fontSize={fs}
               borderClasses={borders}
+              entering={entering()}
+              entranceDelay={entranceDelay}
+              isCompleting={props.isCompleting}
+              completingDelay={completingDelay()}
+              isLoss={props.triggeredMine !== null}
               onSelect={() => {
                 props.onSelectCell(row, col);
                 props.onCellClick(row, col);

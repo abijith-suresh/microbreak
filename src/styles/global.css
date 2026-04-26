@@ -328,6 +328,25 @@ body {
   }
 }
 
+@keyframes mineBlast {
+  0% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+  20% {
+    background-color: color-mix(in srgb, var(--color-error) 40%, transparent);
+    transform: scale(1.05);
+  }
+  65% {
+    background-color: color-mix(in srgb, var(--color-error) 15%, transparent);
+    transform: scale(1);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
 @keyframes mini-fill {
   0% {
     opacity: 0;
