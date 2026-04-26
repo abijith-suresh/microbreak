@@ -12,6 +12,16 @@ interface Props {
   cellSize: string;
   fontSize: string;
   borderClasses: string;
+  /** True while the board entrance animation is playing */
+  entering: boolean;
+  /** ms delay for the centre-outward entrance stagger */
+  entranceDelay: number;
+  /** True while the pre-result animation is playing */
+  isCompleting: boolean;
+  /** ms delay for the completion stagger (win wave or loss blast) */
+  completingDelay: number;
+  /** True when the game ended as a loss (drives mineBlast vs completionWave) */
+  isLoss: boolean;
   onSelect: () => void;
 }
 
@@ -30,18 +40,21 @@ const NUMBER_COLORS: Record<number, string> = {
 export default function MinesweeperCell(props: Props) {
   const [pressing, setPressing] = createSignal(false);
 
+  // True whenever a keyframe animation owns the transform
+  const isAnimating = () => props.entering || props.isCompleting;
+
   // ── Background class ───────────────────────────────────────────────────────
   const bgClass = () => {
+    // During completion/entrance, keyframe owns background — clear it
+    if (props.isCompleting || props.entering) return "";
     if (props.isTriggeredMine && props.state === "revealed") return "bg-error";
     if (props.state === "revealed") return "bg-bg";
-    if (props.state === "flagged") return "bg-surface";
-    // hidden
     return "bg-surface";
   };
 
   // ── Hover class ────────────────────────────────────────────────────────────
   const hoverClass = () =>
-    props.state === "hidden" && !props.gameOver ? "hover:bg-surface-hover" : "";
+    !isAnimating() && props.state === "hidden" && !props.gameOver ? "hover:bg-surface-hover" : "";
 
   // ── Cursor ─────────────────────────────────────────────────────────────────
   const cursorClass = () =>
@@ -49,9 +62,40 @@ export default function MinesweeperCell(props: Props) {
 
   // ── Selection highlight ────────────────────────────────────────────────────
   const selectionClass = () =>
-    props.isSelected && props.state !== "revealed" && !props.gameOver
+    !isAnimating() && props.isSelected && props.state !== "revealed" && !props.gameOver
       ? "ring-2 ring-accent ring-inset"
       : "";
+
+  // ── Combined animation + press style ──────────────────────────────────────
+  /**
+   * Priority: entrance → completion animation → normal press feedback.
+   * Always returns both `animation` and `transform` so SolidJS reliably
+   * clears whichever is not in use.
+   */
+  const combinedStyle = (): { animation: string; transform: string } => {
+    // 1. Board entrance — cells materialise centre-outward
+    if (props.entering) {
+      return {
+        animation: `cellReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${props.entranceDelay}ms both`,
+        transform: "",
+      };
+    }
+
+    // 2. Pre-result animation: completionWave (win) or mineBlast (loss)
+    if (props.isCompleting) {
+      const keyframe = props.isLoss ? "mineBlast" : "completionWave";
+      return {
+        animation: `${keyframe} 0.5s ease-out ${props.completingDelay}ms forwards`,
+        transform: "",
+      };
+    }
+
+    // 3. Normal state — press feedback only
+    return {
+      animation: "",
+      transform: pressing() && props.state !== "revealed" && !props.gameOver ? "scale(0.93)" : "",
+    };
+  };
 
   // ── Cell content ───────────────────────────────────────────────────────────
   function renderContent() {
@@ -163,7 +207,7 @@ export default function MinesweeperCell(props: Props) {
         .filter(Boolean)
         .join(" ")}
       style={{
-        transform: pressing() && props.state !== "revealed" && !props.gameOver ? "scale(0.93)" : "",
+        ...combinedStyle(),
         transition:
           "background-color 0.15s ease-out, border-color 0.2s ease-out, transform 0.1s ease-out",
       }}
