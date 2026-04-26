@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, onCleanup } from "solid-js";
 import type { Difficulty, GridSize } from "@/lib/sudoku";
 import ThemeToggle from "./ThemeToggle";
 
@@ -18,12 +18,48 @@ const difficulties: { value: Difficulty; label: string; description: string }[] 
   { value: "hard", description: "Deep think", label: "Hard" },
 ];
 
+/**
+ * Explicit transition string for selection cards.
+ * Keeps border/bg/color at 200 ms while transform snaps faster (100 ms),
+ * giving a crisp press feel without disturbing the selection colour change.
+ */
+const CARD_TRANSITION =
+  "border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.1s ease-out";
+
 export default function SudokuSetup(props: Props) {
   const [selectedSize, setSelectedSize] = createSignal<GridSize>(9);
   const [selectedDifficulty, setSelectedDifficulty] = createSignal<Difficulty>("medium");
 
+  // ── Exit animation ─────────────────────────────────────────────────────────
+  // When the user taps "Start Game", play the exit animation for 280 ms first,
+  // then hand off to the parent. This creates a smooth crossfade-like feel:
+  // the setup screen is already nearly gone when the board fades in.
+  const [isExiting, setIsExiting] = createSignal(false);
+  let exitTimer: ReturnType<typeof setTimeout> | null = null;
+
+  onCleanup(() => {
+    if (exitTimer !== null) clearTimeout(exitTimer);
+  });
+
+  function handleStart() {
+    if (isExiting()) return; // guard against rapid double-tap
+    setIsExiting(true);
+    exitTimer = setTimeout(() => {
+      exitTimer = null;
+      props.onStart(selectedSize(), selectedDifficulty());
+    }, 280);
+  }
+
+  // ── Press feedback signals ─────────────────────────────────────────────────
+  const [pressedSize, setPressedSize] = createSignal<GridSize | null>(null);
+  const [pressedDiff, setPressedDiff] = createSignal<Difficulty | null>(null);
+  const [startPressed, setStartPressed] = createSignal(false);
+
   return (
-    <div class="flex flex-col min-h-screen">
+    <div
+      class="flex flex-col min-h-screen"
+      style={isExiting() ? { animation: "setupExit 0.28s ease-in forwards" } : undefined}
+    >
       {/* Top bar */}
       <div class="flex items-center justify-between px-5 py-4">
         <a
@@ -67,11 +103,19 @@ export default function SudokuSetup(props: Props) {
               {sizes.map((s) => (
                 <button
                   onClick={() => setSelectedSize(s.value)}
-                  class={`group flex flex-col items-center gap-1 py-4 px-3 rounded-xl border transition-all duration-200 ${
+                  onPointerDown={() => setPressedSize(s.value)}
+                  onPointerUp={() => setPressedSize(null)}
+                  onPointerLeave={() => setPressedSize(null)}
+                  onPointerCancel={() => setPressedSize(null)}
+                  style={{
+                    transition: CARD_TRANSITION,
+                    transform: pressedSize() === s.value ? "scale(0.93)" : "",
+                  }}
+                  class={`group flex flex-col items-center gap-1 py-4 px-3 rounded-xl border ${
                     selectedSize() === s.value
                       ? "border-accent bg-accent-light"
                       : "border-border bg-surface hover:border-border-strong"
-                  } active:scale-[0.97]`}
+                  }`}
                 >
                   <span
                     class={`text-lg font-bold leading-none transition-colors duration-200 ${
@@ -112,11 +156,19 @@ export default function SudokuSetup(props: Props) {
               {difficulties.map((d) => (
                 <button
                   onClick={() => setSelectedDifficulty(d.value)}
-                  class={`group flex flex-col items-center gap-1.5 py-4 px-3 rounded-xl border transition-all duration-200 ${
+                  onPointerDown={() => setPressedDiff(d.value)}
+                  onPointerUp={() => setPressedDiff(null)}
+                  onPointerLeave={() => setPressedDiff(null)}
+                  onPointerCancel={() => setPressedDiff(null)}
+                  style={{
+                    transition: CARD_TRANSITION,
+                    transform: pressedDiff() === d.value ? "scale(0.93)" : "",
+                  }}
+                  class={`group flex flex-col items-center gap-1.5 py-4 px-3 rounded-xl border ${
                     selectedDifficulty() === d.value
                       ? "border-accent bg-accent-light"
                       : "border-border bg-surface hover:border-border-strong"
-                  } active:scale-[0.97]`}
+                  }`}
                 >
                   <span
                     class={`text-sm font-bold leading-none transition-colors duration-200 ${
@@ -143,8 +195,16 @@ export default function SudokuSetup(props: Props) {
         {/* Start button */}
         <div style={{ animation: "fadeIn 0.4s ease-out 0.2s both" }}>
           <button
-            onClick={() => props.onStart(selectedSize(), selectedDifficulty())}
-            class="px-12 py-3.5 rounded-xl bg-accent text-white font-semibold text-base transition-all duration-200 hover:bg-accent-hover active:scale-[0.97] shadow-lg shadow-shadow"
+            onClick={handleStart}
+            onPointerDown={() => setStartPressed(true)}
+            onPointerUp={() => setStartPressed(false)}
+            onPointerLeave={() => setStartPressed(false)}
+            onPointerCancel={() => setStartPressed(false)}
+            style={{
+              transition: "background-color 0.2s ease, transform 0.1s ease-out",
+              transform: startPressed() ? "scale(0.93)" : "",
+            }}
+            class="px-12 py-3.5 rounded-xl bg-accent text-white font-semibold text-base hover:bg-accent-hover shadow-lg shadow-shadow"
           >
             Start Game
           </button>
