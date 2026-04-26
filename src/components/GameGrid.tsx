@@ -11,7 +11,7 @@ const games: GameCard[] = [
   { name: "Sudoku", icon: "⊞", active: true, href: "/sudoku" },
   { name: "Chess", icon: "♞", active: false },
   { name: "Wordle", icon: "W", active: false },
-  { name: "Minesweeper", icon: "✱", active: false },
+  { name: "Minesweeper", icon: "✱", active: true, href: "/minesweeper" },
   { name: "Nonograms", icon: "▦", active: false },
   { name: "2048", icon: "2", active: false },
 ];
@@ -114,6 +114,78 @@ function GameIcon(props: { name: string }) {
   );
 }
 
+function MiniMinesweeperGrid() {
+  const [cells, setCells] = createSignal<("hidden" | "revealed" | "flagged")[]>([]);
+
+  onMount(() => {
+    const totalCells = 64; // 8×8 mini grid
+    const initial: ("hidden" | "revealed" | "flagged")[] = Array(totalCells).fill("hidden");
+    setCells(initial);
+
+    const interval = setInterval(() => {
+      setCells((prev) => {
+        const next = [...prev];
+        // Find a hidden cell to reveal or flag
+        const hiddenIndices = next.reduce<number[]>((acc, c, i) => {
+          if (c === "hidden") acc.push(i);
+          return acc;
+        }, []);
+
+        if (hiddenIndices.length <= 5) {
+          // Reset: hide all cells
+          return Array(totalCells).fill("hidden");
+        }
+
+        // Pick a random hidden cell
+        const pick = hiddenIndices[Math.floor(Math.random() * hiddenIndices.length)];
+        // 80% reveal, 20% flag
+        next[pick] = Math.random() < 0.8 ? "revealed" : "flagged";
+        return next;
+      });
+    }, 150);
+
+    onCleanup(() => clearInterval(interval));
+  });
+
+  return (
+    <div class="grid grid-cols-8 gap-[1px] p-2 w-full max-w-[160px] mx-auto rounded-lg bg-border overflow-hidden">
+      <For each={cells()}>
+        {(cell) => (
+          <div
+            class="flex items-center justify-center aspect-square transition-all duration-300"
+            style={{
+              "background-color": cell === "hidden" ? "var(--color-surface)" : "var(--color-bg)",
+              opacity: cell === "hidden" ? "0.4" : "0.9",
+              transform: cell === "hidden" ? "scale(0.9)" : "scale(1)",
+            }}
+          >
+            {cell === "flagged" ? (
+              <svg
+                width="7"
+                height="7"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--color-accent)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              >
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                <line x1="4" y1="22" x2="4" y2="15" />
+              </svg>
+            ) : null}
+          </div>
+        )}
+      </For>
+    </div>
+  );
+}
+
+function GamePreview(props: { name: string }) {
+  if (props.name === "Sudoku") return <MiniSudokuGrid />;
+  if (props.name === "Minesweeper") return <MiniMinesweeperGrid />;
+  return <div class="w-full max-w-[160px] aspect-[4/3]" />;
+}
+
 export default function GameGrid() {
   return (
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 max-w-4xl mx-auto px-4">
@@ -126,7 +198,7 @@ export default function GameGrid() {
             >
               <div class="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-success opacity-70" />
               <h3 class="font-display text-3xl text-fg italic">{game.name}</h3>
-              <MiniSudokuGrid />
+              <GamePreview name={game.name} />
               <span class="text-xs text-fg-tertiary group-hover:text-accent transition-colors">
                 Click to play →
               </span>
