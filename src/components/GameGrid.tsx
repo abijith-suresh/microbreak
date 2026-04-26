@@ -122,27 +122,31 @@ function MiniMinesweeperGrid() {
     const initial: ("hidden" | "revealed" | "flagged")[] = Array(totalCells).fill("hidden");
     setCells(initial);
 
+    // Match Sudoku's batch cadence: 3 cells per 120 ms tick
+    const batchSize = 3;
+
     const interval = setInterval(() => {
       setCells((prev) => {
         const next = [...prev];
-        // Find a hidden cell to reveal or flag
         const hiddenIndices = next.reduce<number[]>((acc, c, i) => {
           if (c === "hidden") acc.push(i);
           return acc;
         }, []);
 
         if (hiddenIndices.length <= 5) {
-          // Reset: hide all cells
+          // Reset: hide all cells and start the cycle again
           return Array(totalCells).fill("hidden");
         }
 
-        // Pick a random hidden cell
-        const pick = hiddenIndices[Math.floor(Math.random() * hiddenIndices.length)];
-        // 80% reveal, 20% flag
-        next[pick] = Math.random() < 0.8 ? "revealed" : "flagged";
+        // Reveal / flag up to batchSize hidden cells per tick
+        for (let b = 0; b < batchSize && hiddenIndices.length - b > 5; b++) {
+          const idx = Math.floor(Math.random() * (hiddenIndices.length - b));
+          const pick = hiddenIndices.splice(idx, 1)[0];
+          next[pick] = Math.random() < 0.8 ? "revealed" : "flagged";
+        }
         return next;
       });
-    }, 150);
+    }, 120);
 
     onCleanup(() => clearInterval(interval));
   });
@@ -155,8 +159,8 @@ function MiniMinesweeperGrid() {
             class="flex items-center justify-center aspect-square transition-all duration-300"
             style={{
               "background-color": cell === "hidden" ? "var(--color-surface)" : "var(--color-bg)",
-              opacity: cell === "hidden" ? "0.4" : "0.9",
-              transform: cell === "hidden" ? "scale(0.9)" : "scale(1)",
+              opacity: cell === "hidden" ? "0" : "0.9",
+              transform: cell === "hidden" ? "scale(0.3)" : "scale(1)",
             }}
           >
             {cell === "flagged" ? (
