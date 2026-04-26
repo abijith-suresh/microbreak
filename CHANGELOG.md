@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.7] - 2026-04-26
+
+### Added
+
+- Minesweeper: centre-out board entrance animation and pre-result animations (win ripple and loss blast).
+- CSS keyframe for mine blast and updated landing preview animation cadence to match Sudoku.
+
+### Changed
+
+- Minesweeper game flow: delayed result reveal to allow pre-result animations (completing/completionOrigin signals and triggerCompletion API).
+- Mini Minesweeper preview: unified speed and scale with Sudoku (batchSize=3, interval=120ms, scale 0.3→1, opacity 0→0.9).
+
+### Removed
+
+- PLAN.md used for the feature plan (moved to PR history).
+
 ## [0.0.5] - 2026-04-24
 
 ### Added
