@@ -1,5 +1,6 @@
-import { Show } from "solid-js";
+import { Show, createSignal } from "solid-js";
 import { createSudokuGame } from "@/lib/sudokuGame";
+import { getBoxDims, type GridSize } from "@/lib/sudoku";
 import SudokuBoard from "./SudokuBoard";
 import SudokuSetup from "./SudokuSetup";
 import NumberPad from "./NumberPad";
@@ -18,8 +19,84 @@ function sizeLabel(size: number): string {
   return "9×9";
 }
 
+// ── Skeleton board ─────────────────────────────────────────────────────────────
+/**
+ * Shown for the brief window (~1 frame) while the puzzle is generating.
+ * Matches the board's grid dimensions with pulsing empty cells so the layout
+ * doesn't jump when the real board mounts.
+ */
+function SkeletonBoard(props: { size: GridSize }) {
+  const cellSizeClass = () => {
+    if (props.size === 4) return "w-16 h-16 md:w-20 md:h-20";
+    if (props.size === 6) return "w-13 h-13 md:w-16 md:h-16";
+    return "w-9 h-9 md:w-12 md:h-12";
+  };
+
+  const numBtnClass = () => {
+    if (props.size === 4) return "w-14 h-14";
+    if (props.size === 6) return "w-12 h-12";
+    return "w-10 h-10 md:w-11 md:h-11";
+  };
+
+  const [, boxCols] = getBoxDims(props.size);
+  const center = (props.size - 1) / 2;
+
+  return (
+    <div class="flex flex-col items-center gap-6">
+      {/* Grid */}
+      <div
+        class="inline-grid rounded-sm overflow-hidden border-[2.5px] border-border-strong shadow-md shadow-shadow"
+        style={{ "grid-template-columns": `repeat(${props.size}, auto)` }}
+      >
+        {Array.from({ length: props.size * props.size }, (_, idx) => {
+          const row = Math.floor(idx / props.size);
+          const col = idx % props.size;
+          const dist = Math.abs(row - center) + Math.abs(col - center);
+          const delay = Math.round(dist * 60);
+
+          // Box-boundary right border
+          const rightBorder =
+            col === props.size - 1
+              ? "border-r-[2.5px]"
+              : (col + 1) % boxCols === 0
+                ? "border-r-[2px]"
+                : "border-r";
+
+          return (
+            <div
+              class={`${cellSizeClass()} ${rightBorder} border-b border-border bg-surface`}
+              style={{ animation: `skeletonPulse 1.4s ease-in-out ${delay}ms infinite` }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Number pad skeleton */}
+      <div
+        class="flex gap-1.5"
+        style={{
+          animation: "skeletonPulse 1.4s ease-in-out 200ms infinite",
+        }}
+      >
+        {Array.from({ length: props.size }, (_, i) => (
+          <div
+            class={`${numBtnClass()} rounded-lg bg-surface border border-border`}
+            style={{ animation: `skeletonPulse 1.4s ease-in-out ${i * 70}ms infinite` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── App ────────────────────────────────────────────────────────────────────────
 export default function SudokuApp() {
   const game = createSudokuGame();
+
+  // Press feedback for the top-bar "New Game" and bottom-bar "Restart" buttons.
+  // Using JS pointer events instead of CSS :active so it works on iOS Safari.
+  const [newGamePressed, setNewGamePressed] = createSignal(false);
+  const [restartPressed, setRestartPressed] = createSignal(false);
 
   function handleBackToGames() {
     window.location.href = "/";
@@ -45,12 +122,25 @@ export default function SudokuApp() {
 
       {/* ── Playing Phase ────────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && !game.completed()}>
-        <div class="flex flex-col min-h-screen">
+        {/*
+          The container fades in as one unit. Individual cells then cascade in
+          centre-outward via the `cellReveal` keyframe inside SudokuBoard,
+          giving the puzzle a "materialising" entrance.
+        */}
+        <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.35s ease-out both" }}>
           {/* Top bar */}
           <div class="flex items-center justify-between px-5 py-3">
             <button
               onClick={game.restart}
-              class="flex items-center gap-1.5 text-fg-tertiary hover:text-fg transition-colors duration-200"
+              onPointerDown={() => setNewGamePressed(true)}
+              onPointerUp={() => setNewGamePressed(false)}
+              onPointerLeave={() => setNewGamePressed(false)}
+              onPointerCancel={() => setNewGamePressed(false)}
+              style={{
+                transition: "color 0.2s ease, transform 0.1s ease-out",
+                transform: newGamePressed() ? "scale(0.93)" : "",
+              }}
+              class="flex items-center gap-1.5 text-fg-tertiary hover:text-fg"
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
                 <path
@@ -88,7 +178,7 @@ export default function SudokuApp() {
                 game.solution().length === game.gridSize() &&
                 game.userBoard().length === game.gridSize()
               }
-              fallback={<div class="text-fg-tertiary text-sm">Loading puzzle…</div>}
+              fallback={<SkeletonBoard size={game.gridSize()} />}
             >
               <SudokuBoard
                 puzzle={game.puzzle()}
@@ -103,12 +193,16 @@ export default function SudokuApp() {
                 completingGroups={game.completingGroups()}
               />
 
-              <NumberPad
-                size={game.gridSize()}
-                onNumber={game.handleKeyboardNumber}
-                onErase={game.handleKeyboardErase}
-                placedCounts={game.numberPlacedCounts}
-              />
+              {/* Number pad fades in slightly after the board so cells have
+                  a head-start on their cascade before the pad appears */}
+              <div style={{ animation: "fadeIn 0.3s ease-out 0.2s both" }}>
+                <NumberPad
+                  size={game.gridSize()}
+                  onNumber={game.handleKeyboardNumber}
+                  onErase={game.handleKeyboardErase}
+                  placedCounts={game.numberPlacedCounts}
+                />
+              </div>
             </Show>
           </div>
 
@@ -116,7 +210,16 @@ export default function SudokuApp() {
           <div class="px-4 pb-5 flex justify-center">
             <button
               onClick={game.restart}
-              class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-tertiary transition-all duration-200 hover:border-accent hover:text-accent active:scale-95"
+              onPointerDown={() => setRestartPressed(true)}
+              onPointerUp={() => setRestartPressed(false)}
+              onPointerLeave={() => setRestartPressed(false)}
+              onPointerCancel={() => setRestartPressed(false)}
+              style={{
+                transition:
+                  "border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease, transform 0.1s ease-out",
+                transform: restartPressed() ? "scale(0.93)" : "",
+              }}
+              class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-tertiary hover:border-accent hover:text-accent"
             >
               Restart
             </button>
