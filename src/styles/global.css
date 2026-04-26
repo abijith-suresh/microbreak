@@ -78,6 +78,16 @@
   --color-shadow: var(--color-shadow);
   --color-shadow-strong: var(--color-shadow-strong);
   --color-completion-bg: var(--color-completion-bg);
+
+  /* Minesweeper number colors (1–8) */
+  --color-ms-1: var(--color-ms-1);
+  --color-ms-2: var(--color-ms-2);
+  --color-ms-3: var(--color-ms-3);
+  --color-ms-4: var(--color-ms-4);
+  --color-ms-5: var(--color-ms-5);
+  --color-ms-6: var(--color-ms-6);
+  --color-ms-7: var(--color-ms-7);
+  --color-ms-8: var(--color-ms-8);
 }
 
 /* ─── Theme Tokens ─── */
@@ -105,6 +115,16 @@
   --color-completion-bg: #faf9f6;
   --color-shadow: rgba(26, 25, 23, 0.06);
   --color-shadow-strong: rgba(26, 25, 23, 0.12);
+
+  /* Minesweeper number colors — standard palette adapted for light */
+  --color-ms-1: #2563eb;
+  --color-ms-2: #16a34a;
+  --color-ms-3: #dc2626;
+  --color-ms-4: #1e3a8a;
+  --color-ms-5: #991b1b;
+  --color-ms-6: #0d9488;
+  --color-ms-7: #374151;
+  --color-ms-8: #9ca3af;
   color-scheme: light;
 }
 
@@ -131,6 +151,16 @@
   --color-completion-bg: #141413;
   --color-shadow: rgba(0, 0, 0, 0.2);
   --color-shadow-strong: rgba(0, 0, 0, 0.35);
+
+  /* Minesweeper number colors — adapted for dark backgrounds */
+  --color-ms-1: #60a5fa;
+  --color-ms-2: #4ade80;
+  --color-ms-3: #f87171;
+  --color-ms-4: #93c5fd;
+  --color-ms-5: #fca5a5;
+  --color-ms-6: #2dd4bf;
+  --color-ms-7: #d1d5db;
+  --color-ms-8: #6b7280;
   color-scheme: dark;
 }
 
@@ -164,6 +194,17 @@ body {
     background-color 0.15s ease-out,
     border-color 0.2s ease-out,
     transform 0.1s ease-out;
+}
+
+/* ─── Minesweeper Cell Base ─── */
+.minesweeper-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  user-select: none;
+  position: relative;
+  border-color: var(--color-border);
 }
 
 /* ─── Animations ─── */
