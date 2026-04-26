@@ -1,5 +1,5 @@
 import type { Difficulty, GridSize } from "@/lib/sudoku";
-import { onMount } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 
 interface Props {
   solveTime: number;
@@ -24,6 +24,14 @@ function sizeLabel(size: GridSize): string {
 
 export default function CompletionScreen(props: Props) {
   let svgRef: SVGSVGElement | undefined;
+
+  // Press feedback — same JS-pointer approach used throughout the game
+  // so it works correctly on iOS Safari.
+  const [playAgainPressed, setPlayAgainPressed] = createSignal(false);
+  const [backPressed, setBackPressed] = createSignal(false);
+
+  const BTN_TRANSITION =
+    "background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease-out";
 
   onMount(() => {
     if (svgRef) {
@@ -100,13 +108,29 @@ export default function CompletionScreen(props: Props) {
       >
         <button
           onClick={() => props.onPlayAgain()}
-          class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm transition-all duration-200 hover:bg-accent-hover active:scale-[0.97]"
+          onPointerDown={() => setPlayAgainPressed(true)}
+          onPointerUp={() => setPlayAgainPressed(false)}
+          onPointerLeave={() => setPlayAgainPressed(false)}
+          onPointerCancel={() => setPlayAgainPressed(false)}
+          style={{
+            transition: BTN_TRANSITION,
+            transform: playAgainPressed() ? "scale(0.93)" : "",
+          }}
+          class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover"
         >
           Play Again
         </button>
         <button
           onClick={() => props.onBackToGames()}
-          class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm transition-all duration-200 hover:border-accent hover:text-accent active:scale-[0.97]"
+          onPointerDown={() => setBackPressed(true)}
+          onPointerUp={() => setBackPressed(false)}
+          onPointerLeave={() => setBackPressed(false)}
+          onPointerCancel={() => setBackPressed(false)}
+          style={{
+            transition: BTN_TRANSITION,
+            transform: backPressed() ? "scale(0.93)" : "",
+          }}
+          class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent"
         >
           Back to Games
         </button>

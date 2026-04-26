@@ -1,4 +1,4 @@
-import { createEffect, onCleanup } from "solid-js";
+import { For, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import {
   getBoxDims,
   type Board,
@@ -24,7 +24,23 @@ interface Props {
 export default function SudokuBoard(props: Props) {
   const size = () => props.size;
 
-  // ── Keyboard navigation ───────────────────────────────────────────────────
+  // ── Entrance animation ─────────────────────────────────────────────────────
+  /**
+   * `entering` is true from mount until the last cell's entrance animation
+   * finishes. While true, cells play the `cellReveal` keyframe and skip
+   * highlight / press feedback (animation takes visual precedence).
+   *
+   * Max Manhattan distance from centre = size - 1.
+   * Each step adds 28 ms of delay; the keyframe itself runs for 500 ms.
+   */
+  const [entering, setEntering] = createSignal(true);
+  onMount(() => {
+    const maxDelay = (props.size - 1) * 28; // ms
+    const timer = setTimeout(() => setEntering(false), maxDelay + 520);
+    onCleanup(() => clearTimeout(timer));
+  });
+
+  // ── Keyboard navigation ────────────────────────────────────────────────────
   function handleKeyDown(e: KeyboardEvent) {
     const sel = props.selectedCell;
     if (!sel) {
@@ -81,9 +97,8 @@ export default function SudokuBoard(props: Props) {
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });
 
-  // ── Per-cell computations ─────────────────────────────────────────────────
+  // ── Per-cell helpers ───────────────────────────────────────────────────────
 
-  /** Border width/side classes based on position in the grid */
   function cellBorderClasses(row: number, col: number): string {
     const [boxRows, boxCols] = getBoxDims(size());
     const borders: string[] = [];
@@ -102,15 +117,6 @@ export default function SudokuBoard(props: Props) {
     return borders.join(" ");
   }
 
-  /**
-   * Compute the highlight tier for a cell relative to the selected cell.
-   *
-   * Priority (high → low):
-   *   selected > row-col > box > number > null
-   *
-   * 'row-col' beats 'number': a cell in the same row/col that shares a value
-   * gets row-col, not number.
-   */
   function computeHighlight(row: number, col: number, value: Cell): CellHighlight {
     const sel = props.selectedCell;
     if (!sel) return null;
@@ -130,12 +136,6 @@ export default function SudokuBoard(props: Props) {
     return null;
   }
 
-  /**
-   * Compute the sweep animation delay (ms) for a cell based on which groups
-   * are currently completing. Returns null if the cell is not in any group.
-   * When a cell qualifies for multiple groups, the minimum delay is used so
-   * it lights up as early as possible.
-   */
   function computeSweepDelay(row: number, col: number): number | null {
     const groups = props.completingGroups;
     if (!groups.length) return null;
@@ -179,44 +179,76 @@ export default function SudokuBoard(props: Props) {
     return "w-9 h-9 md:w-12 md:h-12";
   }
 
+  // ── Flat cell index list ───────────────────────────────────────────────────
+  /**
+   * A memoised flat array of indices 0 … size²-1.
+   * Using <For> over this stable array means SolidJS never recreates cell DOM
+   * nodes when unrelated signals change (e.g. selectedCell). Each cell's
+   * reactive computations are isolated in their own scope, so a selection
+   * change only re-runs `computeHighlight` — not `computeSweepDelay` — which
+   * prevents CSS animations from restarting mid-play.
+   */
+  const cellIndices = createMemo(() => Array.from({ length: size() * size() }, (_, i) => i));
+
   return (
     <div
       class="inline-grid border-border-strong rounded-sm overflow-hidden shadow-md shadow-shadow"
       style={{ "grid-template-columns": `repeat(${size()}, auto)` }}
     >
-      {Array.from({ length: size() }, (_, row) =>
-        Array.from({ length: size() }, (_, col) => {
-          const isGiven = props.puzzle[row][col] !== null;
-          const value = props.userBoard[row][col];
-          const isError = props.conflictedCells.has(`${row},${col}`);
-          const highlight = computeHighlight(row, col, value);
+      <For each={cellIndices()}>
+        {(idx) => {
+          const row = Math.floor(idx / size());
+          const col = idx % size();
 
-          // Full-board completion wave: stagger by Manhattan distance from origin
-          const origin = props.completionOrigin;
-          const completingDelay =
-            props.completing && origin
+          // ── Reactive per-cell getters ──────────────────────────────────────
+          // Each getter has its own reactive dependency set. Changing
+          // `selectedCell` only re-runs `highlight` (which reads
+          // `props.selectedCell`). `sweepDelay` only re-runs when
+          // `props.completingGroups` or `props.completing` changes — keeping
+          // the group-sweep animation stable across selection changes.
+          const value = () => props.userBoard[row]?.[col] ?? null;
+          const isGiven = () => !!props.puzzle[row]?.[col];
+          const isError = () => props.conflictedCells.has(`${row},${col}`);
+          const highlight = () => computeHighlight(row, col, value());
+
+          const completingDelay = () => {
+            const origin = props.completionOrigin;
+            return props.completing && origin
               ? (Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 50
               : 0;
+          };
 
-          const sweepDelay = props.completing ? null : computeSweepDelay(row, col);
+          const sweepDelay = () => (props.completing ? null : computeSweepDelay(row, col));
+
+          // ── Static per-cell values (stable for the lifetime of this board) ─
+          const centerRow = (size() - 1) / 2;
+          const centerCol = (size() - 1) / 2;
+          const entranceDelay = Math.round(
+            (Math.abs(row - centerRow) + Math.abs(col - centerCol)) * 28
+          );
+          const borders = cellBorderClasses(row, col);
+          const cs = cellSize();
+          const fs = fontSize();
 
           return (
             <SudokuCell
-              value={value}
-              isGiven={isGiven}
-              highlight={highlight}
-              isError={isError}
+              value={value()}
+              isGiven={isGiven()}
+              highlight={highlight()}
+              isError={isError()}
               isCompleting={props.completing}
-              completingDelay={completingDelay}
-              sweepDelay={sweepDelay}
-              borderClasses={cellBorderClasses(row, col)}
-              cellSize={cellSize()}
-              fontSize={fontSize()}
+              completingDelay={completingDelay()}
+              sweepDelay={sweepDelay()}
+              entering={entering()}
+              entranceDelay={entranceDelay}
+              borderClasses={borders}
+              cellSize={cs}
+              fontSize={fs}
               onSelect={() => props.onSelectCell(row, col)}
             />
           );
-        })
-      )}
+        }}
+      </For>
     </div>
   );
 }
