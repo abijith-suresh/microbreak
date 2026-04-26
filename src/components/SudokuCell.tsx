@@ -1,3 +1,4 @@
+import { createSignal } from "solid-js";
 import type { Cell } from "@/lib/sudoku";
 
 export type CellHighlight = "selected" | "row-col" | "box" | "number" | null;
@@ -13,6 +14,10 @@ interface Props {
   completingDelay: number;
   /** ms delay for the group sweep (null = not part of any completing group) */
   sweepDelay: number | null;
+  /** True while the board entrance animation is playing */
+  entering: boolean;
+  /** ms delay for the center-outward entrance stagger */
+  entranceDelay: number;
   /** Border width/side classes computed by SudokuBoard (box boundaries) */
   borderClasses: string;
   cellSize: string;
@@ -21,13 +26,21 @@ interface Props {
 }
 
 export default function SudokuCell(props: Props) {
+  // ── Press feedback ─────────────────────────────────────────────────────────
+  const [pressing, setPressing] = createSignal(false);
+
+  // True whenever a keyframe animation owns the transform/opacity
+  const isAnimating = () => props.entering || props.isCompleting || props.sweepDelay !== null;
+
+  // ── Background class ───────────────────────────────────────────────────────
   /**
-   * Background class.
-   * Completing wave and group sweep are handled via inline animation styles,
-   * so we skip the static bg when an animation is running.
+   * During sweep/completion, the keyframe handles background — return "".
+   * During entrance, show the natural cell background so it fades in correctly.
+   * Otherwise use the highlight-based background.
    */
   const bgClass = () => {
     if (props.isCompleting || props.sweepDelay !== null) return "";
+    if (props.entering) return props.isGiven ? "bg-surface" : "bg-bg";
     switch (props.highlight) {
       case "selected":
         return "bg-selected";
@@ -42,11 +55,7 @@ export default function SudokuCell(props: Props) {
     }
   };
 
-  /**
-   * Text colour + font-weight based on cell state.
-   * Error always gets text-error; given gets text-fg font-bold; user gets
-   * text-accent font-medium; empty gets no explicit colour.
-   */
+  // ── Text class ─────────────────────────────────────────────────────────────
   const textClass = () => {
     if (props.isError) return "text-error font-medium";
     if (props.isGiven) return "text-fg font-bold";
@@ -54,39 +63,55 @@ export default function SudokuCell(props: Props) {
     return "";
   };
 
-  /**
-   * Border colour — if error, use error colour; otherwise use the theme border.
-   * z-[1] on error cells ensures the coloured border overlaps adjacent borders.
-   */
+  // ── Border colour ──────────────────────────────────────────────────────────
   const borderColorClass = () => (props.isError ? "border-error z-[1]" : "border-border");
 
+  // ── Hover class ────────────────────────────────────────────────────────────
+  const hoverClass = () =>
+    !props.isCompleting && props.sweepDelay === null && props.highlight === null && !props.entering
+      ? "hover:bg-surface-hover"
+      : "";
+
+  // ── Combined style (animation + press transform) ───────────────────────────
   /**
-   * Inline animation style. Completing wave takes visual precedence over the
-   * group sweep. The error flash keyframe is also applied here so it replays
-   * each time a new conflict is introduced.
+   * Always returns an object with both `animation` and `transform` so SolidJS
+   * reliably clears whichever property is not in use, preventing stale styles
+   * from a previous phase bleeding into the next.
+   *
+   * Priority: entrance > completion wave > group sweep > normal (error/press)
    */
-  const animationStyle = () => {
+  const combinedStyle = (): { animation: string; transform: string } => {
+    // 1. Board entrance — highest priority; cells materialise from the centre
+    if (props.entering) {
+      return {
+        animation: `cellReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${props.entranceDelay}ms both`,
+        transform: "",
+      };
+    }
+
+    // 2. Full-board completion wave
     if (props.isCompleting) {
       return {
         animation: `completionWave 0.5s ease-out ${props.completingDelay}ms forwards`,
+        transform: "",
       };
     }
+
+    // 3. Group sweep (row / col / box just completed)
     if (props.sweepDelay !== null) {
       return {
         animation: `groupSweep 0.45s ease-out ${props.sweepDelay}ms forwards`,
+        transform: "",
       };
     }
-    if (props.isError) {
-      return { animation: "errorAppear 0.2s ease-out" };
-    }
-    return undefined;
-  };
 
-  /** Only show hover background when the cell has no highlight / animation */
-  const hoverClass = () =>
-    !props.isCompleting && props.sweepDelay === null && props.highlight === null
-      ? "hover:bg-surface-hover"
-      : "";
+    // 4. Normal state — error flash and/or press transform
+    return {
+      animation: props.isError ? "errorAppear 0.2s ease-out" : "",
+      // Press transform only when no animation is running
+      transform: pressing() && !isAnimating() ? "scale(0.93)" : "",
+    };
+  };
 
   return (
     <button
@@ -103,8 +128,12 @@ export default function SudokuCell(props: Props) {
       ]
         .filter(Boolean)
         .join(" ")}
-      style={animationStyle()}
+      style={combinedStyle()}
       onClick={props.onSelect}
+      onPointerDown={() => setPressing(true)}
+      onPointerUp={() => setPressing(false)}
+      onPointerLeave={() => setPressing(false)}
+      onPointerCancel={() => setPressing(false)}
     >
       {props.value}
     </button>
