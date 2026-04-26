@@ -1,3 +1,4 @@
+import { createSignal } from "solid-js";
 import type { GridSize } from "@/lib/sudoku";
 
 interface Props {
@@ -8,9 +9,20 @@ interface Props {
   placedCounts: () => Record<number, number>;
 }
 
+/** Shared transition string — fast press-in, slightly slower release */
+const PRESS_TRANSITION =
+  "border-color 0.15s ease-out, color 0.15s ease-out, background-color 0.15s ease-out, transform 0.1s ease-out";
+
 export default function NumberPad(props: Props) {
   const numbers = () => Array.from({ length: props.size }, (_, i) => i + 1);
 
+  // ── Press state ────────────────────────────────────────────────────────────
+  // A single signal tracks which number button is currently pressed (if any).
+  // The erase button has its own boolean signal.
+  const [pressedNum, setPressedNum] = createSignal<number | null>(null);
+  const [erasePressed, setErasePressed] = createSignal(false);
+
+  // ── Layout helpers ─────────────────────────────────────────────────────────
   const buttonSize = () => {
     switch (props.size) {
       case 4:
@@ -42,21 +54,38 @@ export default function NumberPad(props: Props) {
           <button
             onClick={() => props.onNumber(num)}
             disabled={isDone(num)}
+            onPointerDown={() => !isDone(num) && setPressedNum(num)}
+            onPointerUp={() => setPressedNum(null)}
+            onPointerLeave={() => setPressedNum(null)}
+            onPointerCancel={() => setPressedNum(null)}
+            style={{
+              transition: PRESS_TRANSITION,
+              transform: pressedNum() === num ? "scale(0.93)" : "",
+            }}
             class={[
               buttonSize(),
-              "relative flex items-center justify-center rounded-lg bg-surface border border-border font-medium transition-all",
+              "relative flex items-center justify-center rounded-lg bg-surface border border-border font-medium",
               isDone(num)
                 ? "opacity-35 pointer-events-none text-fg-tertiary"
-                : "text-fg hover:border-accent hover:text-accent hover:bg-accent-light active:scale-95",
+                : "text-fg hover:border-accent hover:text-accent hover:bg-accent-light",
             ].join(" ")}
           >
             {num}
           </button>
         ))}
       </div>
+
       <button
         onClick={() => props.onErase()}
-        class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-secondary transition-all hover:border-error hover:text-error hover:bg-accent-light active:scale-95"
+        onPointerDown={() => setErasePressed(true)}
+        onPointerUp={() => setErasePressed(false)}
+        onPointerLeave={() => setErasePressed(false)}
+        onPointerCancel={() => setErasePressed(false)}
+        style={{
+          transition: PRESS_TRANSITION,
+          transform: erasePressed() ? "scale(0.93)" : "",
+        }}
+        class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-secondary hover:border-error hover:text-error hover:bg-accent-light"
       >
         Erase
       </button>
