@@ -173,7 +173,7 @@ export function resetTileIdCounter() {
   _nextTileId = 1;
 }
 
-function nextTileId(): number {
+export function nextTileId(): number {
   return _nextTileId++;
 }
 

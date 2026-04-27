@@ -5,6 +5,7 @@ import {
   createEmptyGrid,
   hasWon,
   moveWithTiles,
+  nextTileId,
   resetTileIdCounter,
   spawnTile,
   type Direction,
@@ -109,12 +110,12 @@ export function create2048Game() {
     let g = createEmptyGrid();
     const spawned: Tile[] = [];
 
-    const first = spawnTile(g, 1);
+    const first = spawnTile(g, nextTileId());
     if (first) {
       g = first.grid;
       spawned.push(first.tile);
     }
-    const second = spawnTile(g, 2);
+    const second = spawnTile(g, nextTileId());
     if (second) {
       g = second.grid;
       spawned.push(second.tile);
