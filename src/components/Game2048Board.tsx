@@ -1,4 +1,4 @@
-import { For, onCleanup, onMount } from "solid-js";
+import { For, createSignal, onCleanup, onMount } from "solid-js";
 import type { Direction, Tile } from "@/lib/game2048";
 import Game2048Tile from "./Game2048Tile";
 
@@ -11,19 +11,13 @@ export default function Game2048Board(props: Props) {
   const GAP = 8;
   const CELLS = 4;
 
-  // Responsive cell size — board fits within a max-width container
-  // We compute cell size from the container width
   let containerRef: HTMLDivElement | undefined;
-  let cellSize = 80; // default
+  const [cellSize, setCellSize] = createSignal(80);
 
   function recalcCellSize() {
     if (!containerRef) return;
-    const containerWidth = containerRef.clientWidth;
-    // Board width = GAP + CELLS * (cellSize + GAP)
-    // cellSize = (containerWidth - GAP * (CELLS + 1)) / CELLS
-    cellSize = Math.floor((containerWidth - GAP * (CELLS + 1)) / CELLS);
-    // Force a re-render by dispatching a custom event (SolidJS won't re-render on a plain variable)
-    containerRef.dispatchEvent(new CustomEvent("board-resize"));
+    const w = containerRef.clientWidth;
+    setCellSize(Math.floor((w - GAP * (CELLS + 1)) / CELLS));
   }
 
   onMount(() => {
@@ -67,7 +61,7 @@ export default function Game2048Board(props: Props) {
 
   // ── Render ──────────────────────────────────────────────────────────────
 
-  const boardWidth = () => GAP * (CELLS + 1) + cellSize * CELLS;
+  const boardWidth = () => GAP * (CELLS + 1) + cellSize() * CELLS;
 
   return (
     <div
@@ -116,7 +110,7 @@ export default function Game2048Board(props: Props) {
             col={tile.col}
             isNew={tile.isNew}
             isMerging={tile.isMerging}
-            cellSize={cellSize}
+            cellSize={cellSize()}
             gap={GAP}
           />
         )}
