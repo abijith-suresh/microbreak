@@ -261,6 +261,110 @@ export function move(grid: Grid, dir: Direction): MoveResult {
   return { grid: newGrid, tiles, score: totalScore, moved: true };
 }
 
+// ── Stable-ID move ───────────────────────────────────────────────────────────
+
+/**
+ * Map (direction, lineIndex, position) → (row, col) in the grid.
+ * position=0 is the leading edge in the slide direction (where tiles pile up).
+ */
+function lineCoords(dir: Direction, lineIdx: number, pos: number): [number, number] {
+  switch (dir) {
+    case "left":
+      return [lineIdx, pos];
+    case "right":
+      return [lineIdx, 3 - pos];
+    case "up":
+      return [pos, lineIdx];
+    case "down":
+      return [3 - pos, lineIdx];
+  }
+}
+
+/** Build a Grid from a flat tile list. */
+export function buildGridFromTiles(tiles: Tile[]): Grid {
+  const g = createEmptyGrid();
+  for (const t of tiles) g[t.row][t.col] = t.value;
+  return g;
+}
+
+/**
+ * Apply a move while preserving stable tile IDs so the same DOM element
+ * persists across renders and CSS `transition: transform` can animate the slide.
+ *
+ * The tile at the lower position in the slide direction survives a merge
+ * (keeps its id, value doubles, isMerging=true).  The consumed tile is dropped
+ * from the result list.  A new tile is spawned after a successful move.
+ */
+export function moveWithTiles(currentTiles: Tile[], dir: Direction): MoveResult {
+  const posMap = new Map<string, Tile>();
+  for (const t of currentTiles) posMap.set(`${t.row},${t.col}`, t);
+
+  const resultTiles: Tile[] = [];
+  let totalScore = 0;
+  let moved = false;
+
+  for (let lineIdx = 0; lineIdx < 4; lineIdx++) {
+    // Tiles in this line ordered from leading edge (pos 0) to trailing edge
+    const lineTiles: Tile[] = [];
+    for (let pos = 0; pos < 4; pos++) {
+      const [r, c] = lineCoords(dir, lineIdx, pos);
+      const t = posMap.get(`${r},${c}`);
+      if (t) lineTiles.push(t);
+    }
+
+    let targetPos = 0;
+    let i = 0;
+    while (i < lineTiles.length) {
+      const [newR, newC] = lineCoords(dir, lineIdx, targetPos);
+      const canMerge = i + 1 < lineTiles.length && lineTiles[i].value === lineTiles[i + 1].value;
+
+      if (canMerge) {
+        const mergedValue = lineTiles[i].value * 2;
+        totalScore += mergedValue;
+        if (lineTiles[i].row !== newR || lineTiles[i].col !== newC) moved = true;
+        if (lineTiles[i + 1].row !== newR || lineTiles[i + 1].col !== newC) moved = true;
+        resultTiles.push({
+          id: lineTiles[i].id,
+          value: mergedValue,
+          row: newR,
+          col: newC,
+          isNew: false,
+          isMerging: true,
+        });
+        i += 2;
+      } else {
+        if (lineTiles[i].row !== newR || lineTiles[i].col !== newC) moved = true;
+        resultTiles.push({
+          id: lineTiles[i].id,
+          value: lineTiles[i].value,
+          row: newR,
+          col: newC,
+          isNew: false,
+          isMerging: false,
+        });
+        i++;
+      }
+      targetPos++;
+    }
+  }
+
+  if (!moved) {
+    return { grid: buildGridFromTiles(currentTiles), tiles: currentTiles, score: 0, moved: false };
+  }
+
+  const newGrid = buildGridFromTiles(resultTiles);
+  const spawnResult = spawnTile(newGrid, nextTileId());
+  if (spawnResult) {
+    return {
+      grid: spawnResult.grid,
+      tiles: [...resultTiles, spawnResult.tile],
+      score: totalScore,
+      moved: true,
+    };
+  }
+  return { grid: newGrid, tiles: resultTiles, score: totalScore, moved: true };
+}
+
 // ── Win / loss detection ───────────────────────────────────────────────────────
 
 export function hasWon(grid: Grid): boolean {
