@@ -138,7 +138,7 @@ export default function Game2048App() {
           {/* Game board */}
           <div class="flex-1 flex flex-col items-center justify-center gap-4 py-6 px-4">
             <Show
-              when={game.tiles().length > 0}
+              when={game.tiles.length > 0}
               fallback={
                 <div
                   class="w-[320px] h-[320px] rounded-lg bg-surface border border-border"
@@ -146,7 +146,7 @@ export default function Game2048App() {
                 />
               }
             >
-              <Game2048Board tiles={game.tiles()} onMove={game.handleMove} />
+              <Game2048Board tiles={game.tiles} onMove={game.handleMove} />
             </Show>
           </div>
 

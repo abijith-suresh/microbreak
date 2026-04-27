@@ -1,17 +1,10 @@
-/**
- * create2048Game — SolidJS composable for all 2048 game state.
- *
- * Mirrors the sudokuGame.ts / minesweeperGame.ts architecture: encapsulates
- * signals, derived values, actions, timer management, and event listeners so
- * Game2048App.tsx can be a pure layout shell.
- */
-
 import { batch, createSignal, onCleanup, onMount } from "solid-js";
+import { createStore, produce, reconcile } from "solid-js/store";
 import {
   canMove,
   createEmptyGrid,
   hasWon,
-  move,
+  moveWithTiles,
   resetTileIdCounter,
   spawnTile,
   type Direction,
@@ -36,15 +29,15 @@ function saveBestScore(score: number) {
   try {
     localStorage.setItem("microbreak-2048-best", String(score));
   } catch {
-    // Ignore storage errors
+    // ignore
   }
 }
 
 export function create2048Game() {
-  // ── Raw signals ─────────────────────────────────────────────────────────
+  // ── Signals ─────────────────────────────────────────────────────────────
   const [phase, setPhase] = createSignal<Phase>("setup");
   const [grid, setGrid] = createSignal<Grid>(createEmptyGrid());
-  const [tiles, setTiles] = createSignal<Tile[]>([]);
+  const [tiles, setTiles] = createStore<Tile[]>([]);
   const [score, setScore] = createSignal(0);
   const [bestScore, setBestScore] = createSignal(loadBestScore());
   const [hasShownWin, setHasShownWin] = createSignal(false);
@@ -61,7 +54,9 @@ export function create2048Game() {
   // ── Timer ───────────────────────────────────────────────────────────────
 
   function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
+    // Don't restart if already running — prevents the interval from being
+    // recreated on every move, which would reset the 1-second cadence.
+    if (timerInterval) return;
     timerInterval = setInterval(() => setTimerSeconds((t) => t + 1), 1000);
   }
 
@@ -77,9 +72,7 @@ export function create2048Game() {
   function showScorePopup(value: number) {
     if (popupTimer) clearTimeout(popupTimer);
     const id = ++popupId;
-    batch(() => {
-      setScorePopup({ value, id });
-    });
+    setScorePopup({ value, id });
     popupTimer = setTimeout(() => {
       setScorePopup(null);
       popupTimer = null;
@@ -97,7 +90,7 @@ export function create2048Game() {
     hasWonOnce = false;
     batch(() => {
       setGrid(createEmptyGrid());
-      setTiles([]);
+      setTiles(reconcile([]));
       setScore(0);
       setHasShownWin(false);
       setGameOver(false);
@@ -113,7 +106,6 @@ export function create2048Game() {
     resetState();
     setPhase("playing");
 
-    // Create empty grid and spawn 2 initial tiles
     let g = createEmptyGrid();
     const spawned: Tile[] = [];
 
@@ -122,7 +114,6 @@ export function create2048Game() {
       g = first.grid;
       spawned.push(first.tile);
     }
-
     const second = spawnTile(g, 2);
     if (second) {
       g = second.grid;
@@ -131,7 +122,7 @@ export function create2048Game() {
 
     batch(() => {
       setGrid(g);
-      setTiles(spawned);
+      setTiles(reconcile(spawned));
     });
   }
 
@@ -148,17 +139,48 @@ export function create2048Game() {
     if (phase() !== "playing") return;
     if (gameOver()) return;
 
-    const currentGrid = grid();
-    const result = move(currentGrid, dir);
-
+    const result = moveWithTiles(tiles, dir);
     if (!result.moved) return;
 
     // Start timer on first move
     startTimer();
 
+    // Build a lookup of the new tile states by ID
+    const resultMap = new Map(result.tiles.map((t) => [t.id, t]));
+
     batch(() => {
       setGrid(result.grid);
-      setTiles(result.tiles);
+
+      setTiles(
+        produce((draft) => {
+          // 1. Update every tile that survived in place (same object → same DOM node → CSS transition fires)
+          for (const t of draft) {
+            const updated = resultMap.get(t.id);
+            if (updated) {
+              t.row = updated.row;
+              t.col = updated.col;
+              t.value = updated.value;
+              t.isNew = false;
+              t.isMerging = updated.isMerging;
+            }
+          }
+
+          // 2. Remove tiles consumed by a merge
+          for (let i = draft.length - 1; i >= 0; i--) {
+            if (!resultMap.has(draft[i].id)) {
+              draft.splice(i, 1);
+            }
+          }
+
+          // 3. Add the newly spawned tile
+          const existingIds = new Set(draft.map((t) => t.id));
+          for (const t of result.tiles) {
+            if (!existingIds.has(t.id)) {
+              draft.push({ ...t });
+            }
+          }
+        })
+      );
     });
 
     // Update score
@@ -166,14 +188,13 @@ export function create2048Game() {
       const newScore = score() + result.score;
       setScore(newScore);
       showScorePopup(result.score);
-
       if (newScore > bestScore()) {
         setBestScore(newScore);
         saveBestScore(newScore);
       }
     }
 
-    // Check win (only show overlay once)
+    // Check win (only once)
     if (!hasWonOnce && hasWon(result.grid)) {
       hasWonOnce = true;
       setHasShownWin(true);
@@ -190,7 +211,7 @@ export function create2048Game() {
     setHasShownWin(false);
   }
 
-  // ── Keyboard / swipe handling ───────────────────────────────────────────
+  // ── Keyboard handling ───────────────────────────────────────────────────
 
   function handleKeydown(e: KeyboardEvent) {
     const dirMap: Record<string, Direction> = {
@@ -232,7 +253,6 @@ export function create2048Game() {
   });
 
   return {
-    // Signals
     phase,
     grid,
     tiles,
@@ -242,7 +262,6 @@ export function create2048Game() {
     gameOver,
     timerSeconds,
     scorePopup,
-    // Actions
     startGame,
     restart,
     playAgain,
