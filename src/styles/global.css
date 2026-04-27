@@ -88,6 +88,15 @@
   --color-ms-6: var(--color-ms-6);
   --color-ms-7: var(--color-ms-7);
   --color-ms-8: var(--color-ms-8);
+
+  /* Wordle tile states */
+  --color-wl-correct: var(--color-wordle-correct);
+  --color-wl-present: var(--color-wordle-present);
+  --color-wl-absent: var(--color-wordle-absent);
+  --color-wl-correct-text: var(--color-wordle-correct-text);
+  --color-wl-present-text: var(--color-wordle-present-text);
+  --color-wl-absent-text: var(--color-wordle-absent-text);
+  --color-wl-key-text: var(--color-wordle-key-text);
 }
 
 /* ─── Theme Tokens ─── */
@@ -141,6 +150,16 @@
   --color-ms-6: #0d9488;
   --color-ms-7: #374151;
   --color-ms-8: #9ca3af;
+
+  /* Wordle tile state colors — warm earthy palette */
+  --color-wordle-correct: #c45d3e;
+  --color-wordle-present: #b8960c;
+  --color-wordle-absent: #d1cfc9;
+  --color-wordle-correct-text: #ffffff;
+  --color-wordle-present-text: #ffffff;
+  --color-wordle-absent-text: #ffffff;
+  --color-wordle-key-text: #1a1917;
+
   color-scheme: light;
 }
 
@@ -193,6 +212,16 @@
   --color-ms-6: #2dd4bf;
   --color-ms-7: #d1d5db;
   --color-ms-8: #6b7280;
+
+  /* Wordle tile state colors — adapted for dark backgrounds */
+  --color-wordle-correct: #e07a5a;
+  --color-wordle-present: #d4a825;
+  --color-wordle-absent: #3e3e3a;
+  --color-wordle-correct-text: #ffffff;
+  --color-wordle-present-text: #ffffff;
+  --color-wordle-absent-text: #eae8e2;
+  --color-wordle-key-text: #eae8e2;
+
   color-scheme: dark;
 }
 
@@ -426,6 +455,73 @@ body {
   100% {
     opacity: 0;
     transform: translateY(-28px);
+  }
+}
+
+/* ─── Wordle Tile Animations ─── */
+@keyframes tileFlip {
+  0% {
+    transform: rotateX(0deg);
+  }
+  45% {
+    transform: rotateX(90deg);
+  }
+  55% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+@keyframes tilePop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes rowShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+  30%,
+  70% {
+    transform: translateX(-3px);
+  }
+  40%,
+  60% {
+    transform: translateX(3px);
+  }
+  50% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes tileBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  70% {
+    transform: translateY(-8px);
   }
 }
 
