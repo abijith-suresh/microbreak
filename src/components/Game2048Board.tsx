@@ -20,30 +20,32 @@ export default function Game2048Board(props: Props) {
     setCellSize(Math.floor((w - GAP * (CELLS + 1)) / CELLS));
   }
 
-  onMount(() => {
-    recalcCellSize();
-    window.addEventListener("resize", recalcCellSize);
-  });
+  // ── Swipe / drag detection (pointer events: unified mouse + touch) ──────
+  //
+  // Using PointerEvents instead of TouchEvents means the same swipe code works
+  // for a mouse drag on desktop AND a finger swipe on mobile (including Safari).
+  // We also attach a non-passive touchmove listener so we can call
+  // preventDefault() and stop iOS Safari from scrolling the page during a swipe.
 
-  onCleanup(() => {
-    window.removeEventListener("resize", recalcCellSize);
-  });
-
-  // ── Swipe detection ─────────────────────────────────────────────────────
-
-  let touchStartX = 0;
-  let touchStartY = 0;
+  let pStartX = 0;
+  let pStartY = 0;
+  let pActive = false;
   const MIN_SWIPE = 30;
 
-  function handleTouchStart(e: TouchEvent) {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
+  function handlePointerDown(e: PointerEvent) {
+    // Only track the primary pointer (first finger, or left mouse button).
+    if (!e.isPrimary) return;
+    pStartX = e.clientX;
+    pStartY = e.clientY;
+    pActive = true;
   }
 
-  function handleTouchEnd(e: TouchEvent) {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
+  function handlePointerUp(e: PointerEvent) {
+    if (!e.isPrimary || !pActive) return;
+    pActive = false;
 
+    const dx = e.clientX - pStartX;
+    const dy = e.clientY - pStartY;
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
 
@@ -55,9 +57,40 @@ export default function Game2048Board(props: Props) {
     } else {
       dir = dy > 0 ? "down" : "up";
     }
-
     props.onMove(dir);
   }
+
+  function handlePointerCancel(e: PointerEvent) {
+    if (!e.isPrimary) return;
+    pActive = false;
+  }
+
+  // Non-passive: lets us call preventDefault() to block iOS Safari page scroll
+  // while the user is swiping on the board.
+  function handleTouchMove(e: TouchEvent) {
+    e.preventDefault();
+  }
+
+  onMount(() => {
+    recalcCellSize();
+    window.addEventListener("resize", recalcCellSize);
+    if (containerRef) {
+      containerRef.addEventListener("pointerdown", handlePointerDown);
+      containerRef.addEventListener("pointerup", handlePointerUp);
+      containerRef.addEventListener("pointercancel", handlePointerCancel);
+      containerRef.addEventListener("touchmove", handleTouchMove, { passive: false });
+    }
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("resize", recalcCellSize);
+    if (containerRef) {
+      containerRef.removeEventListener("pointerdown", handlePointerDown);
+      containerRef.removeEventListener("pointerup", handlePointerUp);
+      containerRef.removeEventListener("pointercancel", handlePointerCancel);
+      containerRef.removeEventListener("touchmove", handleTouchMove);
+    }
+  });
 
   // ── Render ──────────────────────────────────────────────────────────────
 
@@ -67,9 +100,6 @@ export default function Game2048Board(props: Props) {
     <div
       ref={(el) => {
         containerRef = el;
-        // Attach touch handlers
-        el.addEventListener("touchstart", handleTouchStart, { passive: true });
-        el.addEventListener("touchend", handleTouchEnd, { passive: true });
       }}
       class="relative select-none touch-none"
       style={{
