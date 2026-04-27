@@ -35,13 +35,16 @@ export function createWordleGame() {
   const [keyboardState, setKeyboardState] = createSignal<Record<string, LetterState>>({});
   const [shakeRow, setShakeRow] = createSignal(false);
   const [revealRow, setRevealRow] = createSignal(-1); // index of row currently revealing
+  const [pendingReveal, setPendingReveal] = createSignal<GuessResult | null>(null); // result during flip animation
   const [loading, setLoading] = createSignal(false);
   const [timerSeconds, setTimerSeconds] = createSignal(0);
+  const [toastMessage, setToastMessage] = createSignal("");
 
   // ── Internal mutable state ───────────────────────────────────────────────
   let wordList: WordList | null = null;
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let shakeTimer: ReturnType<typeof setTimeout> | null = null;
+  let toastTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedPlaying = false;
 
   // ── Timer ─────────────────────────────────────────────────────────────────
@@ -57,12 +60,26 @@ export function createWordleGame() {
     }
   }
 
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(message: string, duration = 1500) {
+    if (toastTimer) clearTimeout(toastTimer);
+    setToastMessage(message);
+    toastTimer = setTimeout(() => {
+      setToastMessage("");
+      toastTimer = null;
+    }, duration);
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
   function resetProgress() {
     stopTimer();
     if (shakeTimer) {
       clearTimeout(shakeTimer);
       shakeTimer = null;
+    }
+    if (toastTimer) {
+      clearTimeout(toastTimer);
+      toastTimer = null;
     }
     hasStartedPlaying = false;
     batch(() => {
@@ -72,7 +89,9 @@ export function createWordleGame() {
       setKeyboardState({});
       setShakeRow(false);
       setRevealRow(-1);
+      setPendingReveal(null);
       setTimerSeconds(0);
+      setToastMessage("");
     });
   }
 
@@ -94,12 +113,12 @@ export function createWordleGame() {
     try {
       wordList = await loadWordList(v);
       const word = pickRandomSolution(wordList);
+      resetProgress();
       batch(() => {
         setVariant(v);
         setAnswer(word);
         setPhase("playing");
       });
-      resetProgress();
     } finally {
       setLoading(false);
     }
@@ -142,7 +161,7 @@ export function createWordleGame() {
 
     // Check valid word
     if (!wordList || !isWordValid(input, wordList)) {
-      // Shake animation
+      showToast("Not in word list");
       setShakeRow(true);
       if (shakeTimer) clearTimeout(shakeTimer);
       shakeTimer = setTimeout(() => {
@@ -162,12 +181,15 @@ export function createWordleGame() {
       startTimer();
     }
 
-    // Trigger reveal animation
+    // Set the pending reveal and trigger the flip animation
     const rowIndex = guesses().length;
-    setRevealRow(rowIndex);
+    batch(() => {
+      setPendingReveal(result);
+      setRevealRow(rowIndex);
+    });
 
-    // After reveal animation completes, update state
-    const revealDelay = v * 300 + 200; // per-tile flip time + buffer
+    // After reveal animation completes, commit the guess
+    const revealDelay = v * 350 + 300; // per-tile flip time + buffer
     setTimeout(() => {
       const newGuesses = [...guesses(), result];
       const newKeyboard = mergeKeyboardState(keyboardState(), result);
@@ -179,13 +201,16 @@ export function createWordleGame() {
         setKeyboardState(newKeyboard);
         setCurrentInput("");
         setRevealRow(-1);
+        setPendingReveal(null);
 
-        if (didWin) {
+        if (didWin || didLose) {
           stopTimer();
-          setGameResult("won");
-        } else if (didLose) {
-          stopTimer();
-          setGameResult("lost");
+          // Delay result screen to let the last row settle
+          setTimeout(() => {
+            batch(() => {
+              setGameResult(didWin ? "won" : "lost");
+            });
+          }, 400);
         }
       });
     }, revealDelay);
@@ -227,6 +252,7 @@ export function createWordleGame() {
     document.removeEventListener("visibilitychange", handleVisibility);
     stopTimer();
     if (shakeTimer) clearTimeout(shakeTimer);
+    if (toastTimer) clearTimeout(toastTimer);
   });
 
   return {
@@ -240,8 +266,10 @@ export function createWordleGame() {
     keyboardState,
     shakeRow,
     revealRow,
+    pendingReveal,
     loading,
     timerSeconds,
+    toastMessage,
     // Actions
     startGame,
     restart,

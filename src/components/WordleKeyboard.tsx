@@ -32,7 +32,7 @@ export default function WordleKeyboard(props: Props) {
   }
 
   return (
-    <div class="flex flex-col items-center gap-1.5 w-full max-w-[500px]">
+    <div class="flex flex-col items-center gap-1.5 w-full max-w-[350px]">
       <For each={KEYBOARD_ROWS}>
         {(row) => (
           <div class="flex gap-1 sm:gap-1.5 w-full justify-center">
@@ -49,18 +49,18 @@ export default function WordleKeyboard(props: Props) {
                     style={{
                       "background-color": s()?.bg ?? "var(--color-surface)",
                       color: s()?.text ?? "var(--color-wl-key-text)",
-                      "min-width": isSpecial ? "56px" : "32px",
+                      "min-width": isSpecial ? "52px" : "28px",
                       height: "48px",
                       flex: isSpecial ? "1.5" : "1",
-                      "font-size": isSpecial ? "0.7rem" : "0.85rem",
+                      "font-size": isSpecial ? "0.65rem" : "0.8rem",
                       border: "none",
                       cursor: "pointer",
                     }}
                   >
                     {key === "Backspace" ? (
                       <svg
-                        width="20"
-                        height="20"
+                        width="18"
+                        height="18"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"

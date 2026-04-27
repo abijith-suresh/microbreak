@@ -34,6 +34,7 @@ export default function WordleTile(props: Props) {
         "font-size": "1.5rem",
         "font-weight": "700",
         "text-transform": "uppercase" as const,
+        transition: "background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease",
         animation: [
           props.isRevealing ? `tileFlip 500ms ease-in-out ${props.revealDelay ?? 0}ms both` : "",
           props.isPopping && !props.isRevealing ? "tilePop 100ms ease-out both" : "",

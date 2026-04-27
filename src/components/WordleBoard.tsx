@@ -10,6 +10,7 @@ interface Props {
   revealRow: number;
   shakeRow: boolean;
   gameResult: "won" | "lost" | null;
+  pendingReveal: GuessResult | null;
 }
 
 export default function WordleBoard(props: Props) {
@@ -34,7 +35,7 @@ export default function WordleBoard(props: Props) {
         guessResult: props.guesses[i],
         isCurrent: false,
         isEmpty: false,
-        isRevealing: props.revealRow === i,
+        isRevealing: false,
         isShaking: false,
         isBouncing: false,
       });
@@ -43,12 +44,15 @@ export default function WordleBoard(props: Props) {
     // Current input row (only if game is still playing)
     if (isPlaying()) {
       const currentIdx = props.guesses.length;
+      const isRevealingCurrent = props.revealRow === currentIdx && props.pendingReveal !== null;
+
       result.push({
-        letters: props.currentInput,
-        isCurrent: true,
+        letters: isRevealingCurrent ? props.pendingReveal!.word : props.currentInput,
+        guessResult: isRevealingCurrent ? props.pendingReveal! : undefined,
+        isCurrent: !isRevealingCurrent,
         isEmpty: false,
-        isRevealing: false,
-        isShaking: props.shakeRow && currentIdx === props.guesses.length,
+        isRevealing: isRevealingCurrent,
+        isShaking: props.shakeRow && !isRevealingCurrent && currentIdx === props.guesses.length,
         isBouncing: false,
       });
     }
