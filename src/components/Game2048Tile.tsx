@@ -31,29 +31,41 @@ export default function Game2048Tile(props: Props): JSX.Element {
   const x = () => props.col * (props.cellSize + props.gap) + props.gap;
   const y = () => props.row * (props.cellSize + props.gap) + props.gap;
 
-  const animation = () => {
-    if (props.isNew) return "tileAppear 150ms ease-out both";
-    if (props.isMerging) return "tilePop 200ms ease-out both";
+  // The inner div owns the pop/appear animation (scale only).
+  // The outer div owns the positional transform + slide transition.
+  // Keeping them on separate elements prevents the animation keyframes from
+  // clobbering the translate, which was the root cause of tiles jumping to (0,0).
+  const innerAnimation = () => {
+    if (props.isNew) return "tileAppear 150ms ease-out 50ms both";
+    if (props.isMerging) return "tilePop 200ms ease-out 120ms both";
     return "none";
   };
 
   return (
     <div
-      class="absolute flex items-center justify-center rounded-md font-body font-bold select-none"
+      class="absolute"
       style={{
         width: `${props.cellSize}px`,
         height: `${props.cellSize}px`,
-        "background-color": getTileColor(props.value),
-        color: getTextColor(props.value),
-        "font-size": getFontSize(props.value, props.cellSize),
         transform: `translate(${x()}px, ${y()}px)`,
-        transition: props.isNew || props.isMerging ? "none" : "transform 120ms ease-in-out",
-        animation: animation(),
+        // New tiles spawn at their target position — no previous position to
+        // transition from, so we skip the transition to avoid a flash.
+        transition: props.isNew ? "none" : "transform 120ms ease-in-out",
         "z-index": props.isMerging ? 2 : 1,
         "will-change": "transform",
       }}
     >
-      {props.value}
+      <div
+        class="w-full h-full flex items-center justify-center rounded-md font-body font-bold select-none"
+        style={{
+          "background-color": getTileColor(props.value),
+          color: getTextColor(props.value),
+          "font-size": getFontSize(props.value, props.cellSize),
+          animation: innerAnimation(),
+        }}
+      >
+        {props.value}
+      </div>
     </div>
   );
 }
