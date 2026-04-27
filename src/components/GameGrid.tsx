@@ -13,7 +13,7 @@ const games: GameCard[] = [
   { name: "Wordle", icon: "W", active: false },
   { name: "Minesweeper", icon: "✱", active: true, href: "/minesweeper" },
   { name: "Nonograms", icon: "▦", active: false },
-  { name: "2048", icon: "2", active: false },
+  { name: "2048", icon: "2", active: true, href: "/2048" },
 ];
 
 /** Game icon SVGs for the coming-soon cards */
@@ -184,9 +184,101 @@ function MiniMinesweeperGrid() {
   );
 }
 
+function Mini2048Grid() {
+  const [tiles, setTiles] = createSignal<{ value: number; row: number; col: number; id: number }[]>(
+    []
+  );
+
+  const tileColors: Record<number, string> = {
+    2: "var(--color-tile-2)",
+    4: "var(--color-tile-4)",
+    8: "var(--color-tile-8)",
+    16: "var(--color-tile-16)",
+    32: "var(--color-tile-32)",
+    64: "var(--color-tile-64)",
+    128: "var(--color-tile-128)",
+    256: "var(--color-tile-256)",
+    512: "var(--color-tile-512)",
+    1024: "var(--color-tile-1024)",
+    2048: "var(--color-tile-2048)",
+  };
+
+  onMount(() => {
+    const values = [2, 4, 8, 16, 32, 64, 128, 256];
+    let nextId = 0;
+
+    // Seed a few tiles
+    const initial: typeof tiles extends () => (infer T)[] ? T[] : never = [];
+    for (let i = 0; i < 5; i++) {
+      initial.push({
+        value: values[Math.floor(Math.random() * values.length)],
+        row: Math.floor(Math.random() * 4),
+        col: Math.floor(Math.random() * 4),
+        id: nextId++,
+      });
+    }
+    setTiles(initial);
+
+    const interval = setInterval(() => {
+      setTiles((prev) => {
+        // Remove a random tile and add a new one
+        const next = [...prev];
+        if (next.length > 0) {
+          next.splice(Math.floor(Math.random() * next.length), 1);
+        }
+        next.push({
+          value: values[Math.floor(Math.random() * values.length)],
+          row: Math.floor(Math.random() * 4),
+          col: Math.floor(Math.random() * 4),
+          id: nextId++,
+        });
+        return next;
+      });
+    }, 500);
+
+    onCleanup(() => clearInterval(interval));
+  });
+
+  return (
+    <div class="w-full max-w-[160px] aspect-square p-2">
+      <div class="grid grid-cols-4 gap-1 w-full h-full">
+        <For each={Array.from({ length: 16 })}>
+          {(_, idx) => {
+            const r = Math.floor(idx() / 4);
+            const c = idx() % 4;
+            const tile = () => tiles().find((t) => t.row === r && t.col === c);
+            return (
+              <div class="flex items-center justify-center rounded-sm bg-surface-hover">
+                <Show when={tile()}>
+                  {(t) => (
+                    <div
+                      class="flex items-center justify-center rounded-sm w-full h-full text-[7px] font-bold"
+                      style={{
+                        "background-color": tileColors[t().value] || "var(--color-tile-super)",
+                        color:
+                          t().value <= 4
+                            ? "var(--color-tile-text)"
+                            : "var(--color-tile-text-light)",
+                        animation: "tileAppear 300ms ease-out both",
+                      }}
+                    >
+                      {t().value}
+                    </div>
+                  )}
+                </Show>
+              </div>
+            );
+          }}
+        </For>
+      </div>
+    </div>
+  );
+}
+
 function GamePreview(props: { name: string }) {
   if (props.name === "Sudoku") return <MiniSudokuGrid />;
   if (props.name === "Minesweeper") return <MiniMinesweeperGrid />;
+  if (props.name === "2048") return <Mini2048Grid />;
   return <div class="w-full max-w-[160px] aspect-[4/3]" />;
 }
 

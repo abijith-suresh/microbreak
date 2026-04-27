@@ -116,6 +116,22 @@
   --color-shadow: rgba(26, 25, 23, 0.06);
   --color-shadow-strong: rgba(26, 25, 23, 0.12);
 
+  /* 2048 tile colors — warm earthy palette */
+  --color-tile-2: #eee4da;
+  --color-tile-4: #ede0c8;
+  --color-tile-8: #f2b179;
+  --color-tile-16: #f59563;
+  --color-tile-32: #f67c5f;
+  --color-tile-64: #f65e3b;
+  --color-tile-128: #edcf72;
+  --color-tile-256: #edcc61;
+  --color-tile-512: #edc850;
+  --color-tile-1024: #edc53f;
+  --color-tile-2048: #edc22e;
+  --color-tile-super: #3c3a32;
+  --color-tile-text: #776e65;
+  --color-tile-text-light: #f9f6f2;
+
   /* Minesweeper number colors — standard palette adapted for light */
   --color-ms-1: #2563eb;
   --color-ms-2: #16a34a;
@@ -151,6 +167,22 @@
   --color-completion-bg: #141413;
   --color-shadow: rgba(0, 0, 0, 0.2);
   --color-shadow-strong: rgba(0, 0, 0, 0.35);
+
+  /* 2048 tile colors — adapted for dark mode with more contrast */
+  --color-tile-2: #3d3b33;
+  --color-tile-4: #4a4638;
+  --color-tile-8: #8b5e34;
+  --color-tile-16: #9e5530;
+  --color-tile-32: #a8472e;
+  --color-tile-64: #b03a1f;
+  --color-tile-128: #9a8430;
+  --color-tile-256: #a68e28;
+  --color-tile-512: #b29820;
+  --color-tile-1024: #bfa218;
+  --color-tile-2048: #ccac10;
+  --color-tile-super: #e0c40a;
+  --color-tile-text: #eae8e2;
+  --color-tile-text-light: #1c1c1a;
 
   /* Minesweeper number colors — adapted for dark backgrounds */
   --color-ms-1: #60a5fa;
@@ -359,6 +391,41 @@ body {
   100% {
     opacity: 0.3;
     transform: scale(1);
+  }
+}
+
+/* ─── 2048 Tile Animations ─── */
+@keyframes tileAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tilePop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes scoreFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px);
   }
 }
 
