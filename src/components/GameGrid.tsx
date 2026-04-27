@@ -10,7 +10,7 @@ interface GameCard {
 const games: GameCard[] = [
   { name: "Sudoku", icon: "⊞", active: true, href: "/sudoku" },
   { name: "Chess", icon: "♞", active: false },
-  { name: "Wordle", icon: "W", active: false },
+  { name: "Wordle", icon: "W", active: true, href: "/wordle" },
   { name: "Minesweeper", icon: "✱", active: true, href: "/minesweeper" },
   { name: "Nonograms", icon: "▦", active: false },
   { name: "2048", icon: "2", active: true, href: "/2048" },
@@ -275,10 +275,68 @@ function Mini2048Grid() {
   );
 }
 
+function MiniWordleGrid() {
+  const [tiles, setTiles] = createSignal<{ letter: string; state: string; idx: number }[]>([]);
+
+  const states = ["correct", "present", "absent"];
+  const letters = "crane".split("");
+
+  onMount(() => {
+    let cycle = 0;
+    const interval = setInterval(() => {
+      const newTiles = letters.map((letter, idx) => ({
+        letter,
+        state: states[(idx + cycle) % 3],
+        idx,
+      }));
+      setTiles(newTiles);
+      cycle++;
+    }, 1200);
+
+    onCleanup(() => clearInterval(interval));
+  });
+
+  return (
+    <div class="grid grid-cols-5 gap-[2px] p-2 w-full max-w-[160px] mx-auto rounded-lg bg-border overflow-hidden">
+      <For each={tiles()}>
+        {(tile) => (
+          <div
+            class="flex items-center justify-center aspect-square rounded-sm transition-all duration-300"
+            style={{
+              "background-color":
+                tile.state === "correct"
+                  ? "var(--color-wl-correct)"
+                  : tile.state === "present"
+                    ? "var(--color-wl-present)"
+                    : tile.state === "absent"
+                      ? "var(--color-wl-absent)"
+                      : "var(--color-surface)",
+              opacity: tiles().length > 0 ? "1" : "0",
+            }}
+          >
+            <span
+              class="text-[8px] font-bold uppercase"
+              style={{
+                color:
+                  tile.state === "absent"
+                    ? "var(--color-wl-absent-text)"
+                    : "var(--color-wl-correct-text)",
+              }}
+            >
+              {tile.letter}
+            </span>
+          </div>
+        )}
+      </For>
+    </div>
+  );
+}
+
 function GamePreview(props: { name: string }) {
   if (props.name === "Sudoku") return <MiniSudokuGrid />;
   if (props.name === "Minesweeper") return <MiniMinesweeperGrid />;
   if (props.name === "2048") return <Mini2048Grid />;
+  if (props.name === "Wordle") return <MiniWordleGrid />;
   return <div class="w-full max-w-[160px] aspect-[4/3]" />;
 }
 
