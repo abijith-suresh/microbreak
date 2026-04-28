@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   canMove,
   cloneGrid,
@@ -6,9 +6,11 @@ import {
   hasWon,
   isFull,
   move,
+  moveWithTiles,
   resetTileIdCounter,
   slideRow,
   spawnTile,
+  type Tile,
 } from "../game2048";
 
 // ── slideRow ───────────────────────────────────────────────────────────────────
@@ -126,6 +128,28 @@ describe("isFull", () => {
 
 // ── move ────────────────────────────────────────────────────────────────────────
 
+function tilesFromGrid(grid: number[][]): Tile[] {
+  let id = 1;
+  const tiles: Tile[] = [];
+
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 4; col++) {
+      if (grid[row][col] !== 0) {
+        tiles.push({
+          id: id++,
+          value: grid[row][col],
+          row,
+          col,
+          isNew: false,
+          isMerging: false,
+        });
+      }
+    }
+  }
+
+  return tiles;
+}
+
 describe("move", () => {
   beforeEach(() => {
     resetTileIdCounter();
@@ -217,6 +241,27 @@ describe("move", () => {
     expect(result.moved).toBe(true);
     // Should have the existing tile + one spawned tile
     expect(result.tiles.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("matches the stable-id move path for grid and score", () => {
+    const grid = [
+      [2, 0, 2, 4],
+      [4, 4, 0, 0],
+      [0, 2, 2, 0],
+      [0, 0, 0, 0],
+    ];
+
+    const mathRandomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
+    const regularMove = move(grid, "left");
+    mathRandomSpy.mockRestore();
+
+    resetTileIdCounter();
+    const stableRandomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
+    const stableMove = moveWithTiles(tilesFromGrid(grid), "left");
+    stableRandomSpy.mockRestore();
+
+    expect(stableMove.score).toBe(regularMove.score);
+    expect(stableMove.grid).toEqual(regularMove.grid);
   });
 });
 
