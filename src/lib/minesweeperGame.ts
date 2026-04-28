@@ -17,6 +17,7 @@ import {
   revealAllMines,
   revealCell,
   toggleFlag,
+  DIFFICULTY_PRESETS,
   type Board,
   type Difficulty,
 } from "./minesweeper";
@@ -119,12 +120,7 @@ export function createMinesweeperGame() {
   // ── Public actions ────────────────────────────────────────────────────────
 
   function startGame(diff: Difficulty) {
-    const preset =
-      diff === "beginner"
-        ? { rows: 9, cols: 9, mines: 10 }
-        : diff === "intermediate"
-          ? { rows: 16, cols: 16, mines: 40 }
-          : { rows: 16, cols: 30, mines: 99 };
+    const preset = DIFFICULTY_PRESETS[diff];
 
     batch(() => {
       setDifficulty(diff);
