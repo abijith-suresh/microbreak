@@ -27,18 +27,17 @@ const gameIcons: Record<string, string> = {
 };
 
 function MiniSudokuGrid() {
-  const [visibleCells, setVisibleCells] = createSignal<Set<number>>(new Set());
-  const [cellValues, setCellValues] = createSignal<number[]>([]);
-
   const pattern = [
     5, 3, 4, 6, 7, 8, 9, 1, 2, 6, 7, 2, 1, 9, 5, 3, 4, 8, 1, 9, 8, 3, 4, 2, 5, 6, 7, 8, 5, 9, 7, 6,
     1, 4, 2, 3, 4, 2, 6, 8, 5, 3, 7, 9, 1, 7, 1, 3, 9, 2, 4, 8, 5, 6, 9, 6, 1, 5, 3, 7, 2, 8, 4, 2,
     8, 7, 4, 1, 9, 6, 3, 5, 3, 4, 5, 2, 8, 6, 1, 7, 9,
   ];
 
-  onMount(() => {
-    setCellValues(pattern);
+  // Initialize data immediately so SSR renders full grid — prevents layout shift on hydration
+  const [visibleCells, setVisibleCells] = createSignal<Set<number>>(new Set());
+  const [cellValues] = createSignal<number[]>(pattern);
 
+  onMount(() => {
     const revealOrder = Array.from({ length: 81 }, (_, i) => i);
     for (let i = 80; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -114,13 +113,13 @@ function GameIcon(props: { name: string }) {
 }
 
 function MiniMinesweeperGrid() {
-  const [cells, setCells] = createSignal<("hidden" | "revealed" | "flagged")[]>([]);
+  const totalCells = 64; // 8×8 mini grid
+  // Initialize with 64 hidden cells immediately — prevents layout shift on hydration
+  const [cells, setCells] = createSignal<("hidden" | "revealed" | "flagged")[]>(
+    Array(totalCells).fill("hidden")
+  );
 
   onMount(() => {
-    const totalCells = 64; // 8×8 mini grid
-    const initial: ("hidden" | "revealed" | "flagged")[] = Array(totalCells).fill("hidden");
-    setCells(initial);
-
     // Match Sudoku's batch cadence: 3 cells per 120 ms tick
     const batchSize = 3;
 
@@ -239,7 +238,7 @@ function Mini2048Grid() {
 
   return (
     <div class="w-full max-w-[160px] aspect-square p-2">
-      <div class="grid grid-cols-4 gap-1 w-full h-full">
+      <div class="grid grid-cols-4 grid-rows-4 gap-1 w-full h-full">
         <For each={Array.from({ length: 16 })}>
           {(_, idx) => {
             const r = Math.floor(idx() / 4);
