@@ -1,10 +1,9 @@
-import type { Difficulty } from "@/lib/minesweeper";
 import { createSignal, onMount } from "solid-js";
 
 interface Props {
   result: "won" | "lost";
   solveTime: number;
-  difficulty: Difficulty;
+  difficulty: string;
   onBackToGames: () => void;
   onPlayAgain: () => void;
 }
@@ -16,7 +15,7 @@ function formatTime(seconds: number): string {
   return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
-function difficultyLabel(d: Difficulty): string {
+function difficultyLabel(d: string): string {
   return d.charAt(0).toUpperCase() + d.slice(1);
 }
 
