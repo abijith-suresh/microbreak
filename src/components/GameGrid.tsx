@@ -76,7 +76,7 @@ function MiniSudokuGrid() {
 
           return (
             <div
-              class="flex items-center justify-center aspect-square bg-surface text-[7px] font-medium text-accent transition-all duration-300"
+              class="flex items-center justify-center aspect-square bg-surface text-[7px] font-medium text-accent transition-colors duration-200"
               style={{
                 opacity: visibleCells().has(i()) ? "0.9" : "0",
                 transform: visibleCells().has(i()) ? "scale(1)" : "scale(0.3)",
@@ -156,7 +156,7 @@ function MiniMinesweeperGrid() {
       <For each={cells()}>
         {(cell) => (
           <div
-            class="flex items-center justify-center aspect-square transition-all duration-300"
+            class="flex items-center justify-center aspect-square transition-colors duration-200"
             style={{
               "background-color": cell === "hidden" ? "var(--color-surface)" : "var(--color-bg)",
               opacity: cell === "hidden" ? "0" : "0.9",
