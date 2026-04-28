@@ -51,6 +51,7 @@ export function create2048Game() {
   let popupTimer: ReturnType<typeof setTimeout> | null = null;
   let popupId = 0;
   let hasWonOnce = false;
+  let hasStartedPlaying = false;
 
   // ── Timer ───────────────────────────────────────────────────────────────
 
@@ -89,6 +90,7 @@ export function create2048Game() {
       popupTimer = null;
     }
     hasWonOnce = false;
+    hasStartedPlaying = false;
     batch(() => {
       setGrid(createEmptyGrid());
       setTiles(reconcile([]));
@@ -144,6 +146,9 @@ export function create2048Game() {
     if (!result.moved) return;
 
     // Start timer on first move
+    if (!hasStartedPlaying) {
+      hasStartedPlaying = true;
+    }
     startTimer();
 
     // Build a lookup of the new tile states by ID
@@ -233,7 +238,7 @@ export function create2048Game() {
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
       stopTimer();
-    } else if (phase() === "playing" && !gameOver()) {
+    } else if (phase() === "playing" && hasStartedPlaying && !gameOver()) {
       startTimer();
     }
   }

@@ -45,7 +45,9 @@ export function createWordleGame() {
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let shakeTimer: ReturnType<typeof setTimeout> | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
+  let revealTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedPlaying = false;
+  let startRequestId = 0;
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   function startTimer() {
@@ -81,6 +83,10 @@ export function createWordleGame() {
       clearTimeout(toastTimer);
       toastTimer = null;
     }
+    if (revealTimer) {
+      clearTimeout(revealTimer);
+      revealTimer = null;
+    }
     hasStartedPlaying = false;
     batch(() => {
       setCurrentInput("");
@@ -109,10 +115,14 @@ export function createWordleGame() {
   // ── Public actions ────────────────────────────────────────────────────────
 
   async function startGame(v: Variant) {
+    const requestId = ++startRequestId;
     setLoading(true);
     try {
-      wordList = await loadWordList(v);
-      const word = pickRandomSolution(wordList);
+      const loadedWordList = await loadWordList(v);
+      if (requestId !== startRequestId) return;
+
+      wordList = loadedWordList;
+      const word = pickRandomSolution(loadedWordList);
       resetProgress();
       batch(() => {
         setVariant(v);
@@ -120,11 +130,15 @@ export function createWordleGame() {
         setPhase("playing");
       });
     } finally {
-      setLoading(false);
+      if (requestId === startRequestId) {
+        setLoading(false);
+      }
     }
   }
 
   function restart() {
+    startRequestId++;
+    setLoading(false);
     resetProgress();
     setPhase("setup");
   }
@@ -191,7 +205,7 @@ export function createWordleGame() {
 
     // After reveal animation completes, commit the guess
     const revealDelay = v * 350 + 300; // per-tile flip time + buffer
-    setTimeout(() => {
+    revealTimer = setTimeout(() => {
       const newGuesses = [...guesses(), result];
       const newKeyboard = mergeKeyboardState(keyboardState(), result);
       const didWin = states.every((s) => s === "correct");
@@ -209,6 +223,8 @@ export function createWordleGame() {
           setGameResult(didWin ? "won" : "lost");
         }
       });
+
+      revealTimer = null;
     }, revealDelay);
   }
 
@@ -249,6 +265,7 @@ export function createWordleGame() {
     stopTimer();
     if (shakeTimer) clearTimeout(shakeTimer);
     if (toastTimer) clearTimeout(toastTimer);
+    if (revealTimer) clearTimeout(revealTimer);
   });
 
   return {

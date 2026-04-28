@@ -257,7 +257,7 @@ export function createMinesweeperGame() {
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
       stopTimer();
-    } else if (hasStartedPlaying && !gameResult()) {
+    } else if (hasStartedPlaying && !gameResult() && !completing()) {
       startTimer();
     }
   }

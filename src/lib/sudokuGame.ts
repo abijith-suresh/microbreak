@@ -45,6 +45,7 @@ export function createSudokuGame() {
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let pendingGeneration: number | null = null;
   let groupSweepTimer: ReturnType<typeof setTimeout> | null = null;
+  let completionTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedFilling = false;
 
   // ── Derived signals ───────────────────────────────────────────────────────
@@ -93,6 +94,10 @@ export function createSudokuGame() {
     if (groupSweepTimer) {
       clearTimeout(groupSweepTimer);
       groupSweepTimer = null;
+    }
+    if (completionTimer) {
+      clearTimeout(completionTimer);
+      completionTimer = null;
     }
     batch(() => {
       setSelectedCell(null);
@@ -190,7 +195,10 @@ export function createSudokuGame() {
       stopTimer();
       setCompletionOrigin([row, col]);
       setCompleting(true);
-      setTimeout(() => setCompleted(true), 900);
+      completionTimer = setTimeout(() => {
+        setCompleted(true);
+        completionTimer = null;
+      }, 900);
     } else if (value !== null) {
       // Check if any groups just completed
       const justCompleted = getJustCompletedGroups(newBoard, row, col);
@@ -235,7 +243,7 @@ export function createSudokuGame() {
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
       stopTimer();
-    } else if (hasStartedFilling && !completed()) {
+    } else if (hasStartedFilling && !completed() && !completing()) {
       startTimer();
     }
   }
@@ -254,6 +262,7 @@ export function createSudokuGame() {
     clearPendingGeneration();
     if (timerInterval) clearInterval(timerInterval);
     if (groupSweepTimer) clearTimeout(groupSweepTimer);
+    if (completionTimer) clearTimeout(completionTimer);
   });
 
   return {
