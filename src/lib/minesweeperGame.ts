@@ -6,7 +6,7 @@
  * a pure layout shell.
  */
 
-import { batch, createSignal, onCleanup, onMount } from "solid-js";
+import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import {
   checkWin,
   countFlags,
@@ -21,6 +21,12 @@ import {
   type Board,
   type Difficulty,
 } from "./minesweeper";
+import {
+  isPersistedMinesweeperSession,
+  type PersistedMinesweeperSession,
+} from "./minesweeperSession";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
+import { STORAGE_KEYS } from "./storageKeys";
 
 export type Phase = "setup" | "playing";
 export type { Difficulty };
@@ -41,6 +47,7 @@ export function createMinesweeperGame() {
   const [triggeredMine, setTriggeredMine] = createSignal<[number, number] | null>(null);
   const [digMode, setDigMode] = createSignal(true);
   const [wrongFlags, setWrongFlags] = createSignal<[number, number][]>([]);
+  const [persistenceReady, setPersistenceReady] = createSignal(false);
 
   /** True while the pre-result animation is playing (before result screen shows) */
   const [completing, setCompleting] = createSignal(false);
@@ -85,6 +92,65 @@ export function createMinesweeperGame() {
       setCompleting(false);
       setCompletionOrigin(null);
     });
+  }
+
+  function persistSession() {
+    if (
+      phase() !== "playing" ||
+      gameResult() !== null ||
+      completing() ||
+      board().length !== rows() ||
+      rows() === 0 ||
+      cols() === 0
+    ) {
+      removeStoredValue(STORAGE_KEYS.minesweeperSession);
+      return;
+    }
+
+    const session: PersistedMinesweeperSession = {
+      phase: "playing",
+      difficulty: difficulty(),
+      board: board().map((row) => row.map((cell) => ({ ...cell }))),
+      rows: rows(),
+      cols: cols(),
+      mineCount: mineCount(),
+      timerSeconds: timerSeconds(),
+      selectedCell: selectedCell(),
+      digMode: digMode(),
+      hasStartedPlaying,
+      boardGenerated,
+    };
+
+    saveStoredJSON(STORAGE_KEYS.minesweeperSession, session);
+  }
+
+  function restoreSession() {
+    const session = loadStoredJSON(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
+    if (!session) return;
+
+    hasStartedPlaying = session.hasStartedPlaying;
+    boardGenerated = session.boardGenerated;
+
+    batch(() => {
+      setPhase("playing");
+      setDifficulty(session.difficulty);
+      setBoard(session.board.map((row) => row.map((cell) => ({ ...cell }))));
+      setRows(session.rows);
+      setCols(session.cols);
+      setMineCount(session.mineCount);
+      setSelectedCell(session.selectedCell);
+      setTimerSeconds(session.timerSeconds);
+      setDigMode(session.digMode);
+      setGameResult(null);
+      setTriggeredMine(null);
+      setWrongFlags([]);
+      setCompleting(false);
+      setCompletionOrigin(null);
+    });
+
+    if (hasStartedPlaying && document.visibilityState === "visible") {
+      startTimer();
+    }
   }
 
   // ── Completion helper ─────────────────────────────────────────────────────
@@ -138,6 +204,10 @@ export function createMinesweeperGame() {
 
   function restart() {
     resetProgress();
+    setBoard([]);
+    setRows(0);
+    setCols(0);
+    setMineCount(0);
     setPhase("setup");
   }
 
@@ -259,9 +329,16 @@ export function createMinesweeperGame() {
   }
 
   onMount(() => {
+    restoreSession();
     document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("minesweeper-action", handleMinesweeperAction);
     window.addEventListener("minesweeper-flag", handleMinesweeperFlag);
+    setPersistenceReady(true);
+  });
+
+  createEffect(() => {
+    if (!persistenceReady()) return;
+    persistSession();
   });
 
   onCleanup(() => {
