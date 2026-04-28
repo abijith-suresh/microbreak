@@ -7,7 +7,6 @@
 
 import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import {
-  generate,
   getConflictingCells,
   getJustCompletedGroups,
   validate,
@@ -17,6 +16,7 @@ import {
   type Difficulty,
   type GridSize,
 } from "./sudoku";
+import { requestSudokuPuzzle } from "./sudokuGenerator";
 import { isPersistedSudokuSession, type PersistedSudokuSession } from "./sudokuSession";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
@@ -51,6 +51,7 @@ export function createSudokuGame() {
   let groupSweepTimer: ReturnType<typeof setTimeout> | null = null;
   let completionTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedFilling = false;
+  let generationRequestId = 0;
 
   // ── Derived signals ───────────────────────────────────────────────────────
   /**
@@ -115,14 +116,14 @@ export function createSudokuGame() {
   }
 
   function clearPendingGeneration() {
+    generationRequestId++;
     if (pendingGeneration) {
       clearTimeout(pendingGeneration);
       pendingGeneration = null;
     }
   }
 
-  function applyPuzzle(size: GridSize, diff: Difficulty) {
-    const result = generate(size, diff);
+  function applyPuzzle(result: { puzzle: Board; solution: Board }) {
     batch(() => {
       setPuzzle(result.puzzle);
       setSolution(result.solution);
@@ -198,9 +199,12 @@ export function createSudokuGame() {
   function queuePuzzleGeneration(size: GridSize, diff: Difficulty) {
     clearPendingGeneration();
     prepareLoadingState();
-    pendingGeneration = window.setTimeout(() => {
+    const requestId = generationRequestId;
+    pendingGeneration = window.setTimeout(async () => {
       pendingGeneration = null;
-      applyPuzzle(size, diff);
+      const result = await requestSudokuPuzzle(size, diff);
+      if (requestId !== generationRequestId) return;
+      applyPuzzle(result);
     }, 0);
   }
 
