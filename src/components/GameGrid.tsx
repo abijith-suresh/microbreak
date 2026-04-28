@@ -276,57 +276,61 @@ function Mini2048Grid() {
 }
 
 function MiniWordleGrid() {
-  const [tiles, setTiles] = createSignal<{ letter: string; state: string; idx: number }[]>([]);
+  const word = "crane";
+  const colors = ["absent", "correct", "present", "absent", "correct"] as const;
+  const letters = word.split("");
 
-  const states = ["correct", "present", "absent"];
-  const letters = "crane".split("");
+  // tick 0-4: typing (letters appear one by one)
+  // tick 5-9: revealing (colors appear one by one)
+  // tick 10-14: pause showing final state
+  // tick 15: reset
+  const CYCLE = 16;
+  const [tick, setTick] = createSignal(0);
 
   onMount(() => {
-    let cycle = 0;
     const interval = setInterval(() => {
-      const newTiles = letters.map((letter, idx) => ({
-        letter,
-        state: states[(idx + cycle) % 3],
-        idx,
-      }));
-      setTiles(newTiles);
-      cycle++;
-    }, 1200);
-
+      setTick((t) => (t + 1) % CYCLE);
+    }, 200);
     onCleanup(() => clearInterval(interval));
   });
 
+  const typedCount = () => Math.min(tick(), 5); // 0-5 during typing phase
+  const revealedCount = () => Math.max(0, Math.min(tick() - 5, 5)); // 0-5 during reveal phase
+
   return (
     <div class="grid grid-cols-5 gap-[2px] p-2 w-full max-w-[160px] mx-auto rounded-lg bg-border overflow-hidden">
-      <For each={tiles()}>
-        {(tile) => (
-          <div
-            class="flex items-center justify-center aspect-square rounded-sm transition-all duration-300"
-            style={{
-              "background-color":
-                tile.state === "correct"
-                  ? "var(--color-wl-correct)"
-                  : tile.state === "present"
-                    ? "var(--color-wl-present)"
-                    : tile.state === "absent"
-                      ? "var(--color-wl-absent)"
-                      : "var(--color-surface)",
-              opacity: tiles().length > 0 ? "1" : "0",
-            }}
-          >
-            <span
-              class="text-[8px] font-bold uppercase"
+      <For each={letters}>
+        {(letter, i) => {
+          const isTyped = () => i() < typedCount();
+          const isRevealed = () => i() < revealedCount();
+          const color = () => (isRevealed() ? colors[i()] : null);
+
+          return (
+            <div
+              class="flex items-center justify-center aspect-square rounded-sm transition-all duration-200"
               style={{
+                "background-color":
+                  color() === "correct"
+                    ? "var(--color-wl-correct)"
+                    : color() === "present"
+                      ? "var(--color-wl-present)"
+                      : color() === "absent"
+                        ? "var(--color-wl-absent)"
+                        : "var(--color-surface)",
+                opacity: isTyped() ? "1" : "0",
+                transform: isTyped() ? "scale(1)" : "scale(0.3)",
                 color:
-                  tile.state === "absent"
+                  color() === "absent"
                     ? "var(--color-wl-absent-text)"
-                    : "var(--color-wl-correct-text)",
+                    : color()
+                      ? "var(--color-wl-correct-text)"
+                      : "var(--color-fg)",
               }}
             >
-              {tile.letter}
-            </span>
-          </div>
-        )}
+              <span class="text-[8px] font-bold uppercase">{isTyped() ? letter : ""}</span>
+            </div>
+          );
+        }}
       </For>
     </div>
   );

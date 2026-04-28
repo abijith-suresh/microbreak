@@ -181,7 +181,8 @@ export function createWordleGame() {
       startTimer();
     }
 
-    // Set the pending reveal and trigger the flip animation
+    // Set the pending reveal — tile components will delay color changes
+    // to the midpoint of their flip animation
     const rowIndex = guesses().length;
     batch(() => {
       setPendingReveal(result);
@@ -205,12 +206,7 @@ export function createWordleGame() {
 
         if (didWin || didLose) {
           stopTimer();
-          // Delay result screen to let the last row settle
-          setTimeout(() => {
-            batch(() => {
-              setGameResult(didWin ? "won" : "lost");
-            });
-          }, 400);
+          setGameResult(didWin ? "won" : "lost");
         }
       });
     }, revealDelay);

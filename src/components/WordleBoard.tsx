@@ -41,8 +41,9 @@ export default function WordleBoard(props: Props) {
       });
     }
 
-    // Current input row (only if game is still playing)
-    if (isPlaying()) {
+    // Current input row — only if game is still playing AND there are guesses remaining
+    const canGuessMore = props.guesses.length < maxGuesses();
+    if (isPlaying() && canGuessMore) {
       const currentIdx = props.guesses.length;
       const isRevealingCurrent = props.revealRow === currentIdx && props.pendingReveal !== null;
 
