@@ -8,6 +8,13 @@
  */
 
 import { batch, createSignal, onCleanup, onMount } from "solid-js";
+import { loadStoredJSON, saveStoredJSON } from "./storage";
+import { STORAGE_KEYS } from "./storageKeys";
+import {
+  addRecentWordleAnswer,
+  createEmptyRecentWordleAnswers,
+  isRecentWordleAnswers,
+} from "./wordlePersistence";
 import {
   computeGuess,
   getMaxGuesses,
@@ -22,6 +29,8 @@ import {
 
 export type Phase = "setup" | "playing";
 export type { Variant, LetterState, GuessResult };
+
+const wordListCache = new Map<Variant, Promise<WordList>>();
 
 export function createWordleGame() {
   // ── Raw signals ──────────────────────────────────────────────────────────
@@ -101,15 +110,27 @@ export function createWordleGame() {
     });
   }
 
+  function loadRecentAnswers() {
+    return (
+      loadStoredJSON(STORAGE_KEYS.wordleRecentAnswers, isRecentWordleAnswers) ??
+      createEmptyRecentWordleAnswers()
+    );
+  }
+
   // ── Word list loading ─────────────────────────────────────────────────────
   async function loadWordList(v: Variant): Promise<WordList> {
+    const cached = wordListCache.get(v);
+    if (cached) return cached;
+
     const modules: Record<number, () => Promise<{ default: WordList }>> = {
       4: () => import("@/data/words-4.json"),
       5: () => import("@/data/words-5.json"),
       6: () => import("@/data/words-6.json"),
     };
-    const mod = await modules[v]();
-    return mod.default;
+
+    const promise = modules[v]().then((mod) => mod.default);
+    wordListCache.set(v, promise);
+    return promise;
   }
 
   // ── Public actions ────────────────────────────────────────────────────────
@@ -121,8 +142,14 @@ export function createWordleGame() {
       const loadedWordList = await loadWordList(v);
       if (requestId !== startRequestId) return;
 
+      const recentAnswers = loadRecentAnswers();
+      const word = pickRandomSolution(loadedWordList, recentAnswers[v]);
+      saveStoredJSON(
+        STORAGE_KEYS.wordleRecentAnswers,
+        addRecentWordleAnswer(recentAnswers, v, word)
+      );
+
       wordList = loadedWordList;
-      const word = pickRandomSolution(loadedWordList);
       resetProgress();
       batch(() => {
         setVariant(v);
