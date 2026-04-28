@@ -1,6 +1,8 @@
-import { createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup, onMount } from "solid-js";
 import type { Difficulty } from "@/lib/minesweeper";
 import { DIFFICULTY_PRESETS } from "@/lib/minesweeper";
+import { loadStoredString, saveStoredString } from "@/lib/storage";
+import { STORAGE_KEYS } from "@/lib/storageKeys";
 import ThemeToggle from "./ThemeToggle";
 
 interface Props {
@@ -34,6 +36,16 @@ const CARD_TRANSITION =
 export default function MinesweeperSetup(props: Props) {
   const [selectedDifficulty, setSelectedDifficulty] = createSignal<Difficulty>("beginner");
 
+  onMount(() => {
+    setSelectedDifficulty(
+      loadStoredString(
+        STORAGE_KEYS.minesweeperPreferences,
+        ["beginner", "intermediate", "expert"] as const,
+        "beginner"
+      )
+    );
+  });
+
   // ── Exit animation ─────────────────────────────────────────────────────────
   const [isExiting, setIsExiting] = createSignal(false);
   let exitTimer: ReturnType<typeof setTimeout> | null = null;
@@ -44,6 +56,9 @@ export default function MinesweeperSetup(props: Props) {
 
   function handleStart() {
     if (isExiting()) return;
+
+    saveStoredString(STORAGE_KEYS.minesweeperPreferences, selectedDifficulty());
+
     setIsExiting(true);
     exitTimer = setTimeout(() => {
       exitTimer = null;
