@@ -76,10 +76,9 @@ function MiniSudokuGrid() {
 
           return (
             <div
-              class="flex items-center justify-center aspect-square bg-surface text-[7px] font-medium text-accent transition-colors duration-200"
+              class="flex items-center justify-center aspect-square bg-surface text-[7px] font-medium text-accent"
               style={{
                 opacity: visibleCells().has(i()) ? "0.9" : "0",
-                transform: visibleCells().has(i()) ? "scale(1)" : "scale(0.3)",
                 "margin-right": isBoxRight ? "1px" : "0",
                 "margin-bottom": isBoxBottom ? "1px" : "0",
               }}
@@ -156,11 +155,10 @@ function MiniMinesweeperGrid() {
       <For each={cells()}>
         {(cell) => (
           <div
-            class="flex items-center justify-center aspect-square transition-colors duration-200"
+            class="flex items-center justify-center aspect-square"
             style={{
               "background-color": cell === "hidden" ? "var(--color-surface)" : "var(--color-bg)",
               opacity: cell === "hidden" ? "0" : "0.9",
-              transform: cell === "hidden" ? "scale(0.3)" : "scale(1)",
             }}
           >
             {cell === "flagged" ? (
@@ -307,7 +305,7 @@ function MiniWordleGrid() {
 
           return (
             <div
-              class="flex items-center justify-center aspect-square rounded-sm transition-all duration-200"
+              class="flex items-center justify-center aspect-square rounded-sm"
               style={{
                 "background-color":
                   color() === "correct"
@@ -318,7 +316,6 @@ function MiniWordleGrid() {
                         ? "var(--color-wl-absent)"
                         : "var(--color-surface)",
                 opacity: isTyped() ? "1" : "0",
-                transform: isTyped() ? "scale(1)" : "scale(0.3)",
                 color:
                   color() === "absent"
                     ? "var(--color-wl-absent-text)"
