@@ -124,9 +124,12 @@ export function mergeKeyboardState(
  * Pick a random solution word from the list.
  * Uses crypto.getRandomValues for better randomness if available.
  */
-export function pickRandomSolution(wordList: WordList): string {
-  const index = secureRandom(wordList.solutions.length);
-  return wordList.solutions[index];
+export function pickRandomSolution(wordList: WordList, recentAnswers: string[] = []): string {
+  const recentSet = new Set(recentAnswers);
+  const candidates = wordList.solutions.filter((word) => !recentSet.has(word));
+  const pool = candidates.length > 0 ? candidates : wordList.solutions;
+  const index = secureRandom(pool.length);
+  return pool[index];
 }
 
 function secureRandom(max: number): number {

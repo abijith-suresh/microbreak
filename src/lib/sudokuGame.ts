@@ -5,9 +5,8 @@
  * listeners so SudokuApp.tsx can be a pure layout shell.
  */
 
-import { batch, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import {
-  generate,
   getConflictingCells,
   getJustCompletedGroups,
   validate,
@@ -17,6 +16,10 @@ import {
   type Difficulty,
   type GridSize,
 } from "./sudoku";
+import { requestSudokuPuzzle } from "./sudokuGenerator";
+import { isPersistedSudokuSession, type PersistedSudokuSession } from "./sudokuSession";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
+import { STORAGE_KEYS } from "./storageKeys";
 
 export type Phase = "setup" | "playing";
 export type { CompletingGroup };
@@ -37,6 +40,7 @@ export function createSudokuGame() {
   const [completing, setCompleting] = createSignal(false);
   const [completionOrigin, setCompletionOrigin] = createSignal<[number, number] | null>(null);
   const [conflictedCells, setConflictedCells] = createSignal<Set<string>>(new Set<string>());
+  const [persistenceReady, setPersistenceReady] = createSignal(false);
 
   /** Groups (row/col/box) currently playing the sweep animation */
   const [completingGroups, setCompletingGroups] = createSignal<CompletingGroup[]>([]);
@@ -45,7 +49,9 @@ export function createSudokuGame() {
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let pendingGeneration: number | null = null;
   let groupSweepTimer: ReturnType<typeof setTimeout> | null = null;
+  let completionTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedFilling = false;
+  let generationRequestId = 0;
 
   // ── Derived signals ───────────────────────────────────────────────────────
   /**
@@ -94,6 +100,10 @@ export function createSudokuGame() {
       clearTimeout(groupSweepTimer);
       groupSweepTimer = null;
     }
+    if (completionTimer) {
+      clearTimeout(completionTimer);
+      completionTimer = null;
+    }
     batch(() => {
       setSelectedCell(null);
       setTimerSeconds(0);
@@ -106,14 +116,14 @@ export function createSudokuGame() {
   }
 
   function clearPendingGeneration() {
+    generationRequestId++;
     if (pendingGeneration) {
       clearTimeout(pendingGeneration);
       pendingGeneration = null;
     }
   }
 
-  function applyPuzzle(size: GridSize, diff: Difficulty) {
-    const result = generate(size, diff);
+  function applyPuzzle(result: { puzzle: Board; solution: Board }) {
     batch(() => {
       setPuzzle(result.puzzle);
       setSolution(result.solution);
@@ -130,12 +140,71 @@ export function createSudokuGame() {
     });
   }
 
+  function persistSession() {
+    if (
+      phase() !== "playing" ||
+      completed() ||
+      completing() ||
+      puzzle().length !== gridSize() ||
+      solution().length !== gridSize() ||
+      userBoard().length !== gridSize()
+    ) {
+      removeStoredValue(STORAGE_KEYS.sudokuSession);
+      return;
+    }
+
+    const session: PersistedSudokuSession = {
+      phase: "playing",
+      gridSize: gridSize(),
+      difficulty: difficulty(),
+      puzzle: puzzle().map((row) => [...row]),
+      solution: solution().map((row) => [...row]),
+      userBoard: userBoard().map((row) => [...row]),
+      timerSeconds: timerSeconds(),
+      selectedCell: selectedCell(),
+      hasStartedFilling,
+    };
+
+    saveStoredJSON(STORAGE_KEYS.sudokuSession, session);
+  }
+
+  function restoreSession() {
+    const session = loadStoredJSON(STORAGE_KEYS.sudokuSession, isPersistedSudokuSession);
+    if (!session) return;
+
+    hasStartedFilling = session.hasStartedFilling;
+    const restoredUserBoard = session.userBoard.map((row) => [...row]);
+
+    batch(() => {
+      setPhase("playing");
+      setGridSize(session.gridSize);
+      setDifficulty(session.difficulty);
+      setPuzzle(session.puzzle.map((row) => [...row]));
+      setSolution(session.solution.map((row) => [...row]));
+      setUserBoard(restoredUserBoard);
+      setSelectedCell(session.selectedCell);
+      setTimerSeconds(session.timerSeconds);
+      setConflictedCells(getConflictingCells(restoredUserBoard));
+      setCompleted(false);
+      setCompleting(false);
+      setCompletionOrigin(null);
+      setCompletingGroups([]);
+    });
+
+    if (hasStartedFilling && document.visibilityState === "visible") {
+      startTimer();
+    }
+  }
+
   function queuePuzzleGeneration(size: GridSize, diff: Difficulty) {
     clearPendingGeneration();
     prepareLoadingState();
-    pendingGeneration = window.setTimeout(() => {
+    const requestId = generationRequestId;
+    pendingGeneration = window.setTimeout(async () => {
       pendingGeneration = null;
-      applyPuzzle(size, diff);
+      const result = await requestSudokuPuzzle(size, diff);
+      if (requestId !== generationRequestId) return;
+      applyPuzzle(result);
     }, 0);
   }
 
@@ -190,7 +259,10 @@ export function createSudokuGame() {
       stopTimer();
       setCompletionOrigin([row, col]);
       setCompleting(true);
-      setTimeout(() => setCompleted(true), 900);
+      completionTimer = setTimeout(() => {
+        setCompleted(true);
+        completionTimer = null;
+      }, 900);
     } else if (value !== null) {
       // Check if any groups just completed
       const justCompleted = getJustCompletedGroups(newBoard, row, col);
@@ -235,15 +307,22 @@ export function createSudokuGame() {
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
       stopTimer();
-    } else if (hasStartedFilling && !completed()) {
+    } else if (hasStartedFilling && !completed() && !completing()) {
       startTimer();
     }
   }
 
   onMount(() => {
+    restoreSession();
     document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("sudoku-number-input", handleSudokuNumberInput);
     window.addEventListener("sudoku-erase", handleSudokuErase);
+    setPersistenceReady(true);
+  });
+
+  createEffect(() => {
+    if (!persistenceReady()) return;
+    persistSession();
   });
 
   onCleanup(() => {
@@ -254,6 +333,7 @@ export function createSudokuGame() {
     clearPendingGeneration();
     if (timerInterval) clearInterval(timerInterval);
     if (groupSweepTimer) clearTimeout(groupSweepTimer);
+    if (completionTimer) clearTimeout(completionTimer);
   });
 
   return {

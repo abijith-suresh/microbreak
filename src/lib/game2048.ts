@@ -177,6 +177,10 @@ export function nextTileId(): number {
   return _nextTileId++;
 }
 
+export function seedTileIdCounter(nextId: number) {
+  _nextTileId = Math.max(1, Math.floor(nextId));
+}
+
 /**
  * Apply a move in the given direction. Returns the new grid state, a flat
  * list of all tiles (for rendering), the score gained, and whether anything moved.

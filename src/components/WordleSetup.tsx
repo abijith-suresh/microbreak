@@ -1,6 +1,8 @@
-import { createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup, onMount } from "solid-js";
 import ThemeToggle from "./ThemeToggle";
 import type { Variant } from "@/lib/wordle";
+import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
+import { STORAGE_KEYS } from "@/lib/storageKeys";
 
 interface Props {
   onStart: (variant: Variant) => void;
@@ -24,6 +26,22 @@ const CARD_TRANSITION =
 
 export default function WordleSetup(props: Props) {
   const [selectedVariant, setSelectedVariant] = createSignal<Variant>(5);
+
+  onMount(() => {
+    const stored = loadStoredJSON(
+      STORAGE_KEYS.wordlePreferences,
+      (value): value is { variant: Variant } => {
+        return (
+          typeof value === "object" &&
+          value !== null &&
+          "variant" in value &&
+          (value.variant === 4 || value.variant === 5 || value.variant === 6)
+        );
+      }
+    );
+
+    if (stored) setSelectedVariant(stored.variant);
+  });
   const [isExiting, setIsExiting] = createSignal(false);
   const [pressedVariant, setPressedVariant] = createSignal<Variant | null>(null);
   const [startPressed, setStartPressed] = createSignal(false);
@@ -35,6 +53,9 @@ export default function WordleSetup(props: Props) {
 
   function handleStart() {
     if (isExiting() || props.loading) return;
+
+    saveStoredJSON(STORAGE_KEYS.wordlePreferences, { variant: selectedVariant() });
+
     setIsExiting(true);
     exitTimer = setTimeout(() => {
       exitTimer = null;

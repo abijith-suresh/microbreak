@@ -1,5 +1,7 @@
-import { createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup, onMount } from "solid-js";
 import type { Difficulty, GridSize } from "@/lib/sudoku";
+import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
+import { STORAGE_KEYS } from "@/lib/storageKeys";
 import ThemeToggle from "./ThemeToggle";
 
 interface Props {
@@ -30,6 +32,29 @@ export default function SudokuSetup(props: Props) {
   const [selectedSize, setSelectedSize] = createSignal<GridSize>(9);
   const [selectedDifficulty, setSelectedDifficulty] = createSignal<Difficulty>("medium");
 
+  onMount(() => {
+    const stored = loadStoredJSON(
+      STORAGE_KEYS.sudokuPreferences,
+      (value): value is { size: GridSize; difficulty: Difficulty } => {
+        return (
+          typeof value === "object" &&
+          value !== null &&
+          "size" in value &&
+          "difficulty" in value &&
+          (value.size === 4 || value.size === 6 || value.size === 9) &&
+          (value.difficulty === "easy" ||
+            value.difficulty === "medium" ||
+            value.difficulty === "hard")
+        );
+      }
+    );
+
+    if (stored) {
+      setSelectedSize(stored.size);
+      setSelectedDifficulty(stored.difficulty);
+    }
+  });
+
   // ── Exit animation ─────────────────────────────────────────────────────────
   // When the user taps "Start Game", play the exit animation for 280 ms first,
   // then hand off to the parent. This creates a smooth crossfade-like feel:
@@ -43,6 +68,12 @@ export default function SudokuSetup(props: Props) {
 
   function handleStart() {
     if (isExiting()) return; // guard against rapid double-tap
+
+    saveStoredJSON(STORAGE_KEYS.sudokuPreferences, {
+      size: selectedSize(),
+      difficulty: selectedDifficulty(),
+    });
+
     setIsExiting(true);
     exitTimer = setTimeout(() => {
       exitTimer = null;

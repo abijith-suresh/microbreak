@@ -8,6 +8,13 @@
  */
 
 import { batch, createSignal, onCleanup, onMount } from "solid-js";
+import { loadStoredJSON, saveStoredJSON } from "./storage";
+import { STORAGE_KEYS } from "./storageKeys";
+import {
+  addRecentWordleAnswer,
+  createEmptyRecentWordleAnswers,
+  isRecentWordleAnswers,
+} from "./wordlePersistence";
 import {
   computeGuess,
   getMaxGuesses,
@@ -22,6 +29,8 @@ import {
 
 export type Phase = "setup" | "playing";
 export type { Variant, LetterState, GuessResult };
+
+const wordListCache = new Map<Variant, Promise<WordList>>();
 
 export function createWordleGame() {
   // ── Raw signals ──────────────────────────────────────────────────────────
@@ -45,7 +54,9 @@ export function createWordleGame() {
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let shakeTimer: ReturnType<typeof setTimeout> | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
+  let revealTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedPlaying = false;
+  let startRequestId = 0;
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   function startTimer() {
@@ -81,6 +92,10 @@ export function createWordleGame() {
       clearTimeout(toastTimer);
       toastTimer = null;
     }
+    if (revealTimer) {
+      clearTimeout(revealTimer);
+      revealTimer = null;
+    }
     hasStartedPlaying = false;
     batch(() => {
       setCurrentInput("");
@@ -95,24 +110,46 @@ export function createWordleGame() {
     });
   }
 
+  function loadRecentAnswers() {
+    return (
+      loadStoredJSON(STORAGE_KEYS.wordleRecentAnswers, isRecentWordleAnswers) ??
+      createEmptyRecentWordleAnswers()
+    );
+  }
+
   // ── Word list loading ─────────────────────────────────────────────────────
   async function loadWordList(v: Variant): Promise<WordList> {
+    const cached = wordListCache.get(v);
+    if (cached) return cached;
+
     const modules: Record<number, () => Promise<{ default: WordList }>> = {
       4: () => import("@/data/words-4.json"),
       5: () => import("@/data/words-5.json"),
       6: () => import("@/data/words-6.json"),
     };
-    const mod = await modules[v]();
-    return mod.default;
+
+    const promise = modules[v]().then((mod) => mod.default);
+    wordListCache.set(v, promise);
+    return promise;
   }
 
   // ── Public actions ────────────────────────────────────────────────────────
 
   async function startGame(v: Variant) {
+    const requestId = ++startRequestId;
     setLoading(true);
     try {
-      wordList = await loadWordList(v);
-      const word = pickRandomSolution(wordList);
+      const loadedWordList = await loadWordList(v);
+      if (requestId !== startRequestId) return;
+
+      const recentAnswers = loadRecentAnswers();
+      const word = pickRandomSolution(loadedWordList, recentAnswers[v]);
+      saveStoredJSON(
+        STORAGE_KEYS.wordleRecentAnswers,
+        addRecentWordleAnswer(recentAnswers, v, word)
+      );
+
+      wordList = loadedWordList;
       resetProgress();
       batch(() => {
         setVariant(v);
@@ -120,11 +157,15 @@ export function createWordleGame() {
         setPhase("playing");
       });
     } finally {
-      setLoading(false);
+      if (requestId === startRequestId) {
+        setLoading(false);
+      }
     }
   }
 
   function restart() {
+    startRequestId++;
+    setLoading(false);
     resetProgress();
     setPhase("setup");
   }
@@ -191,7 +232,7 @@ export function createWordleGame() {
 
     // After reveal animation completes, commit the guess
     const revealDelay = v * 350 + 300; // per-tile flip time + buffer
-    setTimeout(() => {
+    revealTimer = setTimeout(() => {
       const newGuesses = [...guesses(), result];
       const newKeyboard = mergeKeyboardState(keyboardState(), result);
       const didWin = states.every((s) => s === "correct");
@@ -209,6 +250,8 @@ export function createWordleGame() {
           setGameResult(didWin ? "won" : "lost");
         }
       });
+
+      revealTimer = null;
     }, revealDelay);
   }
 
@@ -249,6 +292,7 @@ export function createWordleGame() {
     stopTimer();
     if (shakeTimer) clearTimeout(shakeTimer);
     if (toastTimer) clearTimeout(toastTimer);
+    if (revealTimer) clearTimeout(revealTimer);
   });
 
   return {

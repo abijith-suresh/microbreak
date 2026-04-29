@@ -1,4 +1,4 @@
-import { batch, createSignal, onCleanup, onMount } from "solid-js";
+import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createStore, produce, reconcile } from "solid-js/store";
 import {
   canMove,
@@ -7,31 +7,36 @@ import {
   moveWithTiles,
   nextTileId,
   resetTileIdCounter,
+  seedTileIdCounter,
   spawnTile,
   type Direction,
   type Grid,
   type Tile,
 } from "./game2048";
+import {
+  getNextTileIdSeed,
+  isPersisted2048Session,
+  type Persisted2048Session,
+} from "./game2048Session";
+import {
+  loadStoredJSON,
+  loadStoredNumber,
+  removeStoredValue,
+  saveStoredJSON,
+  saveStoredNumber,
+} from "./storage";
+import { STORAGE_KEYS } from "./storageKeys";
 
 export type Phase = "setup" | "playing";
 
 // ── Best score persistence ────────────────────────────────────────────────────
 
 function loadBestScore(): number {
-  try {
-    const stored = localStorage.getItem("microbreak-2048-best");
-    return stored ? parseInt(stored, 10) : 0;
-  } catch {
-    return 0;
-  }
+  return loadStoredNumber(STORAGE_KEYS.game2048Best, 0);
 }
 
 function saveBestScore(score: number) {
-  try {
-    localStorage.setItem("microbreak-2048-best", String(score));
-  } catch {
-    // ignore
-  }
+  saveStoredNumber(STORAGE_KEYS.game2048Best, score);
 }
 
 export function create2048Game() {
@@ -45,12 +50,14 @@ export function create2048Game() {
   const [gameOver, setGameOver] = createSignal(false);
   const [timerSeconds, setTimerSeconds] = createSignal(0);
   const [scorePopup, setScorePopup] = createSignal<{ value: number; id: number } | null>(null);
+  const [persistenceReady, setPersistenceReady] = createSignal(false);
 
   // ── Internal mutable state ──────────────────────────────────────────────
   let timerInterval: ReturnType<typeof setInterval> | null = null;
   let popupTimer: ReturnType<typeof setTimeout> | null = null;
   let popupId = 0;
   let hasWonOnce = false;
+  let hasStartedPlaying = false;
 
   // ── Timer ───────────────────────────────────────────────────────────────
 
@@ -80,6 +87,54 @@ export function create2048Game() {
     }, 600);
   }
 
+  // ── Persistence ─────────────────────────────────────────────────────────
+
+  function persistSession() {
+    if (phase() !== "playing") {
+      removeStoredValue(STORAGE_KEYS.game2048Session);
+      return;
+    }
+
+    const session: Persisted2048Session = {
+      phase: "playing",
+      grid: grid().map((row) => [...row]),
+      tiles: tiles.map((tile) => ({ ...tile })),
+      score: score(),
+      timerSeconds: timerSeconds(),
+      hasShownWin: hasShownWin(),
+      gameOver: gameOver(),
+      hasWonOnce,
+      hasStartedPlaying,
+      nextTileId: getNextTileIdSeed(tiles),
+    };
+
+    saveStoredJSON(STORAGE_KEYS.game2048Session, session);
+  }
+
+  function restoreSession() {
+    const session = loadStoredJSON(STORAGE_KEYS.game2048Session, isPersisted2048Session);
+    if (!session) return;
+
+    seedTileIdCounter(session.nextTileId);
+    hasWonOnce = session.hasWonOnce;
+    hasStartedPlaying = session.hasStartedPlaying;
+
+    batch(() => {
+      setPhase("playing");
+      setGrid(session.grid.map((row) => [...row]));
+      setTiles(reconcile(session.tiles.map((tile) => ({ ...tile }))));
+      setScore(session.score);
+      setHasShownWin(session.hasShownWin);
+      setGameOver(session.gameOver);
+      setTimerSeconds(session.timerSeconds);
+      setScorePopup(null);
+    });
+
+    if (hasStartedPlaying && !session.gameOver && document.visibilityState === "visible") {
+      startTimer();
+    }
+  }
+
   // ── Helpers ─────────────────────────────────────────────────────────────
 
   function resetState() {
@@ -89,6 +144,7 @@ export function create2048Game() {
       popupTimer = null;
     }
     hasWonOnce = false;
+    hasStartedPlaying = false;
     batch(() => {
       setGrid(createEmptyGrid());
       setTiles(reconcile([]));
@@ -144,6 +200,9 @@ export function create2048Game() {
     if (!result.moved) return;
 
     // Start timer on first move
+    if (!hasStartedPlaying) {
+      hasStartedPlaying = true;
+    }
     startTimer();
 
     // Build a lookup of the new tile states by ID
@@ -233,7 +292,7 @@ export function create2048Game() {
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
       stopTimer();
-    } else if (phase() === "playing" && !gameOver()) {
+    } else if (phase() === "playing" && hasStartedPlaying && !gameOver()) {
       startTimer();
     }
   }
@@ -241,8 +300,15 @@ export function create2048Game() {
   // ── Lifecycle ───────────────────────────────────────────────────────────
 
   onMount(() => {
+    restoreSession();
     document.addEventListener("keydown", handleKeydown);
     document.addEventListener("visibilitychange", handleVisibility);
+    setPersistenceReady(true);
+  });
+
+  createEffect(() => {
+    if (!persistenceReady()) return;
+    persistSession();
   });
 
   onCleanup(() => {
