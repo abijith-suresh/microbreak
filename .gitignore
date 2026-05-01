@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# binary lockfile (migrated to text-based bun.lock)
+bun.lockb
