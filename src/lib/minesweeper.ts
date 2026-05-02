@@ -68,6 +68,37 @@ export const DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
   },
 };
 
+export const MOBILE_DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
+  beginner: {
+    rows: 9,
+    cols: 9,
+    mines: 10,
+    label: "9×9",
+    description: "Getting started",
+    time: "~30s",
+  },
+  intermediate: {
+    rows: 12,
+    cols: 12,
+    mines: 20,
+    label: "12×12",
+    description: "A bit tricky",
+    time: "~1 min",
+  },
+  expert: {
+    rows: 16,
+    cols: 10,
+    mines: 30,
+    label: "10×16",
+    description: "Think hard",
+    time: "~3 min",
+  },
+};
+
+export function getDifficultyPreset(difficulty: Difficulty, isMobile: boolean): DifficultyPreset {
+  return isMobile ? MOBILE_DIFFICULTY_PRESETS[difficulty] : DIFFICULTY_PRESETS[difficulty];
+}
+
 // ── Board creation ─────────────────────────────────────────────────────────────
 
 /** Create an empty board (all cells hidden, no mines) */
