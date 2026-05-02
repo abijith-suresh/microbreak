@@ -1,20 +1,5 @@
 import { createSignal, onMount, onCleanup, For, Show } from "solid-js";
-
-interface GameCard {
-  name: string;
-  icon: string;
-  active: boolean;
-  href?: string;
-}
-
-const games: GameCard[] = [
-  { name: "Sudoku", icon: "⊞", active: true, href: "/sudoku" },
-  { name: "Chess", icon: "♞", active: false },
-  { name: "Wordle", icon: "W", active: true, href: "/wordle" },
-  { name: "Minesweeper", icon: "✱", active: true, href: "/minesweeper" },
-  { name: "Nonograms", icon: "▦", active: false },
-  { name: "2048", icon: "2", active: true, href: "/2048" },
-];
+import { getOrderedGames } from "@/data/games";
 
 /** Game icon SVGs for the coming-soon cards */
 const gameIcons: Record<string, string> = {
@@ -273,57 +258,77 @@ function Mini2048Grid() {
 }
 
 function MiniWordleGrid() {
-  const word = "crane";
-  const colors = ["absent", "correct", "present", "absent", "correct"] as const;
-  const letters = word.split("");
+  const words = ["crane", "slate", "trace", "crate", "stare"];
+  const allColors: ("absent" | "correct" | "present")[][] = [
+    ["absent", "correct", "present", "absent", "correct"],
+    ["correct", "absent", "present", "absent", "correct"],
+    ["present", "absent", "correct", "present", "absent"],
+    ["absent", "present", "correct", "absent", "correct"],
+    ["correct", "correct", "correct", "correct", "correct"],
+  ];
 
-  // tick 0-4: typing (letters appear one by one)
-  // tick 5-9: revealing (colors appear one by one)
-  // tick 10-14: pause showing final state
-  // tick 15: reset
-  const CYCLE = 16;
+  // 5 rows, each row: type (5 ticks) → reveal (5 ticks) → next row
+  // After all 5 rows revealed: pause 10 ticks, then reset
+  const TICKS_PER_ROW = 10;
+  const PAUSE_TICKS = 10;
+  const CYCLE = TICKS_PER_ROW * 5 + PAUSE_TICKS; // 60
   const [tick, setTick] = createSignal(0);
 
   onMount(() => {
     const interval = setInterval(() => {
       setTick((t) => (t + 1) % CYCLE);
-    }, 200);
+    }, 100);
     onCleanup(() => clearInterval(interval));
   });
 
-  const typedCount = () => Math.min(tick(), 5); // 0-5 during typing phase
-  const revealedCount = () => Math.max(0, Math.min(tick() - 5, 5)); // 0-5 during reveal phase
+  const rows = words.map((w) => w.split(""));
 
   return (
-    <div class="grid grid-cols-5 gap-[2px] p-2 w-full max-w-[160px] mx-auto rounded-lg bg-border overflow-hidden">
-      <For each={letters}>
-        {(letter, i) => {
-          const isTyped = () => i() < typedCount();
-          const isRevealed = () => i() < revealedCount();
-          const color = () => (isRevealed() ? colors[i()] : null);
+    <div class="grid grid-rows-5 gap-[2px] p-2 w-full max-w-[160px] mx-auto rounded-lg bg-border overflow-hidden">
+      <For each={rows}>
+        {(letters, rowIdx) => {
+          const rowTick = () => tick() - rowIdx() * TICKS_PER_ROW;
+          const typedCount = () => (rowTick() >= 0 ? Math.min(Math.floor(rowTick() / 1), 5) : 0);
+          const revealedCount = () => (rowTick() >= 5 ? Math.min(rowTick() - 5, 5) : 0);
+          const isFullyRevealed = () => rowTick() >= 10;
 
           return (
-            <div
-              class="flex items-center justify-center aspect-square rounded-sm"
-              style={{
-                "background-color":
-                  color() === "correct"
-                    ? "var(--color-wl-correct)"
-                    : color() === "present"
-                      ? "var(--color-wl-present)"
-                      : color() === "absent"
-                        ? "var(--color-wl-absent)"
-                        : "var(--color-surface)",
-                opacity: isTyped() ? "1" : "0",
-                color:
-                  color() === "absent"
-                    ? "var(--color-wl-absent-text)"
-                    : color()
-                      ? "var(--color-wl-correct-text)"
-                      : "var(--color-fg)",
-              }}
-            >
-              <span class="text-[8px] font-bold uppercase">{isTyped() ? letter : ""}</span>
+            <div class="grid grid-cols-5 gap-[2px]">
+              <For each={letters}>
+                {(letter, colIdx) => {
+                  const isTyped = () => colIdx() < typedCount();
+                  const isRevealed = () => colIdx() < revealedCount();
+                  const color = () =>
+                    isRevealed() || isFullyRevealed() ? allColors[rowIdx()][colIdx()] : null;
+
+                  return (
+                    <div
+                      class="flex items-center justify-center aspect-square rounded-sm"
+                      style={{
+                        "background-color":
+                          color() === "correct"
+                            ? "var(--color-wl-correct)"
+                            : color() === "present"
+                              ? "var(--color-wl-present)"
+                              : color() === "absent"
+                                ? "var(--color-wl-absent)"
+                                : "var(--color-surface)",
+                        opacity: isTyped() || isFullyRevealed() ? "1" : "0",
+                        color:
+                          color() === "absent"
+                            ? "var(--color-wl-absent-text)"
+                            : color()
+                              ? "var(--color-wl-correct-text)"
+                              : "var(--color-fg)",
+                      }}
+                    >
+                      <span class="text-[7px] font-bold uppercase">
+                        {isTyped() || isFullyRevealed() ? letter : ""}
+                      </span>
+                    </div>
+                  );
+                }}
+              </For>
             </div>
           );
         }}
@@ -343,7 +348,7 @@ function GamePreview(props: { name: string }) {
 export default function GameGrid() {
   return (
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 max-w-4xl mx-auto px-4">
-      <For each={games}>
+      <For each={getOrderedGames()}>
         {(game) =>
           game.active ? (
             <a
