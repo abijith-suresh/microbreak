@@ -12,12 +12,12 @@ import {
   countFlags,
   createEmptyBoard,
   generateBoard,
+  getDifficultyPreset,
   getWrongFlags,
   isMine,
   revealAllMines,
   revealCell,
   toggleFlag,
-  DIFFICULTY_PRESETS,
   type Board,
   type Difficulty,
 } from "./minesweeper";
@@ -185,8 +185,8 @@ export function createMinesweeperGame() {
 
   // ── Public actions ────────────────────────────────────────────────────────
 
-  function startGame(diff: Difficulty) {
-    const preset = DIFFICULTY_PRESETS[diff];
+  function startGame(diff: Difficulty, isMobile = false) {
+    const preset = getDifficultyPreset(diff, isMobile);
 
     batch(() => {
       setDifficulty(diff);

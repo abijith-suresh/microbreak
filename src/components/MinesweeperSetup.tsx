@@ -1,40 +1,24 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import type { Difficulty } from "@/lib/minesweeper";
-import { DIFFICULTY_PRESETS } from "@/lib/minesweeper";
+import { getDifficultyPreset } from "@/lib/minesweeper";
 import { loadStoredString, saveStoredString } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
 import ThemeToggle from "./ThemeToggle";
 
 interface Props {
-  onStart: (difficulty: Difficulty) => void;
+  onStart: (difficulty: Difficulty, isMobile: boolean) => void;
 }
 
-const difficulties: { value: Difficulty; label: string; description: string; time: string }[] = [
-  {
-    value: "beginner",
-    label: DIFFICULTY_PRESETS.beginner.label,
-    description: DIFFICULTY_PRESETS.beginner.description,
-    time: DIFFICULTY_PRESETS.beginner.time,
-  },
-  {
-    value: "intermediate",
-    label: DIFFICULTY_PRESETS.intermediate.label,
-    description: DIFFICULTY_PRESETS.intermediate.description,
-    time: DIFFICULTY_PRESETS.intermediate.time,
-  },
-  {
-    value: "expert",
-    label: DIFFICULTY_PRESETS.expert.label,
-    description: DIFFICULTY_PRESETS.expert.description,
-    time: DIFFICULTY_PRESETS.expert.time,
-  },
-];
+const DIFFICULTY_VALUES: Difficulty[] = ["beginner", "intermediate", "expert"];
 
 const CARD_TRANSITION =
   "border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.1s ease-out";
 
 export default function MinesweeperSetup(props: Props) {
   const [selectedDifficulty, setSelectedDifficulty] = createSignal<Difficulty>("beginner");
+
+  // ── Reactive mobile detection ──────────────────────────────────────────────
+  const [isMobile, setIsMobile] = createSignal(false);
 
   onMount(() => {
     setSelectedDifficulty(
@@ -44,7 +28,26 @@ export default function MinesweeperSetup(props: Props) {
         "beginner"
       )
     );
+
+    const mql = window.matchMedia("(max-width: 480px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    onCleanup(() => mql.removeEventListener("change", handler));
   });
+
+  // ── Reactive difficulty cards data ─────────────────────────────────────────
+  const difficulties = createMemo(() =>
+    DIFFICULTY_VALUES.map((value) => {
+      const preset = getDifficultyPreset(value, isMobile());
+      return {
+        value,
+        label: preset.label,
+        description: preset.description,
+        time: preset.time,
+      };
+    })
+  );
 
   // ── Exit animation ─────────────────────────────────────────────────────────
   const [isExiting, setIsExiting] = createSignal(false);
@@ -62,7 +65,7 @@ export default function MinesweeperSetup(props: Props) {
     setIsExiting(true);
     exitTimer = setTimeout(() => {
       exitTimer = null;
-      props.onStart(selectedDifficulty());
+      props.onStart(selectedDifficulty(), isMobile());
     }, 280);
   }
 
@@ -116,7 +119,7 @@ export default function MinesweeperSetup(props: Props) {
               Difficulty
             </label>
             <div class="grid grid-cols-3 gap-2.5">
-              {difficulties.map((d) => (
+              {difficulties().map((d) => (
                 <button
                   onClick={() => setSelectedDifficulty(d.value)}
                   onPointerDown={() => setPressedDiff(d.value)}
