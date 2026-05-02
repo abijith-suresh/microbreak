@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.10](https://github.com/abijith-suresh/microbreak/compare/v0.0.9...v0.0.10) (2026-05-02)
+
+
+### Bug Fixes
+
+* **landing:** order coming-soon last, expand Wordle preview ([#17](https://github.com/abijith-suresh/microbreak/issues/17)) ([189327f](https://github.com/abijith-suresh/microbreak/commit/189327f7e45cd43bc29909ff9bdeb6a2ed645275))
+* **minesweeper:** use smaller board presets on mobile ([#19](https://github.com/abijith-suresh/microbreak/issues/19)) ([234cc51](https://github.com/abijith-suresh/microbreak/commit/234cc51c60d6198a043e4def93ce09429bcc979c))
+
 ## [Unreleased]
 
 ## [0.0.8] - 2026-04-26
