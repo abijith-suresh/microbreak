@@ -204,6 +204,11 @@ export function createMinesweeperGame() {
   }
 
   function restart() {
+    const presetMode = getCurrentPresetMode(difficulty(), rows(), cols(), mineCount());
+    startGame(difficulty(), presetMode === "mobile");
+  }
+
+  function returnToSetup() {
     resetProgress();
     setBoard([]);
     setRows(0);
@@ -213,8 +218,7 @@ export function createMinesweeperGame() {
   }
 
   function playAgain() {
-    const presetMode = getCurrentPresetMode(difficulty(), rows(), cols(), mineCount());
-    startGame(difficulty(), presetMode === "mobile");
+    restart();
   }
 
   function handleCellClick(row: number, col: number) {
@@ -373,6 +377,7 @@ export function createMinesweeperGame() {
     // Actions
     startGame,
     restart,
+    returnToSetup,
     playAgain,
     handleCellClick,
     toggleMode,

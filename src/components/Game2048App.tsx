@@ -70,7 +70,7 @@ export default function Game2048App() {
           {/* Top bar */}
           <div class="flex items-center justify-between px-5 py-3">
             <button
-              onClick={game.restart}
+              onClick={game.returnToSetup}
               onPointerDown={() => setNewGamePressed(true)}
               onPointerUp={() => setNewGamePressed(false)}
               onPointerLeave={() => setNewGamePressed(false)}
@@ -80,6 +80,7 @@ export default function Game2048App() {
                 transform: newGamePressed() ? "scale(0.93)" : "",
               }}
               class="flex items-center gap-1.5 text-fg-tertiary hover:text-fg"
+              aria-label="Return to setup"
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
                 <path
@@ -90,7 +91,7 @@ export default function Game2048App() {
                   stroke-linejoin="round"
                 />
               </svg>
-              <span class="text-sm font-medium hidden sm:inline">New Game</span>
+              <span class="text-sm font-medium hidden sm:inline">Setup</span>
             </button>
 
             <div class="flex items-center gap-4 text-xs">
