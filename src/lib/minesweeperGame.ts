@@ -12,6 +12,7 @@ import {
   countFlags,
   createEmptyBoard,
   generateBoard,
+  getCurrentPresetMode,
   getDifficultyPreset,
   getWrongFlags,
   isMine,
@@ -212,7 +213,8 @@ export function createMinesweeperGame() {
   }
 
   function playAgain() {
-    startGame(difficulty());
+    const presetMode = getCurrentPresetMode(difficulty(), rows(), cols(), mineCount());
+    startGame(difficulty(), presetMode === "mobile");
   }
 
   function handleCellClick(row: number, col: number) {

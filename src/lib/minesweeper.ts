@@ -95,8 +95,29 @@ export const MOBILE_DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
   },
 };
 
+export type PresetMode = "desktop" | "mobile";
+
 export function getDifficultyPreset(difficulty: Difficulty, isMobile: boolean): DifficultyPreset {
   return isMobile ? MOBILE_DIFFICULTY_PRESETS[difficulty] : DIFFICULTY_PRESETS[difficulty];
+}
+
+export function getCurrentPresetMode(
+  difficulty: Difficulty,
+  rows: number,
+  cols: number,
+  mineCount: number
+): PresetMode {
+  const mobile = MOBILE_DIFFICULTY_PRESETS[difficulty];
+  if (mobile.rows === rows && mobile.cols === cols && mobile.mines === mineCount) {
+    return "mobile";
+  }
+
+  const desktop = DIFFICULTY_PRESETS[difficulty];
+  if (desktop.rows === rows && desktop.cols === cols && desktop.mines === mineCount) {
+    return "desktop";
+  }
+
+  return "desktop";
 }
 
 // ── Board creation ─────────────────────────────────────────────────────────────

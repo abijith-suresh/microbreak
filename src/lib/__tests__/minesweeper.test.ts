@@ -8,6 +8,7 @@ import {
   isMine,
   getWrongFlags,
   countFlags,
+  getCurrentPresetMode,
   getNeighbors,
 } from "../minesweeper";
 
@@ -234,6 +235,21 @@ describe("countFlags", () => {
     current = toggleFlag(current, 1, 1);
     current = toggleFlag(current, 2, 2);
     expect(countFlags(current)).toBe(3);
+  });
+});
+
+// ── Preset mode detection ───────────────────────────────────────────────────
+describe("getCurrentPresetMode", () => {
+  it("recognizes the mobile intermediate board", () => {
+    expect(getCurrentPresetMode("intermediate", 12, 12, 20)).toBe("mobile");
+  });
+
+  it("recognizes the desktop expert board", () => {
+    expect(getCurrentPresetMode("expert", 16, 30, 99)).toBe("desktop");
+  });
+
+  it("falls back to desktop when dimensions do not match a known preset", () => {
+    expect(getCurrentPresetMode("beginner", 9, 9, 8)).toBe("desktop");
   });
 });
 
