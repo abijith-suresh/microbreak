@@ -10,6 +10,7 @@
 import { batch, createSignal, onCleanup, onMount } from "solid-js";
 import { loadStoredJSON, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
+import { buildWordList } from "./wordleWordList";
 import {
   addRecentWordleAnswer,
   createEmptyRecentWordleAnswers,
@@ -128,7 +129,7 @@ export function createWordleGame() {
       6: () => import("@/data/words-6.json"),
     };
 
-    const promise = modules[v]().then((mod) => mod.default);
+    const promise = modules[v]().then((mod) => buildWordList(v, mod.default));
     wordListCache.set(v, promise);
     return promise;
   }
