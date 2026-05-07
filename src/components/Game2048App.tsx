@@ -141,7 +141,7 @@ export default function Game2048App() {
               when={game.tiles.length > 0}
               fallback={
                 <div
-                  class="w-[320px] h-[320px] rounded-lg bg-surface border border-border"
+                  class="w-full max-w-[336px] aspect-square rounded-lg bg-surface border border-border"
                   style={{ animation: "skeletonPulse 1.4s ease-in-out infinite" }}
                 />
               }

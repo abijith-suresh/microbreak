@@ -12,11 +12,13 @@ export default function Game2048Board(props: Props) {
   const CELLS = 4;
 
   let containerRef: HTMLDivElement | undefined;
-  const [cellSize, setCellSize] = createSignal(80);
+  let resizeObserver: ResizeObserver | undefined;
+  const [cellSize, setCellSize] = createSignal(72);
 
   function recalcCellSize() {
     if (!containerRef) return;
     const w = containerRef.clientWidth;
+    if (!w) return;
     setCellSize(Math.floor((w - GAP * (CELLS + 1)) / CELLS));
   }
 
@@ -75,6 +77,10 @@ export default function Game2048Board(props: Props) {
     recalcCellSize();
     window.addEventListener("resize", recalcCellSize);
     if (containerRef) {
+      if (typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(recalcCellSize);
+        resizeObserver.observe(containerRef);
+      }
       containerRef.addEventListener("pointerdown", handlePointerDown);
       containerRef.addEventListener("pointerup", handlePointerUp);
       containerRef.addEventListener("pointercancel", handlePointerCancel);
@@ -84,6 +90,7 @@ export default function Game2048Board(props: Props) {
 
   onCleanup(() => {
     window.removeEventListener("resize", recalcCellSize);
+    resizeObserver?.disconnect();
     if (containerRef) {
       containerRef.removeEventListener("pointerdown", handlePointerDown);
       containerRef.removeEventListener("pointerup", handlePointerUp);
@@ -94,18 +101,12 @@ export default function Game2048Board(props: Props) {
 
   // ── Render ──────────────────────────────────────────────────────────────
 
-  const boardWidth = () => GAP * (CELLS + 1) + cellSize() * CELLS;
-
   return (
     <div
       ref={(el) => {
         containerRef = el;
       }}
-      class="relative select-none touch-none"
-      style={{
-        width: `${boardWidth()}px`,
-        height: `${boardWidth()}px`,
-      }}
+      class="relative select-none touch-none w-full max-w-[336px] aspect-square"
     >
       {/* Background grid of empty cells */}
       <div
