@@ -193,6 +193,10 @@ export default function MinesweeperBoard(props: Props) {
                 props.onSelectCell(row, col);
                 props.onCellClick(row, col);
               }}
+              onFlag={() => {
+                props.onSelectCell(row, col);
+                window.dispatchEvent(new CustomEvent("minesweeper-flag", { detail: { row, col } }));
+              }}
             />
           );
         }}

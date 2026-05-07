@@ -114,60 +114,65 @@ export default function MinesweeperApp() {
             </Show>
 
             {/* Dig/Flag mode toggle */}
-            <div
-              class="flex rounded-lg border border-border overflow-hidden"
-              style={{ animation: "fadeIn 0.3s ease-out 0.2s both" }}
-            >
-              <button
-                onClick={() => game.digMode() || game.toggleMode()}
-                style={{
-                  transition: "background-color 0.15s ease-out, color 0.15s ease-out",
-                }}
-                class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium ${
-                  game.digMode()
-                    ? "bg-accent text-white"
-                    : "bg-surface text-fg-tertiary hover:text-fg"
-                }`}
+            <div class="flex flex-col items-center gap-2">
+              <div
+                class="flex rounded-lg border border-border overflow-hidden"
+                style={{ animation: "fadeIn 0.3s ease-out 0.2s both" }}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
+                <button
+                  onClick={() => game.digMode() || game.toggleMode()}
+                  style={{
+                    transition: "background-color 0.15s ease-out, color 0.15s ease-out",
+                  }}
+                  class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium ${
+                    game.digMode()
+                      ? "bg-accent text-white"
+                      : "bg-surface text-fg-tertiary hover:text-fg"
+                  }`}
                 >
-                  <path d="M14 2L4 14l1 5 5 1L20 10" />
-                </svg>
-                Dig
-              </button>
-              <button
-                onClick={() => !game.digMode() || game.toggleMode()}
-                style={{
-                  transition: "background-color 0.15s ease-out, color 0.15s ease-out",
-                }}
-                class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-l border-border ${
-                  !game.digMode()
-                    ? "bg-accent text-white"
-                    : "bg-surface text-fg-tertiary hover:text-fg"
-                }`}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  >
+                    <path d="M14 2L4 14l1 5 5 1L20 10" />
+                  </svg>
+                  Dig
+                </button>
+                <button
+                  onClick={() => !game.digMode() || game.toggleMode()}
+                  style={{
+                    transition: "background-color 0.15s ease-out, color 0.15s ease-out",
+                  }}
+                  class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-l border-border ${
+                    !game.digMode()
+                      ? "bg-accent text-white"
+                      : "bg-surface text-fg-tertiary hover:text-fg"
+                  }`}
                 >
-                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                  <line x1="4" y1="22" x2="4" y2="15" />
-                </svg>
-                Flag
-              </button>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                    <line x1="4" y1="22" x2="4" y2="15" />
+                  </svg>
+                  Flag
+                </button>
+              </div>
+              <p class="text-[11px] text-fg-tertiary tracking-wide text-center">
+                Tap to dig · right-click or hold to flag
+              </p>
             </div>
           </div>
 
