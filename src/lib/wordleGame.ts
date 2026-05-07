@@ -7,10 +7,11 @@
  * a pure layout shell.
  */
 
-import { batch, createSignal, onCleanup, onMount } from "solid-js";
-import { loadStoredJSON, saveStoredJSON } from "./storage";
+import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import { buildWordList } from "./wordleWordList";
+import { isPersistedWordleSession, type PersistedWordleSession } from "./wordleSession";
 import {
   addRecentWordleAnswer,
   createEmptyRecentWordleAnswers,
@@ -49,6 +50,7 @@ export function createWordleGame() {
   const [loading, setLoading] = createSignal(false);
   const [timerSeconds, setTimerSeconds] = createSignal(0);
   const [toastMessage, setToastMessage] = createSignal("");
+  const [persistenceReady, setPersistenceReady] = createSignal(false);
 
   // ── Internal mutable state ───────────────────────────────────────────────
   let wordList: WordList | null = null;
@@ -116,6 +118,77 @@ export function createWordleGame() {
       loadStoredJSON(STORAGE_KEYS.wordleRecentAnswers, isRecentWordleAnswers) ??
       createEmptyRecentWordleAnswers()
     );
+  }
+
+  function buildKeyboardFromGuesses(history: GuessResult[]) {
+    return history.reduce<Record<string, LetterState>>(
+      (state, guess) => mergeKeyboardState(state, guess),
+      {}
+    );
+  }
+
+  function persistSession() {
+    if (
+      phase() !== "playing" ||
+      loading() ||
+      gameResult() !== null ||
+      revealRow() >= 0 ||
+      !wordList ||
+      answer().length !== variant()
+    ) {
+      removeStoredValue(STORAGE_KEYS.wordleSession);
+      return;
+    }
+
+    const session: PersistedWordleSession = {
+      phase: "playing",
+      variant: variant(),
+      answer: answer(),
+      guesses: guesses().map((guess) => ({
+        word: guess.word,
+        states: [...guess.states],
+      })),
+      currentInput: currentInput(),
+      timerSeconds: timerSeconds(),
+      hasStartedPlaying,
+    };
+
+    saveStoredJSON(STORAGE_KEYS.wordleSession, session);
+  }
+
+  async function restoreSession() {
+    const session = loadStoredJSON(STORAGE_KEYS.wordleSession, isPersistedWordleSession);
+    if (!session) return;
+
+    setLoading(true);
+    try {
+      const loadedWordList = await loadWordList(session.variant);
+      wordList = loadedWordList;
+      hasStartedPlaying = session.hasStartedPlaying;
+
+      batch(() => {
+        setPhase("playing");
+        setVariant(session.variant);
+        setAnswer(session.answer);
+        setGuesses(
+          session.guesses.map((guess) => ({ word: guess.word, states: [...guess.states] }))
+        );
+        setCurrentInput(session.currentInput);
+        setKeyboardState(buildKeyboardFromGuesses(session.guesses));
+        setGameResult(null);
+        setShakeRow(false);
+        setRevealRow(-1);
+        setPendingReveal(null);
+        setTimerSeconds(session.timerSeconds);
+        setToastMessage("");
+      });
+
+      if (hasStartedPlaying && document.visibilityState === "visible") {
+        startTimer();
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   // ── Word list loading ─────────────────────────────────────────────────────
@@ -282,8 +355,14 @@ export function createWordleGame() {
   }
 
   onMount(() => {
+    void restoreSession().finally(() => setPersistenceReady(true));
     document.addEventListener("keydown", handleKeydown);
     document.addEventListener("visibilitychange", handleVisibility);
+  });
+
+  createEffect(() => {
+    if (!persistenceReady()) return;
+    persistSession();
   });
 
   onCleanup(() => {
