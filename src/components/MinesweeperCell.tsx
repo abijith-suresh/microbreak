@@ -202,7 +202,6 @@ export default function MinesweeperCell(props: Props) {
         hoverClass(),
         cursorClass(),
         selectionClass(),
-        "focus:outline-none",
       ]
         .filter(Boolean)
         .join(" ")}
