@@ -7,6 +7,10 @@ import {
   type LetterState,
   type WordList,
 } from "../wordle";
+import { buildWordList } from "../wordleWordList";
+import words4 from "../../data/words-4.json";
+import words5 from "../../data/words-5.json";
+import words6 from "../../data/words-6.json";
 
 describe("getMaxGuesses", () => {
   it("returns guess count scaled to variant", () => {
@@ -132,5 +136,35 @@ describe("mergeKeyboardState", () => {
       { word: "apple", states: ["absent", "absent", "absent", "absent", "absent"] as LetterState[] }
     );
     expect(result.a).toBe("present");
+  });
+});
+
+describe("buildWordList", () => {
+  it("replaces 4-letter solutions with a curated pool", () => {
+    const wordList = buildWordList(4, words4);
+
+    expect(wordList.solutions.length).toBeGreaterThan(100);
+    expect(wordList.solutions).toContain("home");
+    expect(wordList.solutions).toContain("lake");
+    expect(wordList.solutions).not.toContain("abbr");
+    expect(new Set(wordList.solutions).size).toBe(wordList.solutions.length);
+    expect(wordList.solutions.every((word) => wordList.guesses.includes(word))).toBe(true);
+  });
+
+  it("keeps the existing 5-letter solution pool untouched", () => {
+    const wordList = buildWordList(5, words5);
+
+    expect(wordList.solutions).toEqual(words5.solutions);
+  });
+
+  it("replaces 6-letter solutions with a curated pool", () => {
+    const wordList = buildWordList(6, words6);
+
+    expect(wordList.solutions.length).toBeGreaterThan(100);
+    expect(wordList.solutions).toContain("travel");
+    expect(wordList.solutions).toContain("forest");
+    expect(wordList.solutions).not.toContain("abegge");
+    expect(new Set(wordList.solutions).size).toBe(wordList.solutions.length);
+    expect(wordList.solutions.every((word) => wordList.guesses.includes(word))).toBe(true);
   });
 });
