@@ -12,6 +12,7 @@ import {
 } from "../storage";
 import { isPersistedSudokuSession } from "../sudokuSession";
 import { createEmptyRecentWordleAnswers, addRecentWordleAnswer } from "../wordlePersistence";
+import { isPersistedWordleSession } from "../wordleSession";
 import { pickRandomSolution } from "../wordle";
 
 class LocalStorageMock {
@@ -163,6 +164,25 @@ describe("session validators", () => {
 });
 
 describe("wordle persistence helpers", () => {
+  it("accepts a valid in-progress wordle session", () => {
+    const session = {
+      phase: "playing",
+      variant: 5,
+      answer: "crane",
+      guesses: [
+        {
+          word: "slate",
+          states: ["absent", "absent", "present", "absent", "correct"],
+        },
+      ],
+      currentInput: "br",
+      timerSeconds: 12,
+      hasStartedPlaying: true,
+    };
+
+    expect(isPersistedWordleSession(session)).toBe(true);
+  });
+
   it("dedupes and caps recent answers", () => {
     let recent = createEmptyRecentWordleAnswers();
     for (const word of [
