@@ -152,8 +152,22 @@ export default function Game2048App() {
 
           {/* Game Over overlay */}
           <Show when={game.gameOver()}>
-            <div class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-bg/80 backdrop-blur-sm">
-              <h1 class="font-display text-5xl text-fg italic tracking-tight">Game Over</h1>
+            <div
+              class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-bg/80 backdrop-blur-sm"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="game-2048-over-title"
+            >
+              <div
+                class="sr-only"
+                aria-live="assertive"
+              >{`2048 game over with ${formatNumber(game.score())} points`}</div>
+              <h1
+                id="game-2048-over-title"
+                class="font-display text-5xl text-fg italic tracking-tight"
+              >
+                Game Over
+              </h1>
               <p class="mt-3 text-2xl font-light text-fg-secondary tabular-nums">
                 {formatNumber(game.score())} points
               </p>

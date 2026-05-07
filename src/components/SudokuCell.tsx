@@ -124,7 +124,7 @@ export default function SudokuCell(props: Props) {
         bgClass(),
         textClass(),
         hoverClass(),
-        "focus:outline-none cursor-pointer",
+        "cursor-pointer",
       ]
         .filter(Boolean)
         .join(" ")}

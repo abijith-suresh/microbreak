@@ -48,7 +48,17 @@ export default function GameResultScreen(props: Props) {
   });
 
   return (
-    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg">
+    <div
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="game-result-title"
+    >
+      <div class="sr-only" aria-live="assertive">
+        {isWon()
+          ? `Puzzle cleared in ${formatTime(props.solveTime)} on ${difficultyLabel(props.difficulty)}`
+          : `Game over after ${formatTime(props.solveTime)} on ${difficultyLabel(props.difficulty)}`}
+      </div>
       {/* Icon */}
       <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
         {isWon() ? (
@@ -96,6 +106,7 @@ export default function GameResultScreen(props: Props) {
 
       {/* Heading */}
       <h1
+        id="game-result-title"
         class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
         style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
       >
