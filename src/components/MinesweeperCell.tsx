@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, onCleanup } from "solid-js";
 import type { CellState, CellValue } from "@/lib/minesweeper";
 
 interface Props {
@@ -23,6 +23,7 @@ interface Props {
   /** True when the game ended as a loss (drives mineBlast vs completionWave) */
   isLoss: boolean;
   onSelect: () => void;
+  onFlag: () => void;
 }
 
 // Standard minesweeper number colors (1–8)
@@ -37,8 +38,13 @@ const NUMBER_COLORS: Record<number, string> = {
   8: "color: var(--color-ms-8)",
 };
 
+const LONG_PRESS_MS = 350;
+
 export default function MinesweeperCell(props: Props) {
   const [pressing, setPressing] = createSignal(false);
+  const [longPressTriggered, setLongPressTriggered] = createSignal(false);
+
+  let longPressTimer: ReturnType<typeof setTimeout> | null = null;
 
   // True whenever a keyframe animation owns the transform
   const isAnimating = () => props.entering || props.isCompleting;
@@ -191,6 +197,39 @@ export default function MinesweeperCell(props: Props) {
     return null;
   }
 
+  function clearLongPressTimer() {
+    if (longPressTimer !== null) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+  }
+
+  function startLongPress(pointerType: string) {
+    if (pointerType === "mouse" || props.state === "revealed" || props.gameOver) return;
+    clearLongPressTimer();
+    longPressTimer = setTimeout(() => {
+      setLongPressTriggered(true);
+      setPressing(false);
+      props.onFlag();
+      longPressTimer = null;
+    }, LONG_PRESS_MS);
+  }
+
+  function handleClick() {
+    if (longPressTriggered()) {
+      setLongPressTriggered(false);
+      return;
+    }
+    props.onSelect();
+  }
+
+  function handleContextMenu(e: MouseEvent) {
+    e.preventDefault();
+    props.onFlag();
+  }
+
+  onCleanup(() => clearLongPressTimer());
+
   return (
     <button
       class={[
@@ -211,11 +250,24 @@ export default function MinesweeperCell(props: Props) {
         transition:
           "background-color 0.15s ease-out, border-color 0.2s ease-out, transform 0.1s ease-out",
       }}
-      onClick={props.onSelect}
-      onPointerDown={() => setPressing(true)}
-      onPointerUp={() => setPressing(false)}
-      onPointerLeave={() => setPressing(false)}
-      onPointerCancel={() => setPressing(false)}
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
+      onPointerDown={(e) => {
+        setPressing(true);
+        startLongPress(e.pointerType);
+      }}
+      onPointerUp={() => {
+        setPressing(false);
+        clearLongPressTimer();
+      }}
+      onPointerLeave={() => {
+        setPressing(false);
+        clearLongPressTimer();
+      }}
+      onPointerCancel={() => {
+        setPressing(false);
+        clearLongPressTimer();
+      }}
     >
       {renderContent()}
     </button>
