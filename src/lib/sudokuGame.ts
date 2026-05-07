@@ -220,6 +220,20 @@ export function createSudokuGame() {
 
   function restart() {
     clearPendingGeneration();
+    if (puzzle().length !== gridSize() || solution().length !== gridSize()) {
+      queuePuzzleGeneration(gridSize(), difficulty());
+      return;
+    }
+
+    resetProgress();
+    batch(() => {
+      setUserBoard(puzzle().map((row) => [...row]));
+      setSelectedCell(null);
+    });
+  }
+
+  function returnToSetup() {
+    clearPendingGeneration();
     prepareLoadingState();
     setPhase("setup");
   }
@@ -356,6 +370,7 @@ export function createSudokuGame() {
     // Actions
     startGame,
     restart,
+    returnToSetup,
     playAgain,
     selectCell,
     fillCell,

@@ -164,6 +164,14 @@ export function createWordleGame() {
   }
 
   function restart() {
+    if (phase() !== "playing") return;
+    startRequestId++;
+    setLoading(false);
+    resetProgress();
+    setPhase("playing");
+  }
+
+  function returnToSetup() {
     startRequestId++;
     setLoading(false);
     resetProgress();
@@ -313,6 +321,7 @@ export function createWordleGame() {
     // Actions
     startGame,
     restart,
+    returnToSetup,
     playAgain,
     typeLetter,
     deleteLetter,
