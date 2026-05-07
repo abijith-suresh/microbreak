@@ -3,6 +3,7 @@ import { createWordleGame } from "@/lib/wordleGame";
 import WordleSetup from "./WordleSetup";
 import WordleBoard from "./WordleBoard";
 import WordleKeyboard from "./WordleKeyboard";
+import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 
 function formatTimer(seconds: number): string {
@@ -33,9 +34,8 @@ export default function WordleApp() {
 
       {/* ── Playing Phase (includes result overlay) ──────────────── */}
       <Show when={game.phase() === "playing"}>
-        <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.35s ease-out both" }}>
-          {/* Top bar */}
-          <div class="flex items-center justify-between px-5 py-3">
+        <GameScreen
+          left={
             <button
               onClick={game.restart}
               onPointerDown={() => setNewGamePressed(true)}
@@ -59,7 +59,8 @@ export default function WordleApp() {
               </svg>
               <span class="text-sm font-medium hidden sm:inline">New Game</span>
             </button>
-
+          }
+          center={
             <div class="flex items-center gap-2 text-xs text-fg-tertiary">
               <span>{variantLabel(game.variant())}</span>
               <span class="opacity-40">|</span>
@@ -67,40 +68,21 @@ export default function WordleApp() {
                 {formatTimer(game.timerSeconds())}
               </span>
             </div>
-
-            <ThemeToggle />
-          </div>
-
-          {/* Thin separator */}
-          <div class="h-px bg-border" />
-
-          {/* Game area */}
-          <div class="flex-1 flex flex-col items-center justify-center gap-6 py-4 px-2 md:px-4 overflow-auto">
-            <WordleBoard
-              variant={game.variant()}
-              guesses={game.guesses()}
-              currentInput={game.currentInput()}
-              revealRow={game.revealRow()}
-              shakeRow={game.shakeRow()}
-              gameResult={game.gameResult()}
-              pendingReveal={game.pendingReveal()}
-            />
-          </div>
-
-          {/* Keyboard — centered under the board */}
-          <Show when={game.gameResult() === null}>
-            <div class="flex justify-center px-2 pb-4">
-              <WordleKeyboard
-                keyboardState={game.keyboardState()}
-                onType={game.typeLetter}
-                onDelete={game.deleteLetter}
-                onSubmit={game.submitGuess}
-              />
-            </div>
-          </Show>
-
-          {/* Bottom bar */}
-          <div class="px-4 pb-5 flex justify-center">
+          }
+          right={<ThemeToggle />}
+          belowContent={
+            <Show when={game.gameResult() === null}>
+              <div class="flex justify-center px-2 pb-4">
+                <WordleKeyboard
+                  keyboardState={game.keyboardState()}
+                  onType={game.typeLetter}
+                  onDelete={game.deleteLetter}
+                  onSubmit={game.submitGuess}
+                />
+              </div>
+            </Show>
+          }
+          footer={
             <button
               onClick={game.restart}
               style={{
@@ -110,8 +92,18 @@ export default function WordleApp() {
             >
               Restart
             </button>
-          </div>
-        </div>
+          }
+        >
+          <WordleBoard
+            variant={game.variant()}
+            guesses={game.guesses()}
+            currentInput={game.currentInput()}
+            revealRow={game.revealRow()}
+            shakeRow={game.shakeRow()}
+            gameResult={game.gameResult()}
+            pendingReveal={game.pendingReveal()}
+          />
+        </GameScreen>
 
         {/* ── Toast overlay ───────────────────────────────────────── */}
         <Show when={game.toastMessage()}>

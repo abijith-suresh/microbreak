@@ -2,6 +2,7 @@ import { Show, createSignal } from "solid-js";
 import { create2048Game } from "@/lib/game2048Game";
 import Game2048Board from "./Game2048Board";
 import Game2048WinOverlay from "./Game2048WinOverlay";
+import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 
 function formatTimer(seconds: number): string {
@@ -66,9 +67,8 @@ export default function Game2048App() {
 
       {/* ── Playing Phase ────────────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && !game.hasShownWin()}>
-        <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.35s ease-out both" }}>
-          {/* Top bar */}
-          <div class="flex items-center justify-between px-5 py-3">
+        <GameScreen
+          left={
             <button
               onClick={game.restart}
               onPointerDown={() => setNewGamePressed(true)}
@@ -92,9 +92,9 @@ export default function Game2048App() {
               </svg>
               <span class="text-sm font-medium hidden sm:inline">New Game</span>
             </button>
-
+          }
+          center={
             <div class="flex items-center gap-4 text-xs">
-              {/* Score */}
               <div class="flex flex-col items-center">
                 <span class="text-fg-tertiary text-[10px] tracking-widest uppercase">Score</span>
                 <div class="relative">
@@ -114,7 +114,6 @@ export default function Game2048App() {
                 </div>
               </div>
 
-              {/* Best */}
               <div class="flex flex-col items-center">
                 <span class="text-fg-tertiary text-[10px] tracking-widest uppercase">Best</span>
                 <span class="font-mono tabular-nums tracking-wider text-fg-secondary">
@@ -128,60 +127,10 @@ export default function Game2048App() {
                 {formatTimer(game.timerSeconds())}
               </span>
             </div>
-
-            <ThemeToggle />
-          </div>
-
-          {/* Thin separator */}
-          <div class="h-px bg-border" />
-
-          {/* Game board */}
-          <div class="flex-1 flex flex-col items-center justify-center gap-4 py-6 px-4">
-            <Show
-              when={game.tiles.length > 0}
-              fallback={
-                <div
-                  class="w-[320px] h-[320px] rounded-lg bg-surface border border-border"
-                  style={{ animation: "skeletonPulse 1.4s ease-in-out infinite" }}
-                />
-              }
-            >
-              <Game2048Board tiles={game.tiles} onMove={game.handleMove} />
-            </Show>
-          </div>
-
-          {/* Game Over overlay */}
-          <Show when={game.gameOver()}>
-            <div class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-bg/80 backdrop-blur-sm">
-              <h1 class="font-display text-5xl text-fg italic tracking-tight">Game Over</h1>
-              <p class="mt-3 text-2xl font-light text-fg-secondary tabular-nums">
-                {formatNumber(game.score())} points
-              </p>
-              <div class="flex items-center gap-3 mt-8">
-                <button
-                  onClick={game.playAgain}
-                  class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover"
-                  style={{
-                    transition: "background-color 0.2s ease, transform 0.1s ease-out",
-                  }}
-                >
-                  Try Again
-                </button>
-                <button
-                  onClick={handleBackToGames}
-                  class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent"
-                  style={{
-                    transition: "border-color 0.2s ease, color 0.2s ease",
-                  }}
-                >
-                  Back to Games
-                </button>
-              </div>
-            </div>
-          </Show>
-
-          {/* Bottom bar */}
-          <div class="px-4 pb-5 flex justify-center">
+          }
+          right={<ThemeToggle />}
+          contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-6 px-4"
+          footer={
             <button
               onClick={game.restart}
               onPointerDown={() => setRestartPressed(true)}
@@ -197,8 +146,49 @@ export default function Game2048App() {
             >
               Restart
             </button>
+          }
+        >
+          <Show
+            when={game.tiles.length > 0}
+            fallback={
+              <div
+                class="w-[320px] h-[320px] rounded-lg bg-surface border border-border"
+                style={{ animation: "skeletonPulse 1.4s ease-in-out infinite" }}
+              />
+            }
+          >
+            <Game2048Board tiles={game.tiles} onMove={game.handleMove} />
+          </Show>
+        </GameScreen>
+
+        <Show when={game.gameOver()}>
+          <div class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-bg/80 backdrop-blur-sm">
+            <h1 class="font-display text-5xl text-fg italic tracking-tight">Game Over</h1>
+            <p class="mt-3 text-2xl font-light text-fg-secondary tabular-nums">
+              {formatNumber(game.score())} points
+            </p>
+            <div class="flex items-center gap-3 mt-8">
+              <button
+                onClick={game.playAgain}
+                class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover"
+                style={{
+                  transition: "background-color 0.2s ease, transform 0.1s ease-out",
+                }}
+              >
+                Try Again
+              </button>
+              <button
+                onClick={handleBackToGames}
+                class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent"
+                style={{
+                  transition: "border-color 0.2s ease, color 0.2s ease",
+                }}
+              >
+                Back to Games
+              </button>
+            </div>
           </div>
-        </div>
+        </Show>
       </Show>
     </>
   );
