@@ -87,12 +87,6 @@ const STATIC_2048_TILES = [
   { value: 64, row: 3, col: 2, id: 5 },
 ];
 
-function categoryLabel(category: GameCard["category"]) {
-  if (category === "logic") return "Logic";
-  if (category === "word") return "Word";
-  return "Arcade";
-}
-
 function PreviewFrame(props: { children: JSX.Element }) {
   return <div class="w-full max-w-[160px] mx-auto">{props.children}</div>;
 }
@@ -447,19 +441,6 @@ function GamePreview(props: { game: GameCard; animated: boolean }) {
   return <div class="w-full max-w-[160px] aspect-[4/3]" />;
 }
 
-function StatusBadge(props: { status: GameCard["status"] }) {
-  return props.status === "available" ? (
-    <span class="inline-flex items-center gap-1 rounded-full bg-accent-light px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
-      <span class="h-1.5 w-1.5 rounded-full bg-success" />
-      Available
-    </span>
-  ) : (
-    <span class="inline-flex items-center rounded-full bg-surface-hover border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-fg-tertiary">
-      Coming soon
-    </span>
-  );
-}
-
 export default function GameGrid() {
   const [animationsEnabled, setAnimationsEnabled] = createSignal(false);
 
@@ -480,7 +461,7 @@ export default function GameGrid() {
   });
 
   return (
-    <div class="grid grid-cols-1 gap-4 px-4 mx-auto max-w-5xl sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
+    <div class="grid grid-cols-1 gap-4 px-4 mx-auto max-w-4xl sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
       <For each={getOrderedGames()}>
         {(game) => {
           const isAvailable = game.status === "available";
@@ -488,76 +469,19 @@ export default function GameGrid() {
           return isAvailable ? (
             <a
               href={game.href}
-              class="group relative flex flex-col gap-4 rounded-3xl border border-border bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-xl hover:shadow-shadow-strong"
+              class="group relative flex flex-col items-center gap-4 rounded-2xl border border-border bg-surface p-6 pb-4 transition-all duration-300 hover:border-accent hover:shadow-xl hover:shadow-shadow-strong hover:-translate-y-1"
             >
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-2">
-                  <div class="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-fg-tertiary">
-                    <span class="rounded-full border border-border px-2.5 py-1">
-                      {categoryLabel(game.category)}
-                    </span>
-                    <span>{game.sessionLength}</span>
-                  </div>
-                  <div>
-                    <h3 class="font-display text-3xl italic text-fg">{game.name}</h3>
-                    <p class="mt-2 max-w-[18rem] text-sm leading-relaxed text-fg-secondary">
-                      {game.blurb}
-                    </p>
-                  </div>
-                </div>
-                <StatusBadge status={game.status} />
-              </div>
-
-              <div class="rounded-2xl border border-border bg-bg/60 py-4">
-                <GamePreview game={game} animated={animationsEnabled()} />
-              </div>
-
-              <div class="flex flex-wrap gap-2">
-                <For each={game.tags}>
-                  {(tag) => (
-                    <span class="rounded-full bg-surface-hover px-2.5 py-1 text-[11px] text-fg-secondary">
-                      {tag}
-                    </span>
-                  )}
-                </For>
-              </div>
-
+              <h3 class="font-display text-3xl text-fg italic">{game.name}</h3>
+              <GamePreview game={game} animated={animationsEnabled()} />
               <span class="text-xs text-fg-tertiary transition-colors group-hover:text-accent">
                 Play now →
               </span>
             </a>
           ) : (
-            <div class="relative flex flex-col gap-4 rounded-3xl border border-border bg-surface p-6 opacity-70 select-none">
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-2">
-                  <div class="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-fg-tertiary">
-                    <span class="rounded-full border border-border px-2.5 py-1">
-                      {categoryLabel(game.category)}
-                    </span>
-                    <span>{game.sessionLength}</span>
-                  </div>
-                  <div>
-                    <h3 class="font-display text-3xl italic text-fg-secondary">{game.name}</h3>
-                    <p class="mt-2 max-w-[18rem] text-sm leading-relaxed text-fg-tertiary">
-                      {game.blurb}
-                    </p>
-                  </div>
-                </div>
-                <StatusBadge status={game.status} />
-              </div>
-
-              <div class="flex min-h-[160px] items-center justify-center rounded-2xl border border-border bg-bg/60">
+            <div class="relative flex flex-col items-center gap-4 rounded-2xl border border-border bg-surface p-6 opacity-40 cursor-default select-none">
+              <h3 class="font-display text-3xl text-fg-tertiary italic">{game.name}</h3>
+              <div class="flex items-center justify-center w-full aspect-[4/3] max-h-[100px]">
                 <GameIcon name={game.name} />
-              </div>
-
-              <div class="flex flex-wrap gap-2">
-                <For each={game.tags}>
-                  {(tag) => (
-                    <span class="rounded-full bg-surface-hover px-2.5 py-1 text-[11px] text-fg-tertiary">
-                      {tag}
-                    </span>
-                  )}
-                </For>
               </div>
             </div>
           );
