@@ -41,7 +41,7 @@ export default function NumberPad(props: Props) {
       case 6:
         return "grid-cols-6 max-w-[320px]";
       case 9:
-        return "grid-cols-5 sm:grid-cols-9 max-w-[320px] sm:max-w-[420px]";
+        return "grid-cols-3 sm:grid-cols-9 max-w-[210px] sm:max-w-[420px]";
     }
   };
 

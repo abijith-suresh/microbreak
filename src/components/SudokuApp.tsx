@@ -41,7 +41,7 @@ function SkeletonBoard(props: { size: GridSize }) {
   const padLayoutClass = () => {
     if (props.size === 4) return "grid-cols-4 max-w-[248px]";
     if (props.size === 6) return "grid-cols-6 max-w-[320px]";
-    return "grid-cols-5 sm:grid-cols-9 max-w-[320px] sm:max-w-[420px]";
+    return "grid-cols-3 sm:grid-cols-9 max-w-[210px] sm:max-w-[420px]";
   };
 
   const [, boxCols] = getBoxDims(props.size);
