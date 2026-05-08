@@ -26,6 +26,7 @@ import {
   saveStoredNumber,
 } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
+import { createElapsedTimer } from "./elapsedTimer";
 
 export type Phase = "setup" | "playing";
 
@@ -52,8 +53,13 @@ export function create2048Game() {
   const [scorePopup, setScorePopup] = createSignal<{ value: number; id: number } | null>(null);
   const [persistenceReady, setPersistenceReady] = createSignal(false);
 
+  const timer = createElapsedTimer({
+    getValue: timerSeconds,
+    setValue: setTimerSeconds,
+  });
+
   // ── Internal mutable state ──────────────────────────────────────────────
-  let timerInterval: ReturnType<typeof setInterval> | null = null;
+  let timerRunning = false;
   let popupTimer: ReturnType<typeof setTimeout> | null = null;
   let popupId = 0;
   let hasWonOnce = false;
@@ -64,14 +70,15 @@ export function create2048Game() {
   function startTimer() {
     // Don't restart if already running — prevents the interval from being
     // recreated on every move, which would reset the 1-second cadence.
-    if (timerInterval) return;
-    timerInterval = setInterval(() => setTimerSeconds((t) => t + 1), 1000);
+    if (timerRunning) return;
+    timer.start();
+    timerRunning = true;
   }
 
   function stopTimer() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
+    if (timerRunning) {
+      timer.stop();
+      timerRunning = false;
     }
   }
 
@@ -126,7 +133,7 @@ export function create2048Game() {
       setScore(session.score);
       setHasShownWin(session.hasShownWin);
       setGameOver(session.gameOver);
-      setTimerSeconds(session.timerSeconds);
+      timer.set(session.timerSeconds);
       setScorePopup(null);
     });
 
@@ -151,7 +158,7 @@ export function create2048Game() {
       setScore(0);
       setHasShownWin(false);
       setGameOver(false);
-      setTimerSeconds(0);
+      timer.reset();
       setScorePopup(null);
     });
   }
@@ -319,7 +326,8 @@ export function create2048Game() {
     if (typeof window === "undefined") return;
     document.removeEventListener("keydown", handleKeydown);
     document.removeEventListener("visibilitychange", handleVisibility);
-    stopTimer();
+    timer.cleanup();
+    timerRunning = false;
     if (popupTimer) clearTimeout(popupTimer);
   });
 

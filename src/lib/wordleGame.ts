@@ -10,6 +10,7 @@
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
+import { createElapsedTimer } from "./elapsedTimer";
 import { buildWordList } from "./wordleWordList";
 import { isPersistedWordleSession, type PersistedWordleSession } from "./wordleSession";
 import {
@@ -52,9 +53,14 @@ export function createWordleGame() {
   const [toastMessage, setToastMessage] = createSignal("");
   const [persistenceReady, setPersistenceReady] = createSignal(false);
 
+  const timer = createElapsedTimer({
+    getValue: timerSeconds,
+    setValue: setTimerSeconds,
+  });
+
   // ── Internal mutable state ───────────────────────────────────────────────
   let wordList: WordList | null = null;
-  let timerInterval: ReturnType<typeof setInterval> | null = null;
+  let timerRunning = false;
   let shakeTimer: ReturnType<typeof setTimeout> | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
   let revealTimer: ReturnType<typeof setTimeout> | null = null;
@@ -63,14 +69,15 @@ export function createWordleGame() {
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   function startTimer() {
-    if (timerInterval) return;
-    timerInterval = setInterval(() => setTimerSeconds((t) => t + 1), 1000);
+    if (timerRunning) return;
+    timer.start();
+    timerRunning = true;
   }
 
   function stopTimer() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
+    if (timerRunning) {
+      timer.stop();
+      timerRunning = false;
     }
   }
 
@@ -108,7 +115,7 @@ export function createWordleGame() {
       setShakeRow(false);
       setRevealRow(-1);
       setPendingReveal(null);
-      setTimerSeconds(0);
+      timer.reset();
       setToastMessage("");
     });
   }
@@ -179,7 +186,7 @@ export function createWordleGame() {
         setShakeRow(false);
         setRevealRow(-1);
         setPendingReveal(null);
-        setTimerSeconds(session.timerSeconds);
+        timer.set(session.timerSeconds);
         setToastMessage("");
       });
 
@@ -377,7 +384,8 @@ export function createWordleGame() {
     if (typeof window === "undefined") return;
     document.removeEventListener("keydown", handleKeydown);
     document.removeEventListener("visibilitychange", handleVisibility);
-    stopTimer();
+    timer.cleanup();
+    timerRunning = false;
     if (shakeTimer) clearTimeout(shakeTimer);
     if (toastTimer) clearTimeout(toastTimer);
     if (revealTimer) clearTimeout(revealTimer);
