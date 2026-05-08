@@ -7,6 +7,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.11](https://github.com/abijith-suresh/microbreak/compare/v0.0.10...v0.0.11) (2026-05-08)
+
+
+### Features
+
+* **2048:** make the board responsive ([#60](https://github.com/abijith-suresh/microbreak/issues/60)) ([411433d](https://github.com/abijith-suresh/microbreak/commit/411433d6378414c62b09b53dee6040de7b7da687))
+* **a11y:** add motion, focus, and live updates ([#62](https://github.com/abijith-suresh/microbreak/issues/62)) ([c17fea4](https://github.com/abijith-suresh/microbreak/commit/c17fea483d38e3bd7a0c1c270ec9073713208970))
+* **catalog:** enrich the home game metadata ([#67](https://github.com/abijith-suresh/microbreak/issues/67)) ([0262fd7](https://github.com/abijith-suresh/microbreak/commit/0262fd7e964d7f1176a3f31e5d6557c2ad18281b))
+* **games:** separate restart from setup ([#59](https://github.com/abijith-suresh/microbreak/issues/59)) ([99d23aa](https://github.com/abijith-suresh/microbreak/commit/99d23aaec461e2f179f9d432584733ef4e973b5d))
+* **minesweeper:** add direct flagging gestures ([#63](https://github.com/abijith-suresh/microbreak/issues/63)) ([e488ff1](https://github.com/abijith-suresh/microbreak/commit/e488ff153c3ce4b7a2b575aab6d4fc2e728cff39))
+* **sudoku:** fit the number pad on narrow screens ([#61](https://github.com/abijith-suresh/microbreak/issues/61)) ([48e8e74](https://github.com/abijith-suresh/microbreak/commit/48e8e74bf10700bcf4f367717ccf05b9ad5d998b))
+* **wordle:** curate the 4 and 6 letter answer pools ([#64](https://github.com/abijith-suresh/microbreak/issues/64)) ([a0051c0](https://github.com/abijith-suresh/microbreak/commit/a0051c01d1da97a1aad8f7b1d475a8e9c7bcb611))
+* **wordle:** persist in-progress sessions ([#65](https://github.com/abijith-suresh/microbreak/issues/65)) ([4c9d602](https://github.com/abijith-suresh/microbreak/commit/4c9d60254eda53e2316341fdae3daebd8035952b))
+
+
+### Bug Fixes
+
+* **minesweeper:** preserve replay preset mode ([#57](https://github.com/abijith-suresh/microbreak/issues/57)) ([cdf2327](https://github.com/abijith-suresh/microbreak/commit/cdf2327284df54659eeac1ae341b339a190c6a6d))
+
 ## [0.0.10](https://github.com/abijith-suresh/microbreak/compare/v0.0.9...v0.0.10) (2026-05-02)
 
 
