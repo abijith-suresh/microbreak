@@ -30,7 +30,7 @@ export default function NumberPad(props: Props) {
       case 6:
         return "w-12 h-12 text-lg";
       case 9:
-        return "w-10 h-10 md:w-11 md:h-11 text-base";
+        return "w-12 h-12 md:w-11 md:h-11 text-lg md:text-base";
     }
   };
 
@@ -41,7 +41,7 @@ export default function NumberPad(props: Props) {
       case 6:
         return "grid-cols-6";
       case 9:
-        return "grid-cols-9";
+        return "grid-cols-3 sm:grid-cols-9";
     }
   };
 
@@ -49,7 +49,7 @@ export default function NumberPad(props: Props) {
 
   return (
     <div class="flex flex-col items-center gap-2">
-      <div class={`grid ${cols()} gap-1.5`}>
+      <div class={`grid ${cols()} gap-1.5 justify-items-center`}>
         {numbers().map((num) => (
           <button
             onClick={() => props.onNumber(num)}
