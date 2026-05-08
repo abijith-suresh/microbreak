@@ -33,15 +33,15 @@ function SkeletonBoard(props: { size: GridSize }) {
   };
 
   const numBtnClass = () => {
-    if (props.size === 4) return "w-full aspect-square";
-    if (props.size === 6) return "w-full aspect-square";
-    return "w-full aspect-square min-w-0";
+    if (props.size === 4) return "w-14 h-14";
+    if (props.size === 6) return "w-12 h-12";
+    return "w-12 h-12 md:w-11 md:h-11";
   };
 
   const padLayoutClass = () => {
-    if (props.size === 4) return "grid-cols-4 max-w-[248px]";
-    if (props.size === 6) return "grid-cols-6 max-w-[320px]";
-    return "grid-cols-3 sm:grid-cols-9 max-w-[210px] sm:max-w-[420px]";
+    if (props.size === 4) return "grid-cols-4";
+    if (props.size === 6) return "grid-cols-6";
+    return "grid-cols-3 sm:grid-cols-9";
   };
 
   const [, boxCols] = getBoxDims(props.size);
@@ -79,7 +79,7 @@ function SkeletonBoard(props: { size: GridSize }) {
 
       {/* Number pad skeleton */}
       <div
-        class={`grid w-full ${padLayoutClass()} gap-1.5 justify-items-stretch`}
+        class={`grid ${padLayoutClass()} gap-1.5 justify-items-center`}
         style={{
           animation: "skeletonPulse 1.4s ease-in-out 200ms infinite",
         }}

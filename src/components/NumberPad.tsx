@@ -26,22 +26,22 @@ export default function NumberPad(props: Props) {
   const buttonSize = () => {
     switch (props.size) {
       case 4:
-        return "w-full aspect-square text-xl";
+        return "w-14 h-14 text-xl";
       case 6:
-        return "w-full aspect-square text-lg";
+        return "w-12 h-12 text-lg";
       case 9:
-        return "w-full aspect-square min-w-0 text-base";
+        return "w-12 h-12 md:w-11 md:h-11 text-lg md:text-base";
     }
   };
 
-  const gridClass = () => {
+  const cols = () => {
     switch (props.size) {
       case 4:
-        return "grid-cols-4 max-w-[248px]";
+        return "grid-cols-4";
       case 6:
-        return "grid-cols-6 max-w-[320px]";
+        return "grid-cols-6";
       case 9:
-        return "grid-cols-3 sm:grid-cols-9 max-w-[210px] sm:max-w-[420px]";
+        return "grid-cols-3 sm:grid-cols-9";
     }
   };
 
@@ -49,7 +49,7 @@ export default function NumberPad(props: Props) {
 
   return (
     <div class="flex flex-col items-center gap-2">
-      <div class={`grid w-full ${gridClass()} gap-1.5 justify-items-stretch`}>
+      <div class={`grid ${cols()} gap-1.5 justify-items-center`}>
         {numbers().map((num) => (
           <button
             onClick={() => props.onNumber(num)}
