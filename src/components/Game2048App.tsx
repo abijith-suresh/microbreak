@@ -70,7 +70,7 @@ export default function Game2048App() {
         <GameScreen
           left={
             <button
-              onClick={game.restart}
+              onClick={game.returnToSetup}
               onPointerDown={() => setNewGamePressed(true)}
               onPointerUp={() => setNewGamePressed(false)}
               onPointerLeave={() => setNewGamePressed(false)}
@@ -80,6 +80,7 @@ export default function Game2048App() {
                 transform: newGamePressed() ? "scale(0.93)" : "",
               }}
               class="flex items-center gap-1.5 text-fg-tertiary hover:text-fg"
+              aria-label="Return to setup"
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
                 <path
@@ -90,7 +91,7 @@ export default function Game2048App() {
                   stroke-linejoin="round"
                 />
               </svg>
-              <span class="text-sm font-medium hidden sm:inline">New Game</span>
+              <span class="text-sm font-medium hidden sm:inline">Setup</span>
             </button>
           }
           center={
@@ -152,7 +153,7 @@ export default function Game2048App() {
             when={game.tiles.length > 0}
             fallback={
               <div
-                class="w-[320px] h-[320px] rounded-lg bg-surface border border-border"
+                class="w-full max-w-[336px] aspect-square rounded-lg bg-surface border border-border"
                 style={{ animation: "skeletonPulse 1.4s ease-in-out infinite" }}
               />
             }
@@ -162,8 +163,22 @@ export default function Game2048App() {
         </GameScreen>
 
         <Show when={game.gameOver()}>
-          <div class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-bg/80 backdrop-blur-sm">
-            <h1 class="font-display text-5xl text-fg italic tracking-tight">Game Over</h1>
+          <div
+            class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-bg/80 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="game-2048-over-title"
+          >
+            <div
+              class="sr-only"
+              aria-live="assertive"
+            >{`2048 game over with ${formatNumber(game.score())} points`}</div>
+            <h1
+              id="game-2048-over-title"
+              class="font-display text-5xl text-fg italic tracking-tight"
+            >
+              Game Over
+            </h1>
             <p class="mt-3 text-2xl font-light text-fg-secondary tabular-nums">
               {formatNumber(game.score())} points
             </p>

@@ -25,7 +25,15 @@ export default function Game2048WinOverlay(props: Props) {
   });
 
   return (
-    <div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/90 backdrop-blur-sm">
+    <div
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/90 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="game-2048-win-title"
+    >
+      <div class="sr-only" aria-live="assertive">
+        {`2048 reached with ${props.score} points`}
+      </div>
       {/* Star icon */}
       <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
         <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
@@ -42,6 +50,7 @@ export default function Game2048WinOverlay(props: Props) {
 
       {/* Heading */}
       <h1
+        id="game-2048-win-title"
         class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
         style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
       >

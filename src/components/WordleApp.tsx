@@ -37,7 +37,7 @@ export default function WordleApp() {
         <GameScreen
           left={
             <button
-              onClick={game.restart}
+              onClick={game.returnToSetup}
               onPointerDown={() => setNewGamePressed(true)}
               onPointerUp={() => setNewGamePressed(false)}
               onPointerLeave={() => setNewGamePressed(false)}
@@ -47,6 +47,7 @@ export default function WordleApp() {
                 transform: newGamePressed() ? "scale(0.93)" : "",
               }}
               class="flex items-center gap-1.5 text-fg-tertiary hover:text-fg"
+              aria-label="Return to setup"
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
                 <path
@@ -57,7 +58,7 @@ export default function WordleApp() {
                   stroke-linejoin="round"
                 />
               </svg>
-              <span class="text-sm font-medium hidden sm:inline">New Game</span>
+              <span class="text-sm font-medium hidden sm:inline">Setup</span>
             </button>
           }
           center={
@@ -107,7 +108,11 @@ export default function WordleApp() {
 
         {/* ── Toast overlay ───────────────────────────────────────── */}
         <Show when={game.toastMessage()}>
-          <div class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+          <div
+            class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+            role="status"
+            aria-live="polite"
+          >
             <div
               class="px-5 py-2.5 rounded-lg bg-fg text-bg text-sm font-bold"
               style={{ animation: "fadeIn 0.2s ease-out both" }}
@@ -122,7 +127,15 @@ export default function WordleApp() {
           <div
             class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg"
             style={{ animation: "fadeIn 0.4s ease-out both" }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wordle-result-title"
           >
+            <div class="sr-only" aria-live="assertive">
+              {game.gameResult() === "won"
+                ? `Wordle solved in ${variantLabel(game.variant())} mode after ${formatTimer(game.timerSeconds())}`
+                : `Wordle lost. The word was ${game.answer()}`}
+            </div>
             {/* Icon */}
             <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
               {game.gameResult() === "won" ? (
@@ -178,6 +191,7 @@ export default function WordleApp() {
 
             {/* Heading */}
             <h1
+              id="wordle-result-title"
               class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
               style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
             >
