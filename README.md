@@ -3,7 +3,8 @@
 Short, non-addictive puzzle games for build wait times.
 
 Microbreak is a static Astro app with SolidJS islands and Tailwind CSS v4. The
-first shipped game is Sudoku, with support for 4×4, 6×6, and 9×9 boards.
+current catalog includes Sudoku, Wordle, Minesweeper, and 2048, with more
+small-session puzzle games planned behind the same shell.
 
 ## Stack
 
@@ -18,8 +19,9 @@ first shipped game is Sudoku, with support for 4×4, 6×6, and 9×9 boards.
 ## Features
 
 - Static output (`output: "static"`)
-- Client-side Sudoku flow with setup screen before play
-- Hand-rolled Sudoku generator / solver / validator
+- Four shipped puzzle games: Sudoku, Wordle, Minesweeper, and 2048
+- Game-specific setup, persistence, and result flows built with SolidJS islands
+- Curated home/catalog metadata for category, status, and expected session length
 - Theme toggle that starts from system preference and then becomes manual
 - Local font hosting
 - Bun-first scripts and workflow
@@ -42,18 +44,29 @@ bun run verify
 ```text
 src/
 ├── components/
+│   ├── GameGrid.tsx
+│   ├── Game2048App.tsx
+│   ├── MinesweeperApp.tsx
 │   ├── SudokuApp.tsx
-│   ├── SudokuBoard.tsx
-│   ├── SudokuSetup.tsx
+│   ├── WordleApp.tsx
 │   └── ...
+├── data/
+│   ├── games.ts
+│   └── wordleSolutionPools.ts
 ├── layouts/
 │   └── BaseLayout.astro
 ├── lib/
+│   ├── game2048.ts
+│   ├── minesweeper.ts
 │   ├── sudoku.ts
+│   ├── wordle.ts
 │   └── __tests__/
 ├── pages/
+│   ├── 2048.astro
 │   ├── index.astro
-│   └── sudoku.astro
+│   ├── minesweeper.astro
+│   ├── sudoku.astro
+│   └── wordle.astro
 └── styles/
     └── global.css
 ```
