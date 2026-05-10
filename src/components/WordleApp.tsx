@@ -1,10 +1,11 @@
-import { Show, createSignal } from "solid-js";
+import { Show } from "solid-js";
 import { createWordleGame } from "@/lib/wordleGame";
 import WordleSetup from "./WordleSetup";
 import WordleBoard from "./WordleBoard";
 import WordleKeyboard from "./WordleKeyboard";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
+import BackLink from "./ui/BackLink";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -18,8 +19,6 @@ function variantLabel(v: number): string {
 
 export default function WordleApp() {
   const game = createWordleGame();
-
-  const [newGamePressed, setNewGamePressed] = createSignal(false);
 
   function handleBackToGames() {
     window.location.href = "/";
@@ -35,32 +34,7 @@ export default function WordleApp() {
       {/* ── Playing Phase (includes result overlay) ──────────────── */}
       <Show when={game.phase() === "playing"}>
         <GameScreen
-          left={
-            <button
-              onClick={game.returnToSetup}
-              onPointerDown={() => setNewGamePressed(true)}
-              onPointerUp={() => setNewGamePressed(false)}
-              onPointerLeave={() => setNewGamePressed(false)}
-              onPointerCancel={() => setNewGamePressed(false)}
-              style={{
-                transition: "color 0.2s ease, transform 0.1s ease-out",
-                transform: newGamePressed() ? "scale(0.93)" : "",
-              }}
-              class="flex items-center gap-1.5 text-fg-tertiary hover:text-fg"
-              aria-label="Return to setup"
-            >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
-                <path
-                  d="M12.5 15L7.5 10L12.5 5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <span class="text-sm font-medium hidden sm:inline">Setup</span>
-            </button>
-          }
+          left={<BackLink label="Setup" onClick={game.returnToSetup} />}
           center={
             <div class="flex items-center gap-2 text-xs text-fg-tertiary">
               <span>{variantLabel(game.variant())}</span>
