@@ -4,6 +4,7 @@ import BackLink from "./ui/BackLink";
 import type { Variant } from "@/lib/wordle";
 import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
+import PressableButton from "./ui/PressableButton";
 
 interface Props {
   onStart: (variant: Variant) => void;
@@ -21,9 +22,6 @@ const variants: {
   { value: 5, label: "5 letters", description: "Classic", guesses: 6, time: "~3 min" },
   { value: 6, label: "6 letters", description: "Deep", guesses: 7, time: "~5 min" },
 ];
-
-const CARD_TRANSITION =
-  "border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.1s ease-out";
 
 export default function WordleSetup(props: Props) {
   const [selectedVariant, setSelectedVariant] = createSignal<Variant>(5);
@@ -44,8 +42,6 @@ export default function WordleSetup(props: Props) {
     if (stored) setSelectedVariant(stored.variant);
   });
   const [isExiting, setIsExiting] = createSignal(false);
-  const [pressedVariant, setPressedVariant] = createSignal<Variant | null>(null);
-  const [startPressed, setStartPressed] = createSignal(false);
 
   let exitTimer: ReturnType<typeof setTimeout> | null = null;
   onCleanup(() => {
@@ -95,21 +91,14 @@ export default function WordleSetup(props: Props) {
             </label>
             <div class="grid grid-cols-3 gap-2.5">
               {variants.map((v) => (
-                <button
-                  onClick={() => setSelectedVariant(v.value)}
-                  onPointerDown={() => setPressedVariant(v.value)}
-                  onPointerUp={() => setPressedVariant(null)}
-                  onPointerLeave={() => setPressedVariant(null)}
-                  onPointerCancel={() => setPressedVariant(null)}
-                  style={{
-                    transition: CARD_TRANSITION,
-                    transform: pressedVariant() === v.value ? "scale(0.93)" : "",
-                  }}
+                <PressableButton
+                  variant="ghost"
                   class={`group flex flex-col items-center gap-1 py-4 px-3 rounded-xl border ${
                     selectedVariant() === v.value
                       ? "border-accent bg-accent-light"
                       : "border-border bg-surface hover:border-border-strong"
                   }`}
+                  onClick={() => setSelectedVariant(v.value)}
                 >
                   <span
                     class={`text-lg font-bold leading-none transition-colors duration-200 ${
@@ -136,7 +125,7 @@ export default function WordleSetup(props: Props) {
                   >
                     {v.guesses} guesses · {v.time}
                   </span>
-                </button>
+                </PressableButton>
               ))}
             </div>
           </div>
@@ -144,22 +133,14 @@ export default function WordleSetup(props: Props) {
 
         {/* Start button */}
         <div style={{ animation: "fadeIn 0.4s ease-out 0.2s both" }}>
-          <button
+          <PressableButton
+            class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}
             disabled={props.loading}
-            onPointerDown={() => setStartPressed(true)}
-            onPointerUp={() => setStartPressed(false)}
-            onPointerLeave={() => setStartPressed(false)}
-            onPointerCancel={() => setStartPressed(false)}
-            style={{
-              transition: "background-color 0.2s ease, transform 0.1s ease-out",
-              transform: startPressed() ? "scale(0.93)" : "",
-              opacity: props.loading ? "0.7" : "1",
-            }}
-            class="px-12 py-3.5 rounded-xl bg-accent text-white font-semibold text-base hover:bg-accent-hover shadow-lg shadow-shadow"
+            style={{ opacity: props.loading ? "0.7" : "1" }}
           >
             {props.loading ? "Loading..." : "Start Game"}
-          </button>
+          </PressableButton>
         </div>
       </div>
     </div>

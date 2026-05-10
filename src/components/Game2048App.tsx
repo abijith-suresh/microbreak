@@ -1,10 +1,11 @@
-import { Show, createSignal } from "solid-js";
+import { Show } from "solid-js";
 import { create2048Game } from "@/lib/game2048Game";
 import Game2048Board from "./Game2048Board";
 import Game2048WinOverlay from "./Game2048WinOverlay";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
+import PressableButton from "./ui/PressableButton";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -18,8 +19,6 @@ function formatNumber(n: number): string {
 
 export default function Game2048App() {
   const game = create2048Game();
-
-  const [restartPressed, setRestartPressed] = createSignal(false);
 
   function handleBackToGames() {
     window.location.href = "/";
@@ -113,21 +112,9 @@ export default function Game2048App() {
           right={<ThemeToggle />}
           contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-6 px-4"
           footer={
-            <button
-              onClick={game.restart}
-              onPointerDown={() => setRestartPressed(true)}
-              onPointerUp={() => setRestartPressed(false)}
-              onPointerLeave={() => setRestartPressed(false)}
-              onPointerCancel={() => setRestartPressed(false)}
-              style={{
-                transition:
-                  "border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease, transform 0.1s ease-out",
-                transform: restartPressed() ? "scale(0.93)" : "",
-              }}
-              class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-tertiary hover:border-accent hover:text-accent"
-            >
+            <PressableButton variant="ghost" onClick={game.restart}>
               Restart
-            </button>
+            </PressableButton>
           }
         >
           <Show
@@ -164,24 +151,10 @@ export default function Game2048App() {
               {formatNumber(game.score())} points
             </p>
             <div class="flex items-center gap-3 mt-8">
-              <button
-                onClick={game.playAgain}
-                class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover"
-                style={{
-                  transition: "background-color 0.2s ease, transform 0.1s ease-out",
-                }}
-              >
-                Try Again
-              </button>
-              <button
-                onClick={handleBackToGames}
-                class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent"
-                style={{
-                  transition: "border-color 0.2s ease, color 0.2s ease",
-                }}
-              >
+              <PressableButton onClick={game.playAgain}>Try Again</PressableButton>
+              <PressableButton variant="secondary" onClick={handleBackToGames}>
                 Back to Games
-              </button>
+              </PressableButton>
             </div>
           </div>
         </Show>

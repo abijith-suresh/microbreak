@@ -1,4 +1,4 @@
-import { Show, createSignal } from "solid-js";
+import { Show } from "solid-js";
 import { createSudokuGame } from "@/lib/sudokuGame";
 import { getBoxDims, type GridSize } from "@/lib/sudoku";
 import SudokuBoard from "./SudokuBoard";
@@ -7,6 +7,7 @@ import NumberPad from "./NumberPad";
 import CompletionScreen from "./CompletionScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
+import PressableButton from "./ui/PressableButton";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -100,10 +101,6 @@ function SkeletonBoard(props: { size: GridSize }) {
 export default function SudokuApp() {
   const game = createSudokuGame();
 
-  // Press feedback for the top-bar "New Game" and bottom-bar "Restart" buttons.
-  // Using JS pointer events instead of CSS :active so it works on iOS Safari.
-  const [restartPressed, setRestartPressed] = createSignal(false);
-
   function handleBackToGames() {
     window.location.href = "/";
   }
@@ -192,21 +189,9 @@ export default function SudokuApp() {
 
           {/* Bottom bar */}
           <div class="px-4 pb-5 flex justify-center">
-            <button
-              onClick={game.restart}
-              onPointerDown={() => setRestartPressed(true)}
-              onPointerUp={() => setRestartPressed(false)}
-              onPointerLeave={() => setRestartPressed(false)}
-              onPointerCancel={() => setRestartPressed(false)}
-              style={{
-                transition:
-                  "border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease, transform 0.1s ease-out",
-                transform: restartPressed() ? "scale(0.93)" : "",
-              }}
-              class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-tertiary hover:border-accent hover:text-accent"
-            >
+            <PressableButton variant="ghost" onClick={game.restart}>
               Restart
-            </button>
+            </PressableButton>
           </div>
         </div>
       </Show>

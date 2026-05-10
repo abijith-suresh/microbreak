@@ -1,4 +1,5 @@
-import { createSignal, onMount } from "solid-js";
+import { onMount } from "solid-js";
+import PressableButton from "./ui/PressableButton";
 
 interface Props {
   result: "won" | "lost";
@@ -21,12 +22,6 @@ function difficultyLabel(d: string): string {
 
 export default function GameResultScreen(props: Props) {
   let svgRef: SVGSVGElement | undefined;
-
-  const [playAgainPressed, setPlayAgainPressed] = createSignal(false);
-  const [backPressed, setBackPressed] = createSignal(false);
-
-  const BTN_TRANSITION =
-    "background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease-out";
 
   const isWon = () => props.result === "won";
 
@@ -137,34 +132,10 @@ export default function GameResultScreen(props: Props) {
         class="flex flex-col sm:flex-row items-center gap-3 mt-10"
         style={{ animation: "fadeIn 0.5s ease-out 0.6s both" }}
       >
-        <button
-          onClick={() => props.onPlayAgain()}
-          onPointerDown={() => setPlayAgainPressed(true)}
-          onPointerUp={() => setPlayAgainPressed(false)}
-          onPointerLeave={() => setPlayAgainPressed(false)}
-          onPointerCancel={() => setPlayAgainPressed(false)}
-          style={{
-            transition: BTN_TRANSITION,
-            transform: playAgainPressed() ? "scale(0.93)" : "",
-          }}
-          class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover"
-        >
-          Play Again
-        </button>
-        <button
-          onClick={() => props.onBackToGames()}
-          onPointerDown={() => setBackPressed(true)}
-          onPointerUp={() => setBackPressed(false)}
-          onPointerLeave={() => setBackPressed(false)}
-          onPointerCancel={() => setBackPressed(false)}
-          style={{
-            transition: BTN_TRANSITION,
-            transform: backPressed() ? "scale(0.93)" : "",
-          }}
-          class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent"
-        >
+        <PressableButton onClick={() => props.onPlayAgain()}>Play Again</PressableButton>
+        <PressableButton variant="secondary" onClick={() => props.onBackToGames()}>
           Back to Games
-        </button>
+        </PressableButton>
       </div>
 
       {/* Tagline */}
