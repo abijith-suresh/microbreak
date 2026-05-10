@@ -1,4 +1,4 @@
-import { For, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import {
   getBoxDims,
   type Board,
@@ -91,8 +91,7 @@ export default function SudokuBoard(props: Props) {
     }
   }
 
-  createEffect(() => {
-    if (typeof window === "undefined") return;
+  onMount(() => {
     window.addEventListener("keydown", handleKeyDown);
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });

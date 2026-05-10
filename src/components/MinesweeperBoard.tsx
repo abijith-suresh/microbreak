@@ -1,4 +1,4 @@
-import { For, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import type { Board } from "@/lib/minesweeper";
 import MinesweeperCell from "./MinesweeperCell";
 
@@ -82,8 +82,7 @@ export default function MinesweeperBoard(props: Props) {
     }
   }
 
-  createEffect(() => {
-    if (typeof window === "undefined") return;
+  onMount(() => {
     window.addEventListener("keydown", handleKeyDown);
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });
