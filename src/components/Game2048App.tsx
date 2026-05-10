@@ -29,30 +29,50 @@ export default function Game2048App() {
     <>
       {/* ── Setup Phase (just a start button) ────────────────────────── */}
       <Show when={game.phase() === "setup"}>
-        <div
-          class="flex flex-col min-h-screen items-center justify-center gap-10 px-5"
-          style={{ animation: "fadeIn 0.4s ease-out both" }}
-        >
-          <div class="text-center">
-            <h1 class="font-display text-6xl md:text-7xl text-fg italic tracking-tight">2048</h1>
-            <p class="mt-2 text-sm text-fg-secondary tracking-wide">
-              Join the tiles, get to <span class="text-accent font-medium">2048</span>
-            </p>
+        <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.4s ease-out both" }}>
+          {/* Top bar */}
+          <div class="flex items-center justify-between px-5 py-4">
+            <a
+              href="/"
+              class="flex items-center gap-2 text-fg-tertiary hover:text-fg transition-colors duration-200"
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
+                <path
+                  d="M12.5 15L7.5 10L12.5 5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span class="text-sm font-medium hidden sm:inline">Games</span>
+            </a>
+            <ThemeToggle />
           </div>
 
-          <button
-            onClick={() => game.startGame()}
-            class="px-10 py-3.5 rounded-xl bg-accent text-white font-medium text-base hover:bg-accent-hover"
-            style={{
-              transition: "background-color 0.2s ease, transform 0.1s ease-out",
-            }}
-          >
-            New Game
-          </button>
+          {/* Setup content */}
+          <div class="flex-1 flex flex-col items-center justify-center gap-10 px-5 pb-16">
+            <div class="text-center">
+              <h1 class="font-display text-6xl md:text-7xl text-fg italic tracking-tight">2048</h1>
+              <p class="mt-2 text-sm text-fg-secondary tracking-wide">
+                Join the tiles, get to <span class="text-accent font-medium">2048</span>
+              </p>
+            </div>
 
-          <p class="text-xs text-fg-tertiary tracking-wide">
-            Use arrow keys or swipe to move tiles
-          </p>
+            <button
+              onClick={() => game.startGame()}
+              class="px-10 py-3.5 rounded-xl bg-accent text-white font-medium text-base hover:bg-accent-hover"
+              style={{
+                transition: "background-color 0.2s ease, transform 0.1s ease-out",
+              }}
+            >
+              New Game
+            </button>
+
+            <p class="text-xs text-fg-tertiary tracking-wide">
+              Use arrow keys or swipe to move tiles
+            </p>
+          </div>
         </div>
       </Show>
 
