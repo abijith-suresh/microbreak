@@ -1,5 +1,6 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
 import ThemeToggle from "./ThemeToggle";
+import BackLink from "./ui/BackLink";
 import type { Variant } from "@/lib/wordle";
 import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
@@ -70,21 +71,7 @@ export default function WordleSetup(props: Props) {
     >
       {/* Top bar */}
       <div class="flex items-center justify-between px-5 py-4">
-        <a
-          href="/"
-          class="flex items-center gap-2 text-fg-tertiary hover:text-fg transition-colors duration-200"
-        >
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
-            <path
-              d="M12.5 15L7.5 10L12.5 5"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          <span class="text-sm font-medium hidden sm:inline">Games</span>
-        </a>
+        <BackLink label="Games" href="/" />
         <ThemeToggle />
       </div>
 

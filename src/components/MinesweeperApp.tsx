@@ -5,6 +5,7 @@ import MinesweeperBoard from "./MinesweeperBoard";
 import MinesweeperSetup from "./MinesweeperSetup";
 import GameResultScreen from "./GameResultScreen";
 import ThemeToggle from "./ThemeToggle";
+import BackLink from "./ui/BackLink";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -19,7 +20,6 @@ function difficultyLabel(d: Difficulty): string {
 export default function MinesweeperApp() {
   const game = createMinesweeperGame();
 
-  const [newGamePressed, setNewGamePressed] = createSignal(false);
   const [restartPressed, setRestartPressed] = createSignal(false);
 
   function handleBackToGames() {
@@ -49,30 +49,7 @@ export default function MinesweeperApp() {
         <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.35s ease-out both" }}>
           {/* Top bar */}
           <div class="flex items-center justify-between px-5 py-3">
-            <button
-              onClick={game.returnToSetup}
-              onPointerDown={() => setNewGamePressed(true)}
-              onPointerUp={() => setNewGamePressed(false)}
-              onPointerLeave={() => setNewGamePressed(false)}
-              onPointerCancel={() => setNewGamePressed(false)}
-              style={{
-                transition: "color 0.2s ease, transform 0.1s ease-out",
-                transform: newGamePressed() ? "scale(0.93)" : "",
-              }}
-              class="flex items-center gap-1.5 text-fg-tertiary hover:text-fg"
-              aria-label="Return to setup"
-            >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
-                <path
-                  d="M12.5 15L7.5 10L12.5 5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <span class="text-sm font-medium hidden sm:inline">Setup</span>
-            </button>
+            <BackLink label="Setup" onClick={game.returnToSetup} />
 
             <div class="flex items-center gap-2 text-xs text-fg-tertiary">
               <span class="flex items-center gap-1">
