@@ -68,9 +68,7 @@ export default function MinesweeperCell(props: Props) {
 
   // ── Selection highlight ────────────────────────────────────────────────────
   const selectionClass = () =>
-    !isAnimating() && props.isSelected && props.state !== "revealed" && !props.gameOver
-      ? "ring-2 ring-accent ring-inset"
-      : "";
+    !isAnimating() && props.isSelected && !props.gameOver ? "ring-2 ring-accent ring-inset" : "";
 
   // ── Combined animation + press style ──────────────────────────────────────
   /**

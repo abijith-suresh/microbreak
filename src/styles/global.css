@@ -282,6 +282,7 @@ body {
   user-select: none;
   position: relative;
   border-color: var(--color-border);
+  outline: none;
 }
 
 /* ─── Animations ─── */
