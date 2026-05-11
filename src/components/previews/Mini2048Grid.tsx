@@ -73,7 +73,10 @@ export function Mini2048Grid(props: { animated: boolean }) {
                   <Show when={tile()}>
                     {(entry) => (
                       <div
-                        class="flex h-full w-full items-center justify-center rounded-sm text-[7px] font-bold"
+                        class={
+                          "flex h-full w-full items-center justify-center rounded-sm text-[7px] font-bold" +
+                          (props.animated ? " animate-tile-appear" : "")
+                        }
                         style={{
                           "background-color":
                             tileColors[entry().value] || "var(--color-tile-super)",
@@ -81,7 +84,6 @@ export function Mini2048Grid(props: { animated: boolean }) {
                             entry().value <= 4
                               ? "var(--color-tile-text)"
                               : "var(--color-tile-text-light)",
-                          animation: props.animated ? "tileAppear 300ms ease-out both" : "none",
                         }}
                       >
                         {entry().value}

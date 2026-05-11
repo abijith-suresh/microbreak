@@ -26,12 +26,7 @@ export default function WordleRow(props: Props) {
   };
 
   return (
-    <div
-      class="flex gap-1.5 sm:gap-2"
-      style={{
-        animation: props.isShaking ? "rowShake 600ms ease-out both" : undefined,
-      }}
-    >
+    <div class={"flex gap-1.5 sm:gap-2" + (props.isShaking ? " animate-row-shake" : "")}>
       <For each={tiles()}>
         {(tile) => (
           <WordleTile

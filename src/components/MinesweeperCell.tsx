@@ -1,4 +1,5 @@
 import { createSignal, onCleanup } from "solid-js";
+import type { JSX } from "solid-js";
 import type { CellState, CellValue } from "@/lib/minesweeper";
 
 interface Props {
@@ -76,30 +77,25 @@ export default function MinesweeperCell(props: Props) {
    * Always returns both `animation` and `transform` so SolidJS reliably
    * clears whichever is not in use.
    */
-  const combinedStyle = (): { animation: string; transform: string } => {
+  const cellAnimationClass = (): string => {
     // 1. Board entrance — cells materialise centre-outward
-    if (props.entering) {
-      return {
-        animation: `cellReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${props.entranceDelay}ms both`,
-        transform: "",
-      };
-    }
+    if (props.entering) return "animate-cell-reveal";
 
     // 2. Pre-result animation: completionWave (win) or mineBlast (loss)
-    if (props.isCompleting) {
-      const keyframe = props.isLoss ? "mineBlast" : "completionWave";
-      return {
-        animation: `${keyframe} 0.5s ease-out ${props.completingDelay}ms forwards`,
-        transform: "",
-      };
-    }
+    if (props.isCompleting) return props.isLoss ? "animate-mine-blast" : "animate-completion-wave";
 
-    // 3. Normal state — press feedback only
-    return {
-      animation: "",
-      transform: pressing() && props.state !== "revealed" && !props.gameOver ? "scale(0.93)" : "",
-    };
+    // 3. Normal state — no animation class
+    return "";
   };
+
+  const cellAnimationDelay = (): string | undefined => {
+    if (props.entering) return `${props.entranceDelay}ms`;
+    if (props.isCompleting) return `${props.completingDelay}ms`;
+    return undefined;
+  };
+
+  const cellTransform = () =>
+    pressing() && props.state !== "revealed" && !props.gameOver ? "scale(0.93)" : "";
 
   // ── Cell content ───────────────────────────────────────────────────────────
   function renderContent() {
@@ -237,16 +233,20 @@ export default function MinesweeperCell(props: Props) {
         props.borderClasses,
         bgClass(),
         hoverClass(),
+        cellAnimationClass(),
         cursorClass(),
         selectionClass(),
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{
-        ...combinedStyle(),
-        transition:
-          "background-color 0.15s ease-out, border-color 0.2s ease-out, transform 0.1s ease-out",
-      }}
+      style={
+        {
+          "--tw-animation-delay": cellAnimationDelay(),
+          transform: cellTransform(),
+          transition:
+            "background-color 0.15s ease-out, border-color 0.2s ease-out, transform 0.1s ease-out",
+        } as JSX.CSSProperties & Record<string, string | undefined>
+      }
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onPointerDown={(e) => {

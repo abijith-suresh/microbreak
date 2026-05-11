@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import type { JSX } from "solid-js";
 import type { Cell } from "@/lib/sudoku";
 
 export type CellHighlight = "selected" | "row-col" | "box" | "number" | null;
@@ -80,43 +81,36 @@ export default function SudokuCell(props: Props) {
    *
    * Priority: entrance > completion wave > group sweep > normal (error/press)
    */
-  const combinedStyle = (): { animation: string; transform: string } => {
-    // 1. Board entrance — highest priority; cells materialise from the centre
-    if (props.entering) {
-      return {
-        animation: `cellReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${props.entranceDelay}ms both`,
-        transform: "",
-      };
-    }
+  const cellAnimationClass = (): string => {
+    // 1. Board entrance — cells materialise centre-outward
+    if (props.entering) return "animate-cell-reveal";
 
     // 2. Full-board completion wave
-    if (props.isCompleting) {
-      return {
-        animation: `completionWave 0.5s ease-out ${props.completingDelay}ms forwards`,
-        transform: "",
-      };
-    }
+    if (props.isCompleting) return "animate-completion-wave";
 
     // 3. Group sweep (row / col / box just completed)
-    if (props.sweepDelay !== null) {
-      return {
-        animation: `groupSweep 0.45s ease-out ${props.sweepDelay}ms forwards`,
-        transform: "",
-      };
-    }
+    if (props.sweepDelay !== null) return "animate-group-sweep";
 
-    // 4. Normal state — error flash and/or press transform
-    return {
-      animation: props.isError ? "errorAppear 0.2s ease-out" : "",
-      // Press transform only when no animation is running
-      transform: pressing() && !isAnimating() ? "scale(0.93)" : "",
-    };
+    // 4. Normal state — error flash
+    if (props.isError) return "animate-error-appear";
+
+    return "";
   };
+
+  const cellAnimationDelay = (): string | undefined => {
+    if (props.entering) return `${props.entranceDelay}ms`;
+    if (props.isCompleting) return `${props.completingDelay}ms`;
+    if (props.sweepDelay !== null) return `${props.sweepDelay}ms`;
+    return undefined;
+  };
+
+  const cellTransform = () => (pressing() && !isAnimating() ? "scale(0.93)" : "");
 
   return (
     <button
       class={[
         "sudoku-cell",
+        cellAnimationClass(),
         props.cellSize,
         props.fontSize,
         props.borderClasses,
@@ -128,7 +122,12 @@ export default function SudokuCell(props: Props) {
       ]
         .filter(Boolean)
         .join(" ")}
-      style={combinedStyle()}
+      style={
+        {
+          "--tw-animation-delay": cellAnimationDelay(),
+          transform: cellTransform(),
+        } as JSX.CSSProperties & Record<string, string | undefined>
+      }
       onClick={props.onSelect}
       onPointerDown={() => setPressing(true)}
       onPointerUp={() => setPressing(false)}

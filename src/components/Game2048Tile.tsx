@@ -35,10 +35,10 @@ export default function Game2048Tile(props: Props): JSX.Element {
   // The outer div owns the positional transform + slide transition.
   // Keeping them on separate elements prevents the animation keyframes from
   // clobbering the translate, which was the root cause of tiles jumping to (0,0).
-  const innerAnimation = () => {
-    if (props.isNew) return "tileAppear 150ms ease-out 50ms both";
-    if (props.isMerging) return "tilePop 200ms ease-out 120ms both";
-    return "none";
+  const innerAnimationClass = () => {
+    if (props.isNew) return "animate-tile-appear-sm";
+    if (props.isMerging) return "animate-tile-pop-merge";
+    return "";
   };
 
   return (
@@ -56,13 +56,18 @@ export default function Game2048Tile(props: Props): JSX.Element {
       }}
     >
       <div
-        class="w-full h-full flex items-center justify-center rounded-md font-body font-bold select-none"
-        style={{
-          "background-color": getTileColor(props.value),
-          color: getTextColor(props.value),
-          "font-size": getFontSize(props.value, props.cellSize),
-          animation: innerAnimation(),
-        }}
+        class={
+          "w-full h-full flex items-center justify-center rounded-md font-body font-bold select-none" +
+          (innerAnimationClass() ? " " + innerAnimationClass() : "")
+        }
+        style={
+          {
+            "background-color": getTileColor(props.value),
+            color: getTextColor(props.value),
+            "font-size": getFontSize(props.value, props.cellSize),
+            "--tw-animation-delay": props.isMerging ? "120ms" : undefined,
+          } as JSX.CSSProperties & Record<string, string | undefined>
+        }
       >
         {props.value}
       </div>
