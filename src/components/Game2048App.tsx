@@ -28,7 +28,10 @@ export default function Game2048App() {
     <>
       {/* ── Setup Phase (just a start button) ────────────────────────── */}
       <Show when={game.phase() === "setup"}>
-        <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.4s ease-out both" }}>
+        <div
+          class="flex flex-col min-h-screen"
+          class="animate-in fade-in slide-in-from-bottom-2 duration-[400] fill-mode-both"
+        >
           {/* Top bar */}
           <div class="flex items-center justify-between px-5 py-4">
             <BackLink label="Games" href="/" />
@@ -86,7 +89,7 @@ export default function Game2048App() {
                     {(popup) => (
                       <span
                         class="absolute -top-1 left-1/2 -translate-x-1/2 text-accent font-semibold text-xs tabular-nums pointer-events-none"
-                        style={{ animation: "scoreFloat 600ms ease-out forwards" }}
+                        class="animate-score-float"
                       >
                         +{popup().value}
                       </span>
@@ -122,7 +125,7 @@ export default function Game2048App() {
             fallback={
               <div
                 class="w-full max-w-[336px] aspect-square rounded-lg bg-surface border border-border"
-                style={{ animation: "skeletonPulse 1.4s ease-in-out infinite" }}
+                class="animate-pulse"
               />
             }
           >

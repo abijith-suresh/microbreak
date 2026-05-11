@@ -70,8 +70,12 @@ export default function MinesweeperSetup(props: Props) {
 
   return (
     <div
-      class="flex flex-col min-h-screen"
-      style={isExiting() ? { animation: "setupExit 0.28s ease-in forwards" } : undefined}
+      class={
+        "flex flex-col min-h-screen" +
+        (isExiting()
+          ? " animate-out fade-out slide-out-to-top-[14px] duration-[280] ease-in fill-mode-forwards"
+          : "")
+      }
     >
       {/* Top bar */}
       <div class="flex items-center justify-between px-5 py-4">
@@ -82,7 +86,10 @@ export default function MinesweeperSetup(props: Props) {
       {/* Setup area */}
       <div class="flex-1 flex flex-col items-center justify-center px-6 pb-16 gap-12">
         {/* Header */}
-        <div class="text-center space-y-2" style={{ animation: "fadeIn 0.5s ease-out both" }}>
+        <div
+          class="text-center space-y-2"
+          class="animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
+        >
           <h1 class="font-display text-5xl md:text-6xl text-fg italic tracking-tight">
             Minesweeper
           </h1>
@@ -93,7 +100,7 @@ export default function MinesweeperSetup(props: Props) {
         {/* Difficulty selection */}
         <div
           class="w-full max-w-md space-y-8"
-          style={{ animation: "fadeIn 0.5s ease-out 0.1s both" }}
+          class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 fill-mode-both"
         >
           <div class="space-y-3">
             <label class="text-[11px] font-medium text-fg-tertiary uppercase tracking-[0.15em]">
@@ -142,7 +149,7 @@ export default function MinesweeperSetup(props: Props) {
         </div>
 
         {/* Start button */}
-        <div style={{ animation: "fadeIn 0.4s ease-out 0.2s both" }}>
+        <div class="animate-in fade-in slide-in-from-bottom-2 duration-[400] delay-200 fill-mode-both">
           <PressableButton
             class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}

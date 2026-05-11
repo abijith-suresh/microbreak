@@ -90,7 +90,7 @@ export default function WordleApp() {
           >
             <div
               class="px-5 py-2.5 rounded-lg bg-fg text-bg text-sm font-bold"
-              style={{ animation: "fadeIn 0.2s ease-out both" }}
+              class="animate-in fade-in slide-in-from-bottom-2 duration-200 fill-mode-both"
             >
               {game.toastMessage()}
             </div>
@@ -107,7 +107,10 @@ export default function WordleApp() {
             onPlayAgain={game.playAgain}
           >
             <Show when={game.gameResult() === "lost"}>
-              <div class="mt-4 flex gap-1" style={{ animation: "fadeIn 0.4s ease-out 0.5s both" }}>
+              <div
+                class="mt-4 flex gap-1"
+                class="animate-in fade-in slide-in-from-bottom-2 duration-[400] delay-500 fill-mode-both"
+              >
                 {game
                   .answer()
                   .split("")
@@ -125,7 +128,7 @@ export default function WordleApp() {
               </div>
               <p
                 class="mt-2 text-xs text-fg-tertiary tracking-wide"
-                style={{ animation: "fadeIn 0.4s ease-out 0.6s both" }}
+                class="animate-in fade-in slide-in-from-bottom-2 duration-[400] delay-[600] fill-mode-both"
               >
                 The word was{" "}
                 <span class="text-accent font-semibold uppercase tracking-widest">

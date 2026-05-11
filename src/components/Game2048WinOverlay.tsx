@@ -14,7 +14,15 @@ export default function Game2048WinOverlay(props: Props) {
     if (svgRef) {
       const star = svgRef.querySelector(".win-star") as SVGElement;
       if (star) {
-        star.style.animation = "scaleIn 0.5s cubic-bezier(0.65, 0, 0.45, 1) 0.2s both";
+        star.classList.add(
+          "animate-in",
+          "fade-in",
+          "zoom-in-90",
+          "duration-[500]",
+          "delay-200",
+          "ease-[cubic-bezier(0.65,0,0.45,1)]",
+          "fill-mode-both"
+        );
       }
     }
   });
@@ -30,7 +38,10 @@ export default function Game2048WinOverlay(props: Props) {
         {`2048 reached with ${props.score} points`}
       </div>
       {/* Star icon */}
-      <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
+      <div
+        class="mb-6"
+        class="animate-in fade-in zoom-in-90 duration-[400] delay-100 fill-mode-both"
+      >
         <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
           <path
             class="win-star"
@@ -47,7 +58,7 @@ export default function Game2048WinOverlay(props: Props) {
       <h1
         id="game-2048-win-title"
         class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
-        style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
+        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300 fill-mode-both"
       >
         2048!
       </h1>
@@ -55,7 +66,7 @@ export default function Game2048WinOverlay(props: Props) {
       {/* Score */}
       <p
         class="mt-3 text-2xl md:text-3xl font-light text-accent tabular-nums"
-        style={{ animation: "fadeIn 0.5s ease-out 0.4s both" }}
+        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-[400] fill-mode-both"
       >
         {props.score} points
       </p>
@@ -63,7 +74,7 @@ export default function Game2048WinOverlay(props: Props) {
       {/* Actions */}
       <div
         class="flex flex-col sm:flex-row items-center gap-3 mt-10"
-        style={{ animation: "fadeIn 0.5s ease-out 0.6s both" }}
+        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-[600] fill-mode-both"
       >
         <PressableButton onClick={() => props.onKeepPlaying()}>Keep Playing</PressableButton>
         <PressableButton variant="secondary" onClick={() => props.onNewGame()}>
@@ -74,7 +85,7 @@ export default function Game2048WinOverlay(props: Props) {
       {/* Tagline */}
       <p
         class="mt-10 text-[11px] text-fg-tertiary tracking-widest uppercase"
-        style={{ animation: "fadeIn 0.5s ease-out 0.8s both" }}
+        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-[800] fill-mode-both"
       >
         Nice break · Now back to building
       </p>

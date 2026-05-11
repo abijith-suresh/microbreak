@@ -68,10 +68,7 @@ export default function MinesweeperApp() {
           contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-4 px-2 md:px-4 overflow-auto"
           belowContent={
             <div class="flex flex-col items-center gap-2">
-              <div
-                class="flex rounded-lg border border-border overflow-hidden"
-                style={{ animation: "fadeIn 0.3s ease-out 0.2s both" }}
-              >
+              <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
                 <button
                   onClick={() => game.digMode() || game.toggleMode()}
                   style={{

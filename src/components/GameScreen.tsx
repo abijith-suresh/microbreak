@@ -15,7 +15,7 @@ const DEFAULT_CONTENT_CLASS =
 
 export default function GameScreen(props: Props) {
   return (
-    <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.35s ease-out both" }}>
+    <div class="flex flex-col min-h-screen animate-in fade-in slide-in-from-bottom-2 duration-[350] fill-mode-both">
       <div class="flex items-center justify-between px-5 py-3">
         {props.left}
         {props.center}

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* ─── Fonts ─── */
 @font-face {
@@ -38,6 +39,20 @@
   --font-display: "Instrument Serif", Georgia, serif;
   --font-body: "DM Sans", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
+
+  /* Game-specific animation utilities */
+  --animate-tile-appear: tileAppear 300ms ease-out both;
+  --animate-tile-appear-sm: tileAppear 150ms ease-out 50ms both;
+  --animate-tile-pop-merge: tilePopMerge 200ms ease-out both;
+  --animate-tile-pop: tilePop 200ms ease-out both;
+  --animate-tile-bounce: tileBounce 500ms ease both;
+  --animate-score-float: scoreFloat 600ms ease-out forwards;
+  --animate-cell-reveal: cellReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-completion-wave: completionWave 0.5s ease-out forwards;
+  --animate-mine-blast: mineBlast 0.5s ease-out forwards;
+  --animate-group-sweep: groupSweep 0.45s ease-out forwards;
+  --animate-error-appear: errorAppear 0.2s ease-out;
+  --animate-row-shake: rowShake 500ms ease-out both;
 }
 
 /* ─── Tailwind Runtime Token Aliases ─── */
@@ -298,17 +313,6 @@ body {
   }
 }
 
-@keyframes setupExit {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-14px);
-  }
-}
-
 @keyframes cellReveal {
   from {
     opacity: 0;
@@ -320,37 +324,7 @@ body {
   }
 }
 
-@keyframes skeletonPulse {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* setupExit, skeletonPulse, fadeIn, scaleIn replaced by tw-animate-css */
 
 @keyframes checkmark {
   0% {
@@ -358,17 +332,6 @@ body {
   }
   100% {
     stroke-dashoffset: 0;
-  }
-}
-
-@keyframes ripple {
-  0% {
-    transform: scale(0.3);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(2.5);
-    opacity: 0;
   }
 }
 
@@ -425,21 +388,6 @@ body {
   }
 }
 
-@keyframes mini-fill {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-}
-
 /* ─── 2048 Tile Animations ─── */
 @keyframes tileAppear {
   0% {
@@ -452,12 +400,21 @@ body {
   }
 }
 
-@keyframes tilePop {
+@keyframes tilePopMerge {
   0% {
     transform: scale(1);
   }
   40% {
     transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes tilePop {
+  0% {
+    transform: scale(1.1);
   }
   100% {
     transform: scale(1);
@@ -476,33 +433,6 @@ body {
 }
 
 /* ─── Wordle Tile Animations ─── */
-@keyframes tileFlip {
-  0% {
-    transform: rotateX(0deg);
-  }
-  45% {
-    transform: rotateX(90deg);
-  }
-  55% {
-    transform: rotateX(90deg);
-  }
-  100% {
-    transform: rotateX(0deg);
-  }
-}
-
-@keyframes tilePop {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.12);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 @keyframes rowShake {
   0%,
   100% {
@@ -530,24 +460,21 @@ body {
 }
 
 @keyframes tileBounce {
-  0%,
+  0% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(5px);
+  }
+  60% {
+    transform: translateY(-25px);
+  }
+  90% {
+    transform: translateY(3px);
+  }
   100% {
     transform: translateY(0);
   }
-  40% {
-    transform: translateY(-20px);
-  }
-  70% {
-    transform: translateY(-8px);
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out both;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out both;
 }
 
 /* ─── Scrollbar ─── */

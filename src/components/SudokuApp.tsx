@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import type { JSX } from "solid-js";
 import { createSudokuGame } from "@/lib/sudokuGame";
 import { getBoxDims, type GridSize } from "@/lib/sudoku";
 import SudokuBoard from "./SudokuBoard";
@@ -79,8 +80,11 @@ function SkeletonBoard(props: { size: GridSize }) {
 
           return (
             <div
-              class={`${cellSizeClass()} ${rightBorder} border-b border-border bg-surface`}
-              style={{ animation: `skeletonPulse 1.4s ease-in-out ${delay}ms infinite` }}
+              class={`${cellSizeClass()} ${rightBorder} border-b border-border bg-surface animate-pulse`}
+              style={
+                { "--tw-animation-delay": `${delay}ms` } as JSX.CSSProperties &
+                  Record<string, string | undefined>
+              }
             />
           );
         })}
@@ -88,15 +92,19 @@ function SkeletonBoard(props: { size: GridSize }) {
 
       {/* Number pad skeleton */}
       <div
-        class={`grid ${padLayoutClass()} gap-1.5 justify-items-center`}
-        style={{
-          animation: "skeletonPulse 1.4s ease-in-out 200ms infinite",
-        }}
+        class={`grid ${padLayoutClass()} gap-1.5 justify-items-center animate-pulse`}
+        style={
+          { "--tw-animation-delay": "200ms" } as JSX.CSSProperties &
+            Record<string, string | undefined>
+        }
       >
         {Array.from({ length: props.size }, (_, i) => (
           <div
-            class={`${numBtnClass()} rounded-lg bg-surface border border-border`}
-            style={{ animation: `skeletonPulse 1.4s ease-in-out ${i * 70}ms infinite` }}
+            class={`${numBtnClass()} rounded-lg bg-surface border border-border animate-pulse`}
+            style={
+              { "--tw-animation-delay": `${i * 70}ms` } as JSX.CSSProperties &
+                Record<string, string | undefined>
+            }
           />
         ))}
       </div>
@@ -182,7 +190,7 @@ export default function SudokuApp() {
 
             {/* Number pad fades in slightly after the board so cells have
                 a head-start on their cascade before the pad appears */}
-            <div style={{ animation: "fadeIn 0.3s ease-out 0.2s both" }}>
+            <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
               <NumberPad
                 size={game.gridSize()}
                 onNumber={game.handleKeyboardNumber}
