@@ -1,0 +1,58 @@
+---
+/**
+ * GameLayout — shared game page layout shell.
+ *
+ * Provides the standard min-h-screen flex column structure with a top bar
+ * (left / center / right slots), a thin separator, a scrollable main content
+ * area (default slot), and an optional footer.
+ *
+ * Usage:
+ *   <GameLayout>
+ *     <Fragment slot="left">
+ *       <BackLink label="Setup" onClick={...} />
+ *     </Fragment>
+ *     <Fragment slot="center">
+ *       <span class="...">meta</span>
+ *     </Fragment>
+ *     <Fragment slot="right">
+ *       <ThemeToggle client:load />
+ *     </Fragment>
+ *     <YourGame client:load />
+ *     <Fragment slot="footer">
+ *       <button>Restart</button>
+ *     </Fragment>
+ *   </GameLayout>
+ */
+
+interface Props {
+  /** Custom class for the main content area (default: flex-1 flex flex-col items-center justify-center gap-6 py-4 px-2 md:px-4 overflow-auto) */
+  contentClass?: string;
+}
+
+const DEFAULT_CONTENT_CLASS =
+  "flex-1 flex flex-col items-center justify-center gap-6 py-4 px-2 md:px-4 overflow-auto";
+const { contentClass = DEFAULT_CONTENT_CLASS } = Astro.props;
+---
+
+<div class="flex flex-col min-h-screen" style="animation: fadeIn 0.35s ease-out both">
+  <!-- Top bar -->
+  <div class="flex items-center justify-between px-5 py-3">
+    <slot name="left" />
+    <slot name="center" />
+    <slot name="right" />
+  </div>
+
+  <!-- Thin separator -->
+  <div class="h-px bg-border"></div>
+
+  <!-- Main content area -->
+  <div class={contentClass}>
+    <slot />
+  </div>
+
+  <!-- Optional below-content slot -->
+  <slot name="belowContent" />
+
+  <!-- Optional footer -->
+  <slot name="footer" />
+</div>

@@ -4,6 +4,7 @@ import type { Difficulty } from "@/lib/minesweeper";
 import MinesweeperBoard from "./MinesweeperBoard";
 import MinesweeperSetup from "./MinesweeperSetup";
 import ResultScreen from "./ui/ResultScreen";
+import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import PressableButton from "./ui/PressableButton";
@@ -45,11 +46,9 @@ export default function MinesweeperApp() {
 
       {/* ── Playing Phase ────────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && game.gameResult() === null}>
-        <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.35s ease-out both" }}>
-          {/* Top bar */}
-          <div class="flex items-center justify-between px-5 py-3">
-            <BackLink label="Setup" onClick={game.returnToSetup} />
-
+        <GameScreen
+          left={<BackLink label="Setup" onClick={game.returnToSetup} />}
+          center={
             <div class="flex items-center gap-2 text-xs text-fg-tertiary">
               <span class="flex items-center gap-1">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--color-fg-tertiary)">
@@ -64,32 +63,10 @@ export default function MinesweeperApp() {
                 {formatTimer(game.timerSeconds())}
               </span>
             </div>
-
-            <ThemeToggle />
-          </div>
-
-          {/* Thin separator */}
-          <div class="h-px bg-border" />
-
-          {/* Game area */}
-          <div class="flex-1 flex flex-col items-center justify-center gap-4 py-4 px-2 md:px-4 overflow-auto">
-            <Show when={game.board().length > 0}>
-              <MinesweeperBoard
-                board={game.board()}
-                rows={game.rows()}
-                cols={game.cols()}
-                selectedCell={game.selectedCell()}
-                onSelectCell={game.selectCell}
-                triggeredMine={game.triggeredMine()}
-                wrongFlags={game.wrongFlags()}
-                gameOver={false}
-                onCellClick={game.handleCellClick}
-                isCompleting={game.completing()}
-                completionOrigin={game.completionOrigin()}
-              />
-            </Show>
-
-            {/* Dig/Flag mode toggle */}
+          }
+          right={<ThemeToggle />}
+          contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-4 px-2 md:px-4 overflow-auto"
+          belowContent={
             <div class="flex flex-col items-center gap-2">
               <div
                 class="flex rounded-lg border border-border overflow-hidden"
@@ -150,15 +127,29 @@ export default function MinesweeperApp() {
                 Tap to dig · right-click or hold to flag
               </p>
             </div>
-          </div>
-
-          {/* Bottom bar */}
-          <div class="px-4 pb-5 flex justify-center">
+          }
+          footer={
             <PressableButton variant="ghost" onClick={game.restart}>
               Restart
             </PressableButton>
-          </div>
-        </div>
+          }
+        >
+          <Show when={game.board().length > 0}>
+            <MinesweeperBoard
+              board={game.board()}
+              rows={game.rows()}
+              cols={game.cols()}
+              selectedCell={game.selectedCell()}
+              onSelectCell={game.selectCell}
+              triggeredMine={game.triggeredMine()}
+              wrongFlags={game.wrongFlags()}
+              gameOver={false}
+              onCellClick={game.handleCellClick}
+              isCompleting={game.completing()}
+              completionOrigin={game.completionOrigin()}
+            />
+          </Show>
+        </GameScreen>
       </Show>
     </>
   );

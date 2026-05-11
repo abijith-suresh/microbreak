@@ -56,7 +56,10 @@ const {
       })();
     </script>
   </head>
-  <body class="min-h-screen bg-bg text-fg font-body antialiased">
-    <slot />
+  <body class="bg-bg text-fg font-body antialiased">
+    <main>
+      <slot />
+    </main>
+    <slot name="footer" />
   </body>
 </html>
