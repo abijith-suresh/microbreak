@@ -37,37 +37,39 @@ export default function WordleTile(props: Props) {
   const isRevealed = () => props.state !== undefined;
 
   const flipStyle = (): Style => ({
-    // perspective() is included in the transform so it's self-contained and
-    // never conflicts with an ancestor transform (e.g. the pop scale).
+    // perspective() lives in the transform so it is self-contained and never
+    // conflicts with an ancestor transform (e.g. the tile-pop scale).
+    // SolidJS's style handler calls nodeStyle.setProperty(key, val) for all
+    // properties, so keys MUST be hyphenated CSS names — camelCase is silently
+    // ignored by setProperty.
     transition: `transform ${FLIP_DURATION}ms ease-in-out ${props.revealDelay ?? 0}ms`,
     transform: isRevealed()
       ? `perspective(600px) rotateX(180deg)`
       : `perspective(600px) rotateX(0deg)`,
-    transformStyle: "preserve-3d",
+    "transform-style": "preserve-3d",
   });
 
   const frontStyle = (): Style => ({
-    // camelCase keys are used deliberately — SolidJS's style patcher applies
-    // non-custom-property keys via el.style[key] = value, which requires
-    // camelCase for reliable cross-browser support.
-    backfaceVisibility: "hidden",
-    WebkitBackfaceVisibility: "hidden",
-    borderWidth: "2px",
-    borderStyle: "solid",
-    borderColor:
+    "backface-visibility": "hidden",
+    "-webkit-backface-visibility": "hidden",
+    // Use explicit longhands (hyphenated) so setProperty applies each one
+    // individually; the border shorthand + camelCase borderColor was broken.
+    "border-width": "2px",
+    "border-style": "solid",
+    "border-color":
       props.letter && !isRevealed() ? "var(--color-border-strong)" : "var(--color-border)",
-    backgroundColor: "transparent",
+    "background-color": "transparent",
     color: "var(--color-fg)",
   });
 
   const backStyle = (): Style => ({
-    backfaceVisibility: "hidden",
-    WebkitBackfaceVisibility: "hidden",
+    "backface-visibility": "hidden",
+    "-webkit-backface-visibility": "hidden",
     transform: "rotateX(180deg)",
-    borderWidth: "2px",
-    borderStyle: "solid",
-    borderColor: "transparent",
-    backgroundColor: styles()?.bg ?? "transparent",
+    "border-width": "2px",
+    "border-style": "solid",
+    "border-color": "transparent",
+    "background-color": styles()?.bg ?? "transparent",
     color: styles()?.text ?? "var(--color-fg)",
     "--tw-animate-delay": props.isBouncing ? `${props.bounceDelay ?? 0}ms` : undefined,
   });
