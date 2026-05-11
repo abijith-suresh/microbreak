@@ -1,12 +1,16 @@
-import { onMount } from "solid-js";
-import PressableButton from "./ui/PressableButton";
+import { onMount, type JSX } from "solid-js";
+import PressableButton from "./PressableButton";
 
 interface Props {
-  result: "won" | "lost";
+  type: "won" | "lost";
   solveTime: number;
   difficulty: string;
+  /** Optional override for the heading (defaults to "Cleared" / "Game Over") */
+  heading?: string;
   onBackToGames: () => void;
   onPlayAgain: () => void;
+  /** Optional game-specific content rendered above the time (e.g. Wordle answer reveal) */
+  children?: JSX.Element;
 }
 
 function formatTime(seconds: number): string {
@@ -16,19 +20,23 @@ function formatTime(seconds: number): string {
   return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
-function difficultyLabel(d: string): string {
-  return d.charAt(0).toUpperCase() + d.slice(1);
+function headingText(type: "won" | "lost", override?: string): string {
+  if (override) return override;
+  return type === "won" ? "Cleared" : "Game Over";
 }
 
-export default function GameResultScreen(props: Props) {
-  let svgRef: SVGSVGElement | undefined;
+function taglineText(type: "won" | "lost"): string {
+  return type === "won" ? "Nice break · Now back to building" : "Shake it off · Try again";
+}
 
-  const isWon = () => props.result === "won";
+export default function ResultScreen(props: Props) {
+  let svgRef: SVGSVGElement | undefined;
+  const isWon = () => props.type === "won";
 
   onMount(() => {
     if (svgRef && isWon()) {
-      const circle = svgRef.querySelector(".checkmark-circle") as SVGElement;
-      const check = svgRef.querySelector(".checkmark-check") as SVGElement;
+      const circle = svgRef.querySelector(".result-checkmark-circle") as SVGElement;
+      const check = svgRef.querySelector(".result-checkmark-check") as SVGElement;
       if (circle) {
         circle.style.strokeDasharray = "166";
         circle.style.strokeDashoffset = "166";
@@ -42,24 +50,28 @@ export default function GameResultScreen(props: Props) {
     }
   });
 
+  const labelId = "result-screen-title";
+
   return (
     <div
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg"
+      style={{ animation: "fadeIn 0.4s ease-out both" }}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="game-result-title"
+      aria-labelledby={labelId}
     >
       <div class="sr-only" aria-live="assertive">
         {isWon()
-          ? `Puzzle cleared in ${formatTime(props.solveTime)} on ${difficultyLabel(props.difficulty)}`
-          : `Game over after ${formatTime(props.solveTime)} on ${difficultyLabel(props.difficulty)}`}
+          ? `Puzzle cleared in ${formatTime(props.solveTime)} on ${props.difficulty}`
+          : `Game over after ${formatTime(props.solveTime)} on ${props.difficulty}`}
       </div>
+
       {/* Icon */}
       <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
         {isWon() ? (
           <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
             <circle
-              class="checkmark-circle"
+              class="result-checkmark-circle"
               cx="48"
               cy="48"
               r="40"
@@ -68,7 +80,7 @@ export default function GameResultScreen(props: Props) {
               fill="none"
             />
             <path
-              class="checkmark-check"
+              class="result-checkmark-check"
               d="M30 50 L42 62 L66 36"
               stroke="var(--color-accent)"
               stroke-width="3"
@@ -101,12 +113,17 @@ export default function GameResultScreen(props: Props) {
 
       {/* Heading */}
       <h1
-        id="game-result-title"
+        id={labelId}
         class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
         style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
       >
-        {isWon() ? "Cleared" : "Game Over"}
+        {headingText(props.type, props.heading)}
       </h1>
+
+      {/* Game-specific content (e.g. Wordle answer reveal) */}
+      {props.children && (
+        <div style={{ animation: "fadeIn 0.4s ease-out 0.35s both" }}>{props.children}</div>
+      )}
 
       {/* Time */}
       <p
@@ -119,12 +136,12 @@ export default function GameResultScreen(props: Props) {
         {formatTime(props.solveTime)}
       </p>
 
-      {/* Info */}
+      {/* Difficulty / variant info */}
       <p
         class="mt-1 text-xs text-fg-tertiary tracking-wide"
         style={{ animation: "fadeIn 0.5s ease-out 0.5s both" }}
       >
-        {difficultyLabel(props.difficulty)}
+        {props.difficulty}
       </p>
 
       {/* Actions */}
@@ -143,7 +160,7 @@ export default function GameResultScreen(props: Props) {
         class="mt-10 text-[11px] text-fg-tertiary tracking-widest uppercase"
         style={{ animation: "fadeIn 0.5s ease-out 0.8s both" }}
       >
-        {isWon() ? "Nice break · Now back to building" : "Shake it off · Try again"}
+        {taglineText(props.type)}
       </p>
     </div>
   );
