@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.12](https://github.com/abijith-suresh/microbreak/compare/v0.0.11...v0.0.12) (2026-05-11)
+
+
+### Features
+
+* create GameLayout component to eliminate duplicated layout shell ([#92](https://github.com/abijith-suresh/microbreak/issues/92)) ([87e22f1](https://github.com/abijith-suresh/microbreak/commit/87e22f1a9f54c42302b827edfd55b1a56068e6bf))
+* extract shared PressableButton component for game page buttons ([#90](https://github.com/abijith-suresh/microbreak/issues/90)) ([e4300b1](https://github.com/abijith-suresh/microbreak/commit/e4300b1a37b3fbf8b2a90ccc05811f19cc52aa51))
+* **ui:** extract shared BackLink component for game navigation ([#89](https://github.com/abijith-suresh/microbreak/issues/89)) ([ada3a36](https://github.com/abijith-suresh/microbreak/commit/ada3a369b1ebc6fbd0026f5b9f08889211f0c002))
+* unify result screens into single ResultScreen ([#91](https://github.com/abijith-suresh/microbreak/issues/91)) ([aca4bac](https://github.com/abijith-suresh/microbreak/commit/aca4bac55a4b22677d3aff81a98c5df9bb0511c8))
+
+
+### Bug Fixes
+
+* **2048:** add back-to-games button on the start screen ([#68](https://github.com/abijith-suresh/microbreak/issues/68)) ([b030f4b](https://github.com/abijith-suresh/microbreak/commit/b030f4ba7fb9d2d8c8529d633be1d251b0e0fe7c))
+
 ## [0.0.11](https://github.com/abijith-suresh/microbreak/compare/v0.0.10...v0.0.11) (2026-05-08)
 
 
