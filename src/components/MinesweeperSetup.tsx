@@ -5,15 +5,13 @@ import { loadStoredString, saveStoredString } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
+import PressableButton from "./ui/PressableButton";
 
 interface Props {
   onStart: (difficulty: Difficulty, isMobile: boolean) => void;
 }
 
 const DIFFICULTY_VALUES: Difficulty[] = ["beginner", "intermediate", "expert"];
-
-const CARD_TRANSITION =
-  "border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.1s ease-out";
 
 export default function MinesweeperSetup(props: Props) {
   const [selectedDifficulty, setSelectedDifficulty] = createSignal<Difficulty>("beginner");
@@ -70,10 +68,6 @@ export default function MinesweeperSetup(props: Props) {
     }, 280);
   }
 
-  // ── Press feedback signals ─────────────────────────────────────────────────
-  const [pressedDiff, setPressedDiff] = createSignal<Difficulty | null>(null);
-  const [startPressed, setStartPressed] = createSignal(false);
-
   return (
     <div
       class="flex flex-col min-h-screen"
@@ -107,21 +101,14 @@ export default function MinesweeperSetup(props: Props) {
             </label>
             <div class="grid grid-cols-3 gap-2.5">
               {difficulties().map((d) => (
-                <button
-                  onClick={() => setSelectedDifficulty(d.value)}
-                  onPointerDown={() => setPressedDiff(d.value)}
-                  onPointerUp={() => setPressedDiff(null)}
-                  onPointerLeave={() => setPressedDiff(null)}
-                  onPointerCancel={() => setPressedDiff(null)}
-                  style={{
-                    transition: CARD_TRANSITION,
-                    transform: pressedDiff() === d.value ? "scale(0.93)" : "",
-                  }}
+                <PressableButton
+                  variant="ghost"
                   class={`group flex flex-col items-center gap-1.5 py-4 px-3 rounded-xl border ${
                     selectedDifficulty() === d.value
                       ? "border-accent bg-accent-light"
                       : "border-border bg-surface hover:border-border-strong"
                   }`}
+                  onClick={() => setSelectedDifficulty(d.value)}
                 >
                   <span
                     class={`text-lg font-bold leading-none transition-colors duration-200 ${
@@ -148,7 +135,7 @@ export default function MinesweeperSetup(props: Props) {
                   >
                     {d.time}
                   </span>
-                </button>
+                </PressableButton>
               ))}
             </div>
           </div>
@@ -156,20 +143,12 @@ export default function MinesweeperSetup(props: Props) {
 
         {/* Start button */}
         <div style={{ animation: "fadeIn 0.4s ease-out 0.2s both" }}>
-          <button
+          <PressableButton
+            class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}
-            onPointerDown={() => setStartPressed(true)}
-            onPointerUp={() => setStartPressed(false)}
-            onPointerLeave={() => setStartPressed(false)}
-            onPointerCancel={() => setStartPressed(false)}
-            style={{
-              transition: "background-color 0.2s ease, transform 0.1s ease-out",
-              transform: startPressed() ? "scale(0.93)" : "",
-            }}
-            class="px-12 py-3.5 rounded-xl bg-accent text-white font-semibold text-base hover:bg-accent-hover shadow-lg shadow-shadow"
           >
             Start Game
-          </button>
+          </PressableButton>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Show, createSignal } from "solid-js";
+import { Show } from "solid-js";
 import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import type { Difficulty } from "@/lib/minesweeper";
 import MinesweeperBoard from "./MinesweeperBoard";
@@ -6,6 +6,7 @@ import MinesweeperSetup from "./MinesweeperSetup";
 import GameResultScreen from "./GameResultScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
+import PressableButton from "./ui/PressableButton";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -19,8 +20,6 @@ function difficultyLabel(d: Difficulty): string {
 
 export default function MinesweeperApp() {
   const game = createMinesweeperGame();
-
-  const [restartPressed, setRestartPressed] = createSignal(false);
 
   function handleBackToGames() {
     window.location.href = "/";
@@ -155,21 +154,9 @@ export default function MinesweeperApp() {
 
           {/* Bottom bar */}
           <div class="px-4 pb-5 flex justify-center">
-            <button
-              onClick={game.restart}
-              onPointerDown={() => setRestartPressed(true)}
-              onPointerUp={() => setRestartPressed(false)}
-              onPointerLeave={() => setRestartPressed(false)}
-              onPointerCancel={() => setRestartPressed(false)}
-              style={{
-                transition:
-                  "border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease, transform 0.1s ease-out",
-                transform: restartPressed() ? "scale(0.93)" : "",
-              }}
-              class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-tertiary hover:border-accent hover:text-accent"
-            >
+            <PressableButton variant="ghost" onClick={game.restart}>
               Restart
-            </button>
+            </PressableButton>
           </div>
         </div>
       </Show>

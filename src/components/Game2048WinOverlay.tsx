@@ -1,4 +1,5 @@
-import { createSignal, onMount } from "solid-js";
+import { onMount } from "solid-js";
+import PressableButton from "./ui/PressableButton";
 
 interface Props {
   score: number;
@@ -8,12 +9,6 @@ interface Props {
 
 export default function Game2048WinOverlay(props: Props) {
   let svgRef: SVGSVGElement | undefined;
-
-  const [keepPlayingPressed, setKeepPlayingPressed] = createSignal(false);
-  const [newGamePressed, setNewGamePressed] = createSignal(false);
-
-  const BTN_TRANSITION =
-    "background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease-out";
 
   onMount(() => {
     if (svgRef) {
@@ -70,34 +65,10 @@ export default function Game2048WinOverlay(props: Props) {
         class="flex flex-col sm:flex-row items-center gap-3 mt-10"
         style={{ animation: "fadeIn 0.5s ease-out 0.6s both" }}
       >
-        <button
-          onClick={() => props.onKeepPlaying()}
-          onPointerDown={() => setKeepPlayingPressed(true)}
-          onPointerUp={() => setKeepPlayingPressed(false)}
-          onPointerLeave={() => setKeepPlayingPressed(false)}
-          onPointerCancel={() => setKeepPlayingPressed(false)}
-          style={{
-            transition: BTN_TRANSITION,
-            transform: keepPlayingPressed() ? "scale(0.93)" : "",
-          }}
-          class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover"
-        >
-          Keep Playing
-        </button>
-        <button
-          onClick={() => props.onNewGame()}
-          onPointerDown={() => setNewGamePressed(true)}
-          onPointerUp={() => setNewGamePressed(false)}
-          onPointerLeave={() => setNewGamePressed(false)}
-          onPointerCancel={() => setNewGamePressed(false)}
-          style={{
-            transition: BTN_TRANSITION,
-            transform: newGamePressed() ? "scale(0.93)" : "",
-          }}
-          class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent"
-        >
+        <PressableButton onClick={() => props.onKeepPlaying()}>Keep Playing</PressableButton>
+        <PressableButton variant="secondary" onClick={() => props.onNewGame()}>
           New Game
-        </button>
+        </PressableButton>
       </div>
 
       {/* Tagline */}
