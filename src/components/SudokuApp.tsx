@@ -5,6 +5,7 @@ import SudokuBoard from "./SudokuBoard";
 import SudokuSetup from "./SudokuSetup";
 import NumberPad from "./NumberPad";
 import ResultScreen from "./ui/ResultScreen";
+import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import PressableButton from "./ui/PressableButton";
@@ -137,11 +138,9 @@ export default function SudokuApp() {
           centre-outward via the `cellReveal` keyframe inside SudokuBoard,
           giving the puzzle a "materialising" entrance.
         */}
-        <div class="flex flex-col min-h-screen" style={{ animation: "fadeIn 0.35s ease-out both" }}>
-          {/* Top bar */}
-          <div class="flex items-center justify-between px-5 py-3">
-            <BackLink label="Setup" onClick={game.returnToSetup} />
-
+        <GameScreen
+          left={<BackLink label="Setup" onClick={game.returnToSetup} />}
+          center={
             <div class="flex items-center gap-2 text-xs text-fg-tertiary">
               <span>{sizeLabel(game.gridSize())}</span>
               <span class="opacity-40">·</span>
@@ -151,56 +150,48 @@ export default function SudokuApp() {
                 {formatTimer(game.timerSeconds())}
               </span>
             </div>
-
-            <ThemeToggle />
-          </div>
-
-          {/* Thin separator */}
-          <div class="h-px bg-border" />
-
-          {/* Puzzle area */}
-          <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4">
-            <Show
-              when={
-                game.puzzle().length === game.gridSize() &&
-                game.solution().length === game.gridSize() &&
-                game.userBoard().length === game.gridSize()
-              }
-              fallback={<SkeletonBoard size={game.gridSize()} />}
-            >
-              <SudokuBoard
-                puzzle={game.puzzle()}
-                solution={game.solution()}
-                size={game.gridSize()}
-                selectedCell={game.selectedCell()}
-                onSelectCell={game.selectCell}
-                userBoard={game.userBoard()}
-                conflictedCells={game.conflictedCells()}
-                completing={game.completing()}
-                completionOrigin={game.completionOrigin()}
-                completingGroups={game.completingGroups()}
-              />
-
-              {/* Number pad fades in slightly after the board so cells have
-                  a head-start on their cascade before the pad appears */}
-              <div style={{ animation: "fadeIn 0.3s ease-out 0.2s both" }}>
-                <NumberPad
-                  size={game.gridSize()}
-                  onNumber={game.handleKeyboardNumber}
-                  onErase={game.handleKeyboardErase}
-                  placedCounts={game.numberPlacedCounts}
-                />
-              </div>
-            </Show>
-          </div>
-
-          {/* Bottom bar */}
-          <div class="px-4 pb-5 flex justify-center">
+          }
+          right={<ThemeToggle />}
+          contentClass="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4"
+          footer={
             <PressableButton variant="ghost" onClick={game.restart}>
               Restart
             </PressableButton>
-          </div>
-        </div>
+          }
+        >
+          <Show
+            when={
+              game.puzzle().length === game.gridSize() &&
+              game.solution().length === game.gridSize() &&
+              game.userBoard().length === game.gridSize()
+            }
+            fallback={<SkeletonBoard size={game.gridSize()} />}
+          >
+            <SudokuBoard
+              puzzle={game.puzzle()}
+              solution={game.solution()}
+              size={game.gridSize()}
+              selectedCell={game.selectedCell()}
+              onSelectCell={game.selectCell}
+              userBoard={game.userBoard()}
+              conflictedCells={game.conflictedCells()}
+              completing={game.completing()}
+              completionOrigin={game.completionOrigin()}
+              completingGroups={game.completingGroups()}
+            />
+
+            {/* Number pad fades in slightly after the board so cells have
+                a head-start on their cascade before the pad appears */}
+            <div style={{ animation: "fadeIn 0.3s ease-out 0.2s both" }}>
+              <NumberPad
+                size={game.gridSize()}
+                onNumber={game.handleKeyboardNumber}
+                onErase={game.handleKeyboardErase}
+                placedCounts={game.numberPlacedCounts}
+              />
+            </div>
+          </Show>
+        </GameScreen>
       </Show>
     </>
   );
