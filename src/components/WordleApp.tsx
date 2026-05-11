@@ -109,14 +109,14 @@ export default function WordleApp() {
             <Show when={game.gameResult() === "lost"}>
               <div
                 class="mt-4 flex gap-1"
-                class="animate-in fade-in slide-in-from-bottom-2 duration-[400] delay-500 fill-mode-both"
+                class="animate-in fade-in slide-in-from-bottom-2 duration-400 delay-500 fill-mode-both"
               >
                 {game
                   .answer()
                   .split("")
                   .map((letter) => (
                     <div
-                      class="flex items-center justify-center w-[40px] h-[40px] rounded-md text-lg font-bold uppercase"
+                      class="flex items-center justify-center size-10 rounded-md text-lg font-bold uppercase"
                       style={{
                         "background-color": "var(--color-wl-correct)",
                         color: "var(--color-wl-correct-text)",
@@ -128,7 +128,7 @@ export default function WordleApp() {
               </div>
               <p
                 class="mt-2 text-xs text-fg-tertiary tracking-wide"
-                class="animate-in fade-in slide-in-from-bottom-2 duration-[400] delay-[600] fill-mode-both"
+                class="animate-in fade-in slide-in-from-bottom-2 duration-400 delay-600 fill-mode-both"
               >
                 The word was{" "}
                 <span class="text-accent font-semibold uppercase tracking-widest">

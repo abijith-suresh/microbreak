@@ -30,7 +30,7 @@ export default function Game2048App() {
       <Show when={game.phase() === "setup"}>
         <div
           class="flex flex-col min-h-screen"
-          class="animate-in fade-in slide-in-from-bottom-2 duration-[400] fill-mode-both"
+          class="animate-in fade-in slide-in-from-bottom-2 duration-400 fill-mode-both"
         >
           {/* Top bar */}
           <div class="flex items-center justify-between px-5 py-4">
@@ -80,7 +80,7 @@ export default function Game2048App() {
           center={
             <div class="flex items-center gap-4 text-xs">
               <div class="flex flex-col items-center">
-                <span class="text-fg-tertiary text-[10px] tracking-widest uppercase">Score</span>
+                <span class="text-fg-tertiary text-xxxs tracking-widest uppercase">Score</span>
                 <div class="relative">
                   <span class="font-mono tabular-nums tracking-wider text-fg font-semibold">
                     {formatNumber(game.score())}
@@ -99,7 +99,7 @@ export default function Game2048App() {
               </div>
 
               <div class="flex flex-col items-center">
-                <span class="text-fg-tertiary text-[10px] tracking-widest uppercase">Best</span>
+                <span class="text-fg-tertiary text-xxxs tracking-widest uppercase">Best</span>
                 <span class="font-mono tabular-nums tracking-wider text-fg-secondary">
                   {formatNumber(game.bestScore())}
                 </span>
@@ -124,7 +124,7 @@ export default function Game2048App() {
             when={game.tiles.length > 0}
             fallback={
               <div
-                class="w-full max-w-[336px] aspect-square rounded-lg bg-surface border border-border"
+                class="w-full max-w-board aspect-square rounded-lg bg-surface border border-border"
                 class="animate-pulse"
               />
             }

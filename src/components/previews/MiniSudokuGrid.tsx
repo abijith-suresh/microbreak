@@ -36,7 +36,7 @@ export function MiniSudokuGrid(props: { animated: boolean }) {
 
   return (
     <PreviewFrame>
-      <div class="grid grid-cols-9 gap-[1px] rounded-lg bg-border p-2 overflow-hidden">
+      <div class="grid grid-cols-9 gap-px rounded-lg bg-border p-2 overflow-hidden">
         <For each={SUDOKU_PREVIEW_PATTERN}>
           {(value, i) => {
             const row = Math.floor(i() / 9);
@@ -48,7 +48,7 @@ export function MiniSudokuGrid(props: { animated: boolean }) {
 
             return (
               <div
-                class="flex aspect-square items-center justify-center bg-surface text-[7px] font-medium text-accent"
+                class="flex aspect-square items-center justify-center bg-surface text-micro font-medium text-accent"
                 style={{
                   opacity: isVisible() ? "0.9" : "0",
                   "margin-right": isBoxRight ? "1px" : "0",

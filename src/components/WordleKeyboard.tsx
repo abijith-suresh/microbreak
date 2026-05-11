@@ -32,7 +32,7 @@ export default function WordleKeyboard(props: Props) {
   }
 
   return (
-    <div class="flex flex-col items-center gap-1.5 w-full max-w-[350px]">
+    <div class="flex flex-col items-center gap-1.5 w-full max-w-keyboard">
       <For each={KEYBOARD_ROWS}>
         {(row) => (
           <div class="flex gap-1 sm:gap-1.5 w-full justify-center">

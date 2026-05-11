@@ -77,7 +77,7 @@ export default function WordleTile(props: Props) {
   return (
     <div
       class={
-        "flex items-center justify-center w-[52px] h-[52px] sm:w-[60px] sm:h-[60px] rounded-lg select-none" +
+        "flex items-center justify-center size-13 sm:size-15 rounded-lg select-none" +
         (props.isPopping && !props.isRevealing ? " animate-tile-pop" : "")
       }
     >
