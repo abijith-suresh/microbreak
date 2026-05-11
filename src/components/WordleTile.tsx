@@ -37,15 +37,23 @@ export default function WordleTile(props: Props) {
   const isRevealed = () => props.state !== undefined;
 
   const flipStyle = (): Style => ({
+    // perspective() is included in the transform so it's self-contained and
+    // never conflicts with an ancestor transform (e.g. the pop scale).
     transition: `transform ${FLIP_DURATION}ms ease-in-out ${props.revealDelay ?? 0}ms`,
-    transform: isRevealed() ? "rotateX(180deg)" : "rotateX(0deg)",
-    "transform-style": "preserve-3d",
+    transform: isRevealed()
+      ? `perspective(600px) rotateX(180deg)`
+      : `perspective(600px) rotateX(0deg)`,
+    transformStyle: "preserve-3d",
   });
 
   const frontStyle = (): Style => ({
-    "backface-visibility": "hidden",
-    "-webkit-backface-visibility": "hidden",
-    border: "2px solid",
+    // camelCase keys are used deliberately — SolidJS's style patcher applies
+    // non-custom-property keys via el.style[key] = value, which requires
+    // camelCase for reliable cross-browser support.
+    backfaceVisibility: "hidden",
+    WebkitBackfaceVisibility: "hidden",
+    borderWidth: "2px",
+    borderStyle: "solid",
     borderColor:
       props.letter && !isRevealed() ? "var(--color-border-strong)" : "var(--color-border)",
     backgroundColor: "transparent",
@@ -53,13 +61,15 @@ export default function WordleTile(props: Props) {
   });
 
   const backStyle = (): Style => ({
-    "backface-visibility": "hidden",
-    "-webkit-backface-visibility": "hidden",
+    backfaceVisibility: "hidden",
+    WebkitBackfaceVisibility: "hidden",
     transform: "rotateX(180deg)",
-    border: "2px solid transparent",
+    borderWidth: "2px",
+    borderStyle: "solid",
+    borderColor: "transparent",
     backgroundColor: styles()?.bg ?? "transparent",
     color: styles()?.text ?? "var(--color-fg)",
-    "--tw-animation-delay": props.isBouncing ? `${props.bounceDelay ?? 0}ms` : undefined,
+    "--tw-animate-delay": props.isBouncing ? `${props.bounceDelay ?? 0}ms` : undefined,
   });
 
   return (
@@ -68,7 +78,6 @@ export default function WordleTile(props: Props) {
         "flex items-center justify-center w-[52px] h-[52px] sm:w-[60px] sm:h-[60px] rounded-lg select-none" +
         (props.isPopping && !props.isRevealing ? " animate-tile-pop" : "")
       }
-      style={{ perspective: "600px" }}
     >
       <div class="relative w-full h-full" style={flipStyle()}>
         {/* ── Front face — empty / border-only state ── */}

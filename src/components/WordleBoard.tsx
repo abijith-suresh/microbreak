@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import WordleRow from "./WordleRow";
 import { getMaxGuesses } from "@/lib/wordle";
 import type { GuessResult, Variant } from "@/lib/wordle";
@@ -76,19 +76,22 @@ export default function WordleBoard(props: Props) {
 
   return (
     <div class="flex flex-col items-center gap-1.5 sm:gap-2">
-      <For each={rows()}>
+      {/* <Index> keeps each row's DOM element alive across re-renders so the
+          CSS flip transition fires correctly (it needs an existing element
+          going from rotateX(0°) → rotateX(180°), not a fresh mount at 180°). */}
+      <Index each={rows()}>
         {(row) => (
           <WordleRow
-            letters={row.letters}
-            result={row.guessResult}
+            letters={row().letters}
+            result={row().guessResult}
             length={props.variant}
-            isCurrentRow={row.isCurrent}
-            isShaking={row.isShaking}
-            isRevealing={row.isRevealing}
-            isBouncing={row.isBouncing}
+            isCurrentRow={row().isCurrent}
+            isShaking={row().isShaking}
+            isRevealing={row().isRevealing}
+            isBouncing={row().isBouncing}
           />
         )}
-      </For>
+      </Index>
     </div>
   );
 }
