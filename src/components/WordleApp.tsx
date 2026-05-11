@@ -6,6 +6,7 @@ import WordleKeyboard from "./WordleKeyboard";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
+import ResultScreen from "./ui/ResultScreen";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -98,81 +99,13 @@ export default function WordleApp() {
 
         {/* ── Result overlay ──────────────────────────────────────── */}
         <Show when={game.gameResult() !== null}>
-          <div
-            class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg"
-            style={{ animation: "fadeIn 0.4s ease-out both" }}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="wordle-result-title"
+          <ResultScreen
+            type={game.gameResult()!}
+            solveTime={game.timerSeconds()}
+            difficulty={variantLabel(game.variant())}
+            onBackToGames={handleBackToGames}
+            onPlayAgain={game.playAgain}
           >
-            <div class="sr-only" aria-live="assertive">
-              {game.gameResult() === "won"
-                ? `Wordle solved in ${variantLabel(game.variant())} mode after ${formatTimer(game.timerSeconds())}`
-                : `Wordle lost. The word was ${game.answer()}`}
-            </div>
-            {/* Icon */}
-            <div class="mb-6" style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}>
-              {game.gameResult() === "won" ? (
-                <svg width="80" height="80" viewBox="0 0 96 96" fill="none">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="var(--color-accent)"
-                    stroke-width="2.5"
-                    fill="none"
-                    style={{
-                      "stroke-dasharray": "166",
-                      "stroke-dashoffset": "166",
-                      animation: "checkmark 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.2s forwards",
-                    }}
-                  />
-                  <path
-                    d="M30 50 L42 62 L66 36"
-                    stroke="var(--color-accent)"
-                    stroke-width="3"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    style={{
-                      "stroke-dasharray": "48",
-                      "stroke-dashoffset": "48",
-                      animation: "checkmark 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards",
-                    }}
-                  />
-                </svg>
-              ) : (
-                <svg width="80" height="80" viewBox="0 0 96 96" fill="none">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r="40"
-                    stroke="var(--color-error)"
-                    stroke-width="2.5"
-                    fill="none"
-                    style={{ animation: "scaleIn 0.4s ease-out 0.1s both" }}
-                  />
-                  <path
-                    d="M36 36 L60 60 M60 36 L36 60"
-                    stroke="var(--color-error)"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                    style={{ animation: "fadeIn 0.3s ease-out 0.4s both" }}
-                  />
-                </svg>
-              )}
-            </div>
-
-            {/* Heading */}
-            <h1
-              id="wordle-result-title"
-              class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
-              style={{ animation: "fadeIn 0.5s ease-out 0.3s both" }}
-            >
-              {game.gameResult() === "won" ? "Cleared" : "Game Over"}
-            </h1>
-
-            {/* Answer on loss */}
             <Show when={game.gameResult() === "lost"}>
               <div class="mt-4 flex gap-1" style={{ animation: "fadeIn 0.4s ease-out 0.5s both" }}>
                 {game
@@ -200,67 +133,7 @@ export default function WordleApp() {
                 </span>
               </p>
             </Show>
-
-            {/* Time */}
-            <p
-              class="mt-3 text-2xl md:text-3xl font-light tabular-nums"
-              style={{
-                animation: "fadeIn 0.5s ease-out 0.4s both",
-                color:
-                  game.gameResult() === "won" ? "var(--color-accent)" : "var(--color-fg-secondary)",
-              }}
-            >
-              {(() => {
-                const s = game.timerSeconds();
-                const m = Math.floor(s / 60);
-                const sec = s % 60;
-                return m === 0 ? `${sec}s` : `${m}m ${sec.toString().padStart(2, "0")}s`;
-              })()}
-            </p>
-
-            {/* Info */}
-            <p
-              class="mt-1 text-xs text-fg-tertiary tracking-wide"
-              style={{ animation: "fadeIn 0.5s ease-out 0.5s both" }}
-            >
-              {variantLabel(game.variant())}
-            </p>
-
-            {/* Actions */}
-            <div
-              class="flex flex-col sm:flex-row items-center gap-3 mt-10"
-              style={{ animation: "fadeIn 0.5s ease-out 0.6s both" }}
-            >
-              <button
-                onClick={game.playAgain}
-                class="px-8 py-3 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover"
-                style={{
-                  transition: "background-color 0.2s ease, transform 0.1s ease-out",
-                }}
-              >
-                Play Again
-              </button>
-              <button
-                onClick={handleBackToGames}
-                class="px-8 py-3 rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent"
-                style={{
-                  transition: "border-color 0.2s ease, color 0.2s ease",
-                }}
-              >
-                Back to Games
-              </button>
-            </div>
-
-            {/* Tagline */}
-            <p
-              class="mt-10 text-[11px] text-fg-tertiary tracking-widest uppercase"
-              style={{ animation: "fadeIn 0.5s ease-out 0.8s both" }}
-            >
-              {game.gameResult() === "won"
-                ? "Nice break · Now back to building"
-                : "Shake it off · Try again"}
-            </p>
-          </div>
+          </ResultScreen>
         </Show>
       </Show>
     </>

@@ -4,7 +4,7 @@ import { getBoxDims, type GridSize } from "@/lib/sudoku";
 import SudokuBoard from "./SudokuBoard";
 import SudokuSetup from "./SudokuSetup";
 import NumberPad from "./NumberPad";
-import CompletionScreen from "./CompletionScreen";
+import ResultScreen from "./ui/ResultScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import PressableButton from "./ui/PressableButton";
@@ -19,6 +19,12 @@ function sizeLabel(size: number): string {
   if (size === 4) return "4×4";
   if (size === 6) return "6×6";
   return "9×9";
+}
+
+function difficultyString(size: number, diff: string): string {
+  const dims = sizeLabel(size);
+  const label = diff.charAt(0).toUpperCase() + diff.slice(1);
+  return `${dims} · ${label}`;
 }
 
 // ── Skeleton board ─────────────────────────────────────────────────────────────
@@ -112,12 +118,13 @@ export default function SudokuApp() {
         <SudokuSetup onStart={game.startGame} />
       </Show>
 
-      {/* ── Completion Overlay ───────────────────────────────────── */}
+      {/* ── Result Overlay ──────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && game.completed()}>
-        <CompletionScreen
+        <ResultScreen
+          type="won"
+          heading="Solved"
           solveTime={game.timerSeconds()}
-          gridSize={game.gridSize()}
-          difficulty={game.difficulty()}
+          difficulty={difficultyString(game.gridSize(), game.difficulty())}
           onBackToGames={handleBackToGames}
           onPlayAgain={game.playAgain}
         />

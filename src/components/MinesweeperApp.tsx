@@ -3,7 +3,7 @@ import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import type { Difficulty } from "@/lib/minesweeper";
 import MinesweeperBoard from "./MinesweeperBoard";
 import MinesweeperSetup from "./MinesweeperSetup";
-import GameResultScreen from "./GameResultScreen";
+import ResultScreen from "./ui/ResultScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import PressableButton from "./ui/PressableButton";
@@ -34,10 +34,10 @@ export default function MinesweeperApp() {
 
       {/* ── Result Overlay ───────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && game.gameResult() !== null}>
-        <GameResultScreen
-          result={game.gameResult()!}
+        <ResultScreen
+          type={game.gameResult()!}
           solveTime={game.timerSeconds()}
-          difficulty={game.difficulty()}
+          difficulty={difficultyLabel(game.difficulty())}
           onBackToGames={handleBackToGames}
           onPlayAgain={game.playAgain}
         />
