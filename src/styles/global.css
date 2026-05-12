@@ -54,28 +54,8 @@
   --animate-error-appear: errorAppear 0.2s ease-out;
   --animate-row-shake: rowShake 500ms ease-out both;
 
-  /* Custom font sizes for labels and previews */
-  --text-xxs: 0.6875rem; /* 11px - tertiary/label text */
-  --text-xxxs: 0.625rem; /* 10px - small labels */
-  --text-micro: 0.4375rem; /* 7px - preview components only */
-
-  /* Letter-spacing token for setup labels */
-  --tracking-label: 0.15em;
-
   /* Sudoku grid strong borders (2.5px is intentional for box boundaries) */
   --border-width-strong: 2.5px;
-
-  /* Container max-widths for game layouts */
-  --container-keyboard: 21.875rem; /* 350px - Wordle keyboard */
-  --container-board: 21rem; /* 336px - 2048 game board */
-
-  /* Standardised animation durations and delays */
-  --transition-duration-350: 350ms;
-  --transition-duration-400: 400ms;
-  --delay-350: 350ms;
-  --delay-400: 400ms;
-  --delay-600: 600ms;
-  --delay-800: 800ms;
 }
 
 /* ─── Tailwind Runtime Token Aliases ─── */

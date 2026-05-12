@@ -103,7 +103,7 @@ export default function MinesweeperSetup(props: Props) {
           class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 fill-mode-both"
         >
           <div class="space-y-3">
-            <label class="text-xxs font-medium text-fg-tertiary uppercase tracking-label">
+            <label class="text-xs font-medium text-fg-tertiary uppercase tracking-widest">
               Difficulty
             </label>
             <div class="grid grid-cols-3 gap-2.5">
@@ -125,7 +125,7 @@ export default function MinesweeperSetup(props: Props) {
                     {d.label}
                   </span>
                   <span
-                    class={`text-xxxs leading-tight transition-colors duration-200 ${
+                    class={`text-xs leading-tight transition-colors duration-200 ${
                       selectedDifficulty() === d.value
                         ? "text-accent opacity-80"
                         : "text-fg-tertiary group-hover:text-fg-secondary"
@@ -134,7 +134,7 @@ export default function MinesweeperSetup(props: Props) {
                     {d.description}
                   </span>
                   <span
-                    class={`text-xxxs leading-tight transition-colors duration-200 ${
+                    class={`text-xs leading-tight transition-colors duration-200 ${
                       selectedDifficulty() === d.value
                         ? "text-accent opacity-50"
                         : "text-fg-tertiary opacity-60"
@@ -149,7 +149,7 @@ export default function MinesweeperSetup(props: Props) {
         </div>
 
         {/* Start button */}
-        <div class="animate-in fade-in slide-in-from-bottom-2 duration-400 delay-200 fill-mode-both">
+        <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
           <PressableButton
             class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}

@@ -66,7 +66,7 @@ export function MiniWordleGrid(props: { animated: boolean }) {
                                 : "var(--color-fg)",
                         }}
                       >
-                        <span class="text-micro font-bold uppercase">
+                        <span class="text-[7px] font-bold uppercase">
                           {isTyped() || isFullyRevealed() ? letter : ""}
                         </span>
                       </div>

@@ -120,7 +120,7 @@ export default function MinesweeperApp() {
                   Flag
                 </button>
               </div>
-              <p class="text-xxs text-fg-tertiary tracking-wide text-center">
+              <p class="text-xs text-fg-tertiary tracking-wide text-center">
                 Tap to dig · right-click or hold to flag
               </p>
             </div>

@@ -55,7 +55,7 @@ export default function ResultScreen(props: Props) {
   return (
     <div
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg"
-      class="animate-in fade-in slide-in-from-bottom-2 duration-400 fill-mode-both"
+      class="animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelId}
@@ -67,7 +67,7 @@ export default function ResultScreen(props: Props) {
       </div>
 
       {/* Icon */}
-      <div class="mb-6 animate-in fade-in zoom-in-90 duration-400 delay-100 fill-mode-both">
+      <div class="mb-6 animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both">
         {isWon() ? (
           <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
             <circle
@@ -98,14 +98,14 @@ export default function ResultScreen(props: Props) {
               stroke="var(--color-error)"
               stroke-width="2.5"
               fill="none"
-              class="animate-in fade-in zoom-in-90 duration-400 delay-100 fill-mode-both"
+              class="animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both"
             />
             <path
               d="M36 36 L60 60 M60 36 L36 60"
               stroke="var(--color-error)"
               stroke-width="3"
               stroke-linecap="round"
-              class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-400 fill-mode-both"
+              class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both"
             />
           </svg>
         )}
@@ -122,14 +122,14 @@ export default function ResultScreen(props: Props) {
 
       {/* Game-specific content (e.g. Wordle answer reveal) */}
       {props.children && (
-        <div class="animate-in fade-in slide-in-from-bottom-2 duration-400 delay-350 fill-mode-both">
+        <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-300 fill-mode-both">
           {props.children}
         </div>
       )}
 
       {/* Time */}
       <p
-        class="mt-3 text-2xl md:text-3xl font-light tabular-nums animate-in fade-in slide-in-from-bottom-2 duration-500 delay-400"
+        class="mt-3 text-2xl md:text-3xl font-light tabular-nums animate-in fade-in slide-in-from-bottom-2 duration-500 delay-500"
         style={{
           color: isWon() ? "var(--color-accent)" : "var(--color-fg-secondary)",
         }}
@@ -148,7 +148,7 @@ export default function ResultScreen(props: Props) {
       {/* Actions */}
       <div
         class="flex flex-col sm:flex-row items-center gap-3 mt-10"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-600 fill-mode-both"
+        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both"
       >
         <PressableButton onClick={() => props.onPlayAgain()}>Play Again</PressableButton>
         <PressableButton variant="secondary" onClick={() => props.onBackToGames()}>
@@ -158,8 +158,8 @@ export default function ResultScreen(props: Props) {
 
       {/* Tagline */}
       <p
-        class="mt-10 text-xxs text-fg-tertiary tracking-widest uppercase"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-800 fill-mode-both"
+        class="mt-10 text-xs text-fg-tertiary tracking-widest uppercase"
+        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both"
       >
         {taglineText(props.type)}
       </p>

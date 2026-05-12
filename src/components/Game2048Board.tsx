@@ -106,7 +106,7 @@ export default function Game2048Board(props: Props) {
       ref={(el) => {
         containerRef = el;
       }}
-      class="relative select-none touch-none w-full max-w-board aspect-square"
+      class="relative select-none touch-none w-full max-w-[336px] aspect-square"
     >
       {/* Background grid of empty cells */}
       <div

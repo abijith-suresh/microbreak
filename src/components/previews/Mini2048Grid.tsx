@@ -74,7 +74,7 @@ export function Mini2048Grid(props: { animated: boolean }) {
                     {(entry) => (
                       <div
                         class={
-                          "flex h-full w-full items-center justify-center rounded-sm text-micro font-bold" +
+                          "flex h-full w-full items-center justify-center rounded-sm text-[7px] font-bold" +
                           (props.animated ? " animate-tile-appear" : "")
                         }
                         style={{

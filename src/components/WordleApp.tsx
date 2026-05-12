@@ -109,7 +109,7 @@ export default function WordleApp() {
             <Show when={game.gameResult() === "lost"}>
               <div
                 class="mt-4 flex gap-1"
-                class="animate-in fade-in slide-in-from-bottom-2 duration-400 delay-500 fill-mode-both"
+                class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both"
               >
                 {game
                   .answer()
@@ -128,7 +128,7 @@ export default function WordleApp() {
               </div>
               <p
                 class="mt-2 text-xs text-fg-tertiary tracking-wide"
-                class="animate-in fade-in slide-in-from-bottom-2 duration-400 delay-600 fill-mode-both"
+                class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-700 fill-mode-both"
               >
                 The word was{" "}
                 <span class="text-accent font-semibold uppercase tracking-widest">
