@@ -3,6 +3,9 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import SudokuApp from "@/components/SudokuApp";
 ---
 
-<BaseLayout title="Sudoku — Microbreak">
+<BaseLayout
+  title="Sudoku — Microbreak"
+  description="Choose a 4×4, 6×6, or 9×9 board for a focused logic break."
+>
   <SudokuApp client:load />
 </BaseLayout>
