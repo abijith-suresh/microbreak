@@ -5,7 +5,7 @@ import { loadStoredString, saveStoredString } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import Button from "./ui/button";
+import Button from "./ui/Button";
 
 interface Props {
   onStart: (difficulty: Difficulty, isMobile: boolean) => void;

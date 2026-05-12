@@ -4,7 +4,7 @@ import BackLink from "./ui/BackLink";
 import type { Variant } from "@/lib/wordle";
 import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
-import Button from "./ui/button";
+import Button from "./ui/Button";
 
 interface Props {
   onStart: (variant: Variant) => void;

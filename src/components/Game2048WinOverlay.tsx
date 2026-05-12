@@ -1,5 +1,5 @@
 import { onMount } from "solid-js";
-import Button from "./ui/button";
+import Button from "./ui/Button";
 
 interface Props {
   score: number;

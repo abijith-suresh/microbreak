@@ -4,7 +4,7 @@ import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import Button from "./ui/button";
+import Button from "./ui/Button";
 
 interface Props {
   onStart: (size: GridSize, difficulty: Difficulty) => void;

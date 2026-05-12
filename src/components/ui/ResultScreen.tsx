@@ -1,5 +1,5 @@
 import { onMount, type JSX } from "solid-js";
-import Button from "./button";
+import Button from "./Button";
 
 interface Props {
   type: "won" | "lost";

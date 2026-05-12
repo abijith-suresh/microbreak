@@ -9,7 +9,7 @@ import ResultScreen from "./ui/ResultScreen";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import Button from "./ui/button";
+import Button from "./ui/Button";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
