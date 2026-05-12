@@ -3,6 +3,8 @@ import { createSignal, type JSX } from "solid-js";
 export type PressableVariant = "primary" | "secondary" | "ghost";
 
 interface PressableButtonProps {
+  /** Navigation href — when provided, renders as <a> instead of <button> */
+  href?: string;
   onClick?: () => void;
   variant?: PressableVariant;
   disabled?: boolean;
@@ -52,22 +54,34 @@ export default function PressableButton(props: PressableButtonProps) {
   const variant = (): PressableVariant => props.variant ?? "primary";
   const styles = () => variantStyles[variant()];
 
+  const commonProps = {
+    onPointerDown: () => setPressed(true),
+    onPointerUp: () => setPressed(false),
+    onPointerLeave: () => setPressed(false),
+    onPointerCancel: () => setPressed(false),
+    style: {
+      transition: styles().transition,
+      transform: pressed() ? "scale(0.93)" : "",
+      ...(props.style as JSX.CSSProperties),
+    },
+    class: [styles().base, props.class].filter(Boolean).join(" "),
+    "aria-label": props["aria-label"],
+  } as const;
+
+  if (props.href !== undefined) {
+    return (
+      <a href={props.href} {...commonProps}>
+        {props.children}
+      </a>
+    );
+  }
+
   return (
     <button
       onClick={props.onClick}
       disabled={props.disabled}
       type={props.type ?? "button"}
-      onPointerDown={() => setPressed(true)}
-      onPointerUp={() => setPressed(false)}
-      onPointerLeave={() => setPressed(false)}
-      onPointerCancel={() => setPressed(false)}
-      style={{
-        transition: styles().transition,
-        transform: pressed() ? "scale(0.93)" : "",
-        ...(props.style as JSX.CSSProperties),
-      }}
-      class={[styles().base, props.class].filter(Boolean).join(" ")}
-      aria-label={props["aria-label"]}
+      {...commonProps}
     >
       {props.children}
     </button>
