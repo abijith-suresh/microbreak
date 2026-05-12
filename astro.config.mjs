@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
+  site: "https://microbreak.pages.dev",
   output: "static",
   integrations: [solid()],
   vite: {
