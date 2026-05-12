@@ -45,7 +45,7 @@ export default function ThemeToggle() {
     >
       {/* Sun icon */}
       <svg
-        class="absolute h-[18px] w-[18px] transition-all duration-300"
+        class="absolute size-4.5 transition-all duration-300"
         style={{
           opacity: current() === "light" ? 1 : 0,
           transform: current() === "light" ? "rotate(0deg) scale(1)" : "rotate(90deg) scale(0.5)",
@@ -69,7 +69,7 @@ export default function ThemeToggle() {
       </svg>
       {/* Moon icon */}
       <svg
-        class="absolute h-[18px] w-[18px] transition-all duration-300"
+        class="absolute size-4.5 transition-all duration-300"
         style={{
           opacity: current() === "dark" ? 1 : 0,
           transform: current() === "dark" ? "rotate(0deg) scale(1)" : "rotate(-90deg) scale(0.5)",

@@ -42,7 +42,7 @@ export default function GameGrid() {
           ) : (
             <div class="relative flex flex-col items-center gap-4 rounded-2xl border border-border bg-surface p-6 opacity-40 cursor-default select-none">
               <h3 class="font-display text-3xl text-fg-tertiary italic">{game.name}</h3>
-              <div class="flex items-center justify-center w-full aspect-[4/3] max-h-[100px]">
+              <div class="flex items-center justify-center w-full aspect-[4/3] max-h-24">
                 <GameIcon name={game.name} />
               </div>
             </div>

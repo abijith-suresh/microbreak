@@ -102,16 +102,16 @@ export default function SudokuBoard(props: Props) {
     const [boxRows, boxCols] = getBoxDims(size());
     const borders: string[] = [];
 
-    if (col === size() - 1) borders.push("border-r-[2.5px]");
-    else if ((col + 1) % boxCols === 0) borders.push("border-r-[2px]");
+    if (col === size() - 1) borders.push("border-r-strong");
+    else if ((col + 1) % boxCols === 0) borders.push("border-r-2");
     else borders.push("border-r");
 
-    if (row === size() - 1) borders.push("border-b-[2.5px]");
-    else if ((row + 1) % boxRows === 0) borders.push("border-b-[2px]");
+    if (row === size() - 1) borders.push("border-b-strong");
+    else if ((row + 1) % boxRows === 0) borders.push("border-b-2");
     else borders.push("border-b");
 
-    if (row === 0) borders.push("border-t-[2.5px]");
-    if (col === 0) borders.push("border-l-[2.5px]");
+    if (row === 0) borders.push("border-t-strong");
+    if (col === 0) borders.push("border-l-strong");
 
     return borders.join(" ");
   }

@@ -61,7 +61,7 @@ function SkeletonBoard(props: { size: GridSize }) {
     <div class="flex flex-col items-center gap-6">
       {/* Grid */}
       <div
-        class="inline-grid rounded-sm overflow-hidden border-[2.5px] border-border-strong shadow-md shadow-shadow"
+        class="inline-grid rounded-sm overflow-hidden border-strong border-border-strong shadow-md shadow-shadow"
         style={{ "grid-template-columns": `repeat(${props.size}, auto)` }}
       >
         {Array.from({ length: props.size * props.size }, (_, idx) => {
@@ -73,9 +73,9 @@ function SkeletonBoard(props: { size: GridSize }) {
           // Box-boundary right border
           const rightBorder =
             col === props.size - 1
-              ? "border-r-[2.5px]"
+              ? "border-r-strong"
               : (col + 1) % boxCols === 0
-                ? "border-r-[2px]"
+                ? "border-r-2"
                 : "border-r";
 
           return (

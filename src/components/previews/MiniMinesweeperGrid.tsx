@@ -41,7 +41,7 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
 
   return (
     <PreviewFrame>
-      <div class="grid grid-cols-8 gap-[1px] rounded-lg bg-border p-2 overflow-hidden">
+      <div class="grid grid-cols-8 gap-px rounded-lg bg-border p-2 overflow-hidden">
         <For each={previewCells()}>
           {(cell) => (
             <div

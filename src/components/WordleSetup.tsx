@@ -65,7 +65,7 @@ export default function WordleSetup(props: Props) {
       class={
         "flex flex-col min-h-screen" +
         (isExiting()
-          ? " animate-out fade-out slide-out-to-top-[14px] duration-[280] ease-in fill-mode-forwards"
+          ? " animate-out fade-out slide-out-to-top-3.5 duration-300 ease-in fill-mode-forwards"
           : "")
       }
     >
@@ -93,7 +93,7 @@ export default function WordleSetup(props: Props) {
           class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 fill-mode-both"
         >
           <div class="space-y-3">
-            <label class="text-[11px] font-medium text-fg-tertiary uppercase tracking-[0.15em]">
+            <label class="text-xs font-medium text-fg-tertiary uppercase tracking-widest">
               Word length
             </label>
             <div class="grid grid-cols-3 gap-2.5">
@@ -115,7 +115,7 @@ export default function WordleSetup(props: Props) {
                     {v.label}
                   </span>
                   <span
-                    class={`text-[10px] leading-tight transition-colors duration-200 ${
+                    class={`text-xs leading-tight transition-colors duration-200 ${
                       selectedVariant() === v.value
                         ? "text-accent opacity-80"
                         : "text-fg-tertiary group-hover:text-fg-secondary"
@@ -124,7 +124,7 @@ export default function WordleSetup(props: Props) {
                     {v.description}
                   </span>
                   <span
-                    class={`text-[10px] leading-tight transition-colors duration-200 ${
+                    class={`text-xs leading-tight transition-colors duration-200 ${
                       selectedVariant() === v.value
                         ? "text-accent opacity-50"
                         : "text-fg-tertiary opacity-60"
@@ -139,7 +139,7 @@ export default function WordleSetup(props: Props) {
         </div>
 
         {/* Start button */}
-        <div class="animate-in fade-in slide-in-from-bottom-2 duration-[400] delay-200 fill-mode-both">
+        <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
           <PressableButton
             class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}

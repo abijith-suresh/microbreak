@@ -26,7 +26,7 @@ export function MiniWordleGrid(props: { animated: boolean }) {
 
   return (
     <PreviewFrame>
-      <div class="grid grid-rows-5 gap-[2px] rounded-lg bg-border p-2 overflow-hidden">
+      <div class="grid grid-rows-5 gap-0.5 rounded-lg bg-border p-2 overflow-hidden">
         <For each={rows}>
           {(letters, rowIdx) => {
             const rowTick = () => tick() - rowIdx() * ticksPerRow;
@@ -35,7 +35,7 @@ export function MiniWordleGrid(props: { animated: boolean }) {
             const isFullyRevealed = () => !props.animated || rowTick() >= 10;
 
             return (
-              <div class="grid grid-cols-5 gap-[2px]">
+              <div class="grid grid-cols-5 gap-0.5">
                 <For each={letters}>
                   {(letter, colIdx) => {
                     const isTyped = () => colIdx() < typedCount();

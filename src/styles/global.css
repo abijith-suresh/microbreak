@@ -53,6 +53,9 @@
   --animate-group-sweep: groupSweep 0.45s ease-out forwards;
   --animate-error-appear: errorAppear 0.2s ease-out;
   --animate-row-shake: rowShake 500ms ease-out both;
+
+  /* Sudoku grid strong borders (2.5px is intentional for box boundaries) */
+  --border-width-strong: 2.5px;
 }
 
 /* ─── Tailwind Runtime Token Aliases ─── */

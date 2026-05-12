@@ -9,5 +9,5 @@ export default function GamePreview(props: { game: GameCard; animated: boolean }
   if (props.game.name === "Minesweeper") return <MiniMinesweeperGrid animated={props.animated} />;
   if (props.game.name === "2048") return <Mini2048Grid animated={props.animated} />;
   if (props.game.name === "Wordle") return <MiniWordleGrid animated={props.animated} />;
-  return <div class="w-full max-w-[160px] aspect-[4/3]" />;
+  return <div class="w-full max-w-40 aspect-[4/3]" />;
 }
