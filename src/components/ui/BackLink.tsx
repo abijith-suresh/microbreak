@@ -1,5 +1,3 @@
-import { createSignal } from "solid-js";
-
 interface BackLinkProps {
   /** Label text next to the chevron icon (e.g. "Games", "Setup"). */
   label: string;
@@ -19,8 +17,6 @@ interface BackLinkProps {
  * across every game app and setup screen.
  */
 export default function BackLink(props: BackLinkProps) {
-  const [pressed, setPressed] = createSignal(false);
-
   const icon = (
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
       <path
@@ -49,15 +45,7 @@ export default function BackLink(props: BackLinkProps) {
   return (
     <button
       onClick={props.onClick}
-      onPointerDown={() => setPressed(true)}
-      onPointerUp={() => setPressed(false)}
-      onPointerLeave={() => setPressed(false)}
-      onPointerCancel={() => setPressed(false)}
-      style={{
-        transition: "color 0.2s ease, transform 0.1s ease-out",
-        transform: pressed() ? "scale(0.93)" : "",
-      }}
-      class={commonClasses}
+      class={`${commonClasses} active:scale-[0.93] transition duration-100 ease-out`}
       aria-label={`Return to ${props.label.toLowerCase()}`}
     >
       {icon}

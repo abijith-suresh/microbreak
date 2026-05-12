@@ -7,7 +7,7 @@ import ResultScreen from "./ui/ResultScreen";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import PressableButton from "./ui/PressableButton";
+import Button from "./ui/button";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -126,9 +126,9 @@ export default function MinesweeperApp() {
             </div>
           }
           footer={
-            <PressableButton variant="ghost" onClick={game.restart}>
+            <Button variant="ghost" onClick={game.restart}>
               Restart
-            </PressableButton>
+            </Button>
           }
         >
           <Show when={game.board().length > 0}>

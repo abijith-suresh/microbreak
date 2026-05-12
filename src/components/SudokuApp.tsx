@@ -9,7 +9,7 @@ import ResultScreen from "./ui/ResultScreen";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import PressableButton from "./ui/PressableButton";
+import Button from "./ui/button";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -162,9 +162,9 @@ export default function SudokuApp() {
           right={<ThemeToggle />}
           contentClass="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4"
           footer={
-            <PressableButton variant="ghost" onClick={game.restart}>
+            <Button variant="ghost" onClick={game.restart}>
               Restart
-            </PressableButton>
+            </Button>
           }
         >
           <Show
