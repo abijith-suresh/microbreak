@@ -5,7 +5,7 @@ import Game2048WinOverlay from "./Game2048WinOverlay";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import PressableButton from "./ui/PressableButton";
+import Button from "./ui/Button";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -115,9 +115,9 @@ export default function Game2048App() {
           right={<ThemeToggle />}
           contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-6 px-4"
           footer={
-            <PressableButton variant="ghost" onClick={game.restart}>
+            <Button variant="ghost" onClick={game.restart}>
               Restart
-            </PressableButton>
+            </Button>
           }
         >
           <Show
@@ -154,10 +154,10 @@ export default function Game2048App() {
               {formatNumber(game.score())} points
             </p>
             <div class="flex items-center gap-3 mt-8">
-              <PressableButton onClick={game.playAgain}>Try Again</PressableButton>
-              <PressableButton variant="secondary" onClick={handleBackToGames}>
+              <Button onClick={game.playAgain}>Try Again</Button>
+              <Button variant="secondary" onClick={handleBackToGames}>
                 Back to Games
-              </PressableButton>
+              </Button>
             </div>
           </div>
         </Show>

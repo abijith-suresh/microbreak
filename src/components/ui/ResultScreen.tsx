@@ -1,5 +1,5 @@
 import { onMount, type JSX } from "solid-js";
-import PressableButton from "./PressableButton";
+import Button from "./Button";
 
 interface Props {
   type: "won" | "lost";
@@ -150,10 +150,10 @@ export default function ResultScreen(props: Props) {
         class="flex flex-col sm:flex-row items-center gap-3 mt-10"
         class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both"
       >
-        <PressableButton onClick={() => props.onPlayAgain()}>Play Again</PressableButton>
-        <PressableButton variant="secondary" onClick={() => props.onBackToGames()}>
+        <Button onClick={() => props.onPlayAgain()}>Play Again</Button>
+        <Button variant="secondary" onClick={() => props.onBackToGames()}>
           Back to Games
-        </PressableButton>
+        </Button>
       </div>
 
       {/* Tagline */}

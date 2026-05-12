@@ -5,7 +5,7 @@ import { loadStoredString, saveStoredString } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import PressableButton from "./ui/PressableButton";
+import Button from "./ui/Button";
 
 interface Props {
   onStart: (difficulty: Difficulty, isMobile: boolean) => void;
@@ -108,7 +108,7 @@ export default function MinesweeperSetup(props: Props) {
             </label>
             <div class="grid grid-cols-3 gap-2.5">
               {difficulties().map((d) => (
-                <PressableButton
+                <Button
                   variant="ghost"
                   class={`group flex flex-col items-center gap-1.5 py-4 px-3 rounded-xl border ${
                     selectedDifficulty() === d.value
@@ -142,7 +142,7 @@ export default function MinesweeperSetup(props: Props) {
                   >
                     {d.time}
                   </span>
-                </PressableButton>
+                </Button>
               ))}
             </div>
           </div>
@@ -150,12 +150,12 @@ export default function MinesweeperSetup(props: Props) {
 
         {/* Start button */}
         <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
-          <PressableButton
+          <Button
             class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}
           >
             Start Game
-          </PressableButton>
+          </Button>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import BackLink from "./ui/BackLink";
 import type { Variant } from "@/lib/wordle";
 import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
-import PressableButton from "./ui/PressableButton";
+import Button from "./ui/Button";
 
 interface Props {
   onStart: (variant: Variant) => void;
@@ -98,7 +98,7 @@ export default function WordleSetup(props: Props) {
             </label>
             <div class="grid grid-cols-3 gap-2.5">
               {variants.map((v) => (
-                <PressableButton
+                <Button
                   variant="ghost"
                   class={`group flex flex-col items-center gap-1 py-4 px-3 rounded-xl border ${
                     selectedVariant() === v.value
@@ -132,7 +132,7 @@ export default function WordleSetup(props: Props) {
                   >
                     {v.guesses} guesses · {v.time}
                   </span>
-                </PressableButton>
+                </Button>
               ))}
             </div>
           </div>
@@ -140,14 +140,14 @@ export default function WordleSetup(props: Props) {
 
         {/* Start button */}
         <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
-          <PressableButton
+          <Button
             class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}
             disabled={props.loading}
             style={{ opacity: props.loading ? "0.7" : "1" }}
           >
             {props.loading ? "Loading..." : "Start Game"}
-          </PressableButton>
+          </Button>
         </div>
       </div>
     </div>
