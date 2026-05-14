@@ -1,0 +1,45 @@
+---
+interface Props {
+  currentPage?: "home" | "about";
+}
+
+const { currentPage } = Astro.props;
+
+const links: { label: string; href: string; show: boolean }[] = [
+  { label: "About", href: "/about", show: currentPage !== "about" },
+  {
+    label: "GitHub",
+    href: "https://github.com/abijith-suresh/microbreak",
+    show: true,
+  },
+];
+
+const visibleLinks = links.filter((l) => l.show);
+---
+
+<footer class="px-5 md:px-10 pb-10">
+  <div class="h-px bg-border mb-6"></div>
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <p class="text-xs text-fg-tertiary tracking-widest uppercase">
+      No ads · No tracking · Just puzzles
+    </p>
+    <div class="flex items-center gap-4 text-xs text-fg-tertiary">
+      {
+        visibleLinks.map((link, i) => (
+          <>
+            {i > 0 && <span class="opacity-30">·</span>}
+            <a
+              href={link.href}
+              {...(link.href.startsWith("http")
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+              class="hover:text-fg transition-colors"
+            >
+              {link.label}
+            </a>
+          </>
+        ))
+      }
+    </div>
+  </div>
+</footer>
