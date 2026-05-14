@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.13](https://github.com/abijith-suresh/microbreak/compare/v0.0.12...v0.0.13) (2026-05-14)
+
+
+### Features
+
+* add About page and redesign landing page ([#101](https://github.com/abijith-suresh/microbreak/issues/101)) ([899c837](https://github.com/abijith-suresh/microbreak/commit/899c837d654eae09f1cc1ef5869feb08798ae08f))
+* add custom 404 page with shadcn/ui button pattern ([#96](https://github.com/abijith-suresh/microbreak/issues/96)) ([458503a](https://github.com/abijith-suresh/microbreak/commit/458503a74f08a972c22b71144a37d9fe43874c5c))
+* add Open Graph and Twitter Card metadata to BaseLayout ([#100](https://github.com/abijith-suresh/microbreak/issues/100)) ([0d4907c](https://github.com/abijith-suresh/microbreak/commit/0d4907c000ade5f364c0ddc3b8fb157817dc48fb))
+* replace inline SVGs with Lucide icons ([#97](https://github.com/abijith-suresh/microbreak/issues/97)) ([#102](https://github.com/abijith-suresh/microbreak/issues/102)) ([8050dcf](https://github.com/abijith-suresh/microbreak/commit/8050dcf0a9edc637032b83c2a06c6fdfe6f65dbb))
+
 ## [0.0.12](https://github.com/abijith-suresh/microbreak/compare/v0.0.11...v0.0.12) (2026-05-11)
 
 
