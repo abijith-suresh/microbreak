@@ -1,4 +1,5 @@
 import { For } from "solid-js";
+import { Delete } from "@/lib/icons";
 import type { LetterState } from "@/lib/wordle";
 
 interface Props {
@@ -57,26 +58,7 @@ export default function WordleKeyboard(props: Props) {
                       cursor: "pointer",
                     }}
                   >
-                    {key === "Backspace" ? (
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z" />
-                        <line x1="18" y1="9" x2="12" y2="15" />
-                        <line x1="12" y1="9" x2="18" y2="15" />
-                      </svg>
-                    ) : key === "Enter" ? (
-                      "Enter"
-                    ) : (
-                      key
-                    )}
+                    {key === "Backspace" ? <Delete size={18} /> : key === "Enter" ? "Enter" : key}
                   </button>
                 );
               }}

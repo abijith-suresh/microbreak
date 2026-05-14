@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import { Circle } from "@/lib/icons";
 import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import type { Difficulty } from "@/lib/minesweeper";
 import MinesweeperBoard from "./MinesweeperBoard";
@@ -51,9 +52,7 @@ export default function MinesweeperApp() {
           center={
             <div class="flex items-center gap-2 text-xs text-fg-tertiary">
               <span class="flex items-center gap-1">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--color-fg-tertiary)">
-                  <circle cx="12" cy="12" r="5" />
-                </svg>
+                <Circle size={12} fill="var(--color-fg-tertiary)" />
                 {game.mineCounter()}
               </span>
               <span class="opacity-40">·</span>

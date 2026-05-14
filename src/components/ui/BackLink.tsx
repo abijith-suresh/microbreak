@@ -1,3 +1,5 @@
+import { ChevronLeft } from "@/lib/icons";
+
 interface BackLinkProps {
   /** Label text next to the chevron icon (e.g. "Games", "Setup"). */
   label: string;
@@ -8,7 +10,7 @@ interface BackLinkProps {
 }
 
 /**
- * Inline back-navigation control used in top bars and setup screens.
+ * Back-navigation control used in top bars and setup screens.
  *
  * - `href` mode:  renders an `<a>` element for page navigation.
  * - `onClick` mode: renders a `<button>` element with press-feedback animation.
@@ -17,17 +19,7 @@ interface BackLinkProps {
  * across every game app and setup screen.
  */
 export default function BackLink(props: BackLinkProps) {
-  const icon = (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" class="shrink-0">
-      <path
-        d="M12.5 15L7.5 10L12.5 5"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-  );
+  const icon = <ChevronLeft size={18} strokeWidth={1.5} class="shrink-0" />;
 
   const label = <span class="text-sm font-medium hidden sm:inline">{props.label}</span>;
 
