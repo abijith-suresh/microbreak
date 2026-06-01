@@ -8,7 +8,6 @@ import ResultScreen from "./ui/ResultScreen";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import Button from "./ui/Button";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -123,11 +122,6 @@ export default function MinesweeperApp() {
                 Tap to dig · right-click or hold to flag
               </p>
             </div>
-          }
-          footer={
-            <Button variant="ghost" onClick={game.restart}>
-              Restart
-            </Button>
           }
         >
           <Show when={game.board().length > 0}>
