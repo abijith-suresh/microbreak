@@ -7,12 +7,7 @@ import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import ResultScreen from "./ui/ResultScreen";
-
-function formatTimer(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+import { formatTimer } from "@/lib/elapsedTimer";
 
 function variantLabel(v: number): string {
   return `${v} letters`;

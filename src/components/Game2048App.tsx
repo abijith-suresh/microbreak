@@ -6,12 +6,7 @@ import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import Button from "./ui/Button";
-
-function formatTimer(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+import { formatTimer } from "@/lib/elapsedTimer";
 
 function formatNumber(n: number): string {
   return n.toLocaleString();
@@ -113,7 +108,6 @@ export default function Game2048App() {
             </div>
           }
           right={<ThemeToggle />}
-          contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-6 px-4"
         >
           <Show
             when={game.tiles.length > 0}

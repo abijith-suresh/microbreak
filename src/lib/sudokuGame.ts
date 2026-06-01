@@ -20,6 +20,7 @@ import { requestSudokuPuzzle } from "./sudokuGenerator";
 import { isPersistedSudokuSession, type PersistedSudokuSession } from "./sudokuSession";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
+import { createElapsedTimer } from "./elapsedTimer";
 
 export type Phase = "setup" | "playing";
 export type { CompletingGroup };
@@ -46,7 +47,10 @@ export function createSudokuGame() {
   const [completingGroups, setCompletingGroups] = createSignal<CompletingGroup[]>([]);
 
   // ── Internal mutable state ───────────────────────────────────────────────
-  let timerInterval: ReturnType<typeof setInterval> | null = null;
+  const timer = createElapsedTimer({
+    getValue: timerSeconds,
+    setValue: setTimerSeconds,
+  });
   let pendingGeneration: number | null = null;
   let groupSweepTimer: ReturnType<typeof setTimeout> | null = null;
   let completionTimer: ReturnType<typeof setTimeout> | null = null;
@@ -77,15 +81,11 @@ export function createSudokuGame() {
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   function startTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => setTimerSeconds((t) => t + 1), 1000);
+    timer.start();
   }
 
   function stopTimer() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
+    timer.stop();
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -345,7 +345,7 @@ export function createSudokuGame() {
     window.removeEventListener("sudoku-number-input", handleSudokuNumberInput);
     window.removeEventListener("sudoku-erase", handleSudokuErase);
     clearPendingGeneration();
-    if (timerInterval) clearInterval(timerInterval);
+    timer.cleanup();
     if (groupSweepTimer) clearTimeout(groupSweepTimer);
     if (completionTimer) clearTimeout(completionTimer);
   });

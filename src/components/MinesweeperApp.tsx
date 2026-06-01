@@ -8,12 +8,7 @@ import ResultScreen from "./ui/ResultScreen";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-
-function formatTimer(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+import { formatTimer } from "@/lib/elapsedTimer";
 
 function difficultyLabel(d: Difficulty): string {
   return d.charAt(0).toUpperCase() + d.slice(1);
@@ -63,7 +58,6 @@ export default function MinesweeperApp() {
             </div>
           }
           right={<ThemeToggle />}
-          contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-4 px-2 md:px-4 overflow-auto"
           belowContent={
             <div class="flex flex-col items-center gap-2">
               <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
