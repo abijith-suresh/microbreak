@@ -9,7 +9,6 @@ import ResultScreen from "./ui/ResultScreen";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import Button from "./ui/Button";
 
 function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -161,11 +160,6 @@ export default function SudokuApp() {
           }
           right={<ThemeToggle />}
           contentClass="flex-1 flex flex-col items-center justify-center gap-6 py-6 px-4"
-          footer={
-            <Button variant="ghost" onClick={game.restart}>
-              Restart
-            </Button>
-          }
         >
           <Show
             when={

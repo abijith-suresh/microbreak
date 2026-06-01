@@ -114,11 +114,6 @@ export default function Game2048App() {
           }
           right={<ThemeToggle />}
           contentClass="flex-1 flex flex-col items-center justify-center gap-4 py-6 px-4"
-          footer={
-            <Button variant="ghost" onClick={game.restart}>
-              Restart
-            </Button>
-          }
         >
           <Show
             when={game.tiles.length > 0}

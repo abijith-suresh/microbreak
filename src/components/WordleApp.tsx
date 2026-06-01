@@ -58,17 +58,6 @@ export default function WordleApp() {
               </div>
             </Show>
           }
-          footer={
-            <button
-              onClick={game.restart}
-              style={{
-                transition: "border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease",
-              }}
-              class="px-5 py-2 rounded-lg bg-surface border border-border text-sm font-medium text-fg-tertiary hover:border-accent hover:text-accent"
-            >
-              Restart
-            </button>
-          }
         >
           <WordleBoard
             variant={game.variant()}
