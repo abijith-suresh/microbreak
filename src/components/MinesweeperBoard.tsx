@@ -89,17 +89,9 @@ export default function MinesweeperBoard(props: Props) {
 
   // ── Per-cell helpers ───────────────────────────────────────────────────────
 
-  function cellBorderClasses(_row: number, col: number): string {
-    const c = cols();
-    const borders: string[] = [];
-
-    if (col === c - 1) borders.push("border-r");
-    else borders.push("border-r");
-
-    borders.push("border-b");
-
+  function cellBorderClasses(col: number): string {
+    const borders = ["border-r", "border-b"];
     if (col === 0) borders.push("border-l");
-
     return borders.join(" ");
   }
 
@@ -167,7 +159,7 @@ export default function MinesweeperBoard(props: Props) {
               : 0;
           };
 
-          const borders = cellBorderClasses(row, col);
+          const borders = cellBorderClasses(col);
           const cs = cellSize();
           const fs = fontSize();
 
