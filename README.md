@@ -1,99 +1,31 @@
 # Microbreak
 
-Short, non-addictive puzzle games for build wait times.
+Short, non-addictive puzzles for the gaps between builds.
 
-Microbreak is a static Astro app with SolidJS islands and Tailwind CSS v4. The
-current catalog includes Sudoku, Wordle, Minesweeper, and 2048, with more
-small-session puzzle games planned behind the same shell.
+Microbreak is a collection of quick, brain-stimulating games designed for the
+in-between moments of software development — waiting for builds, test suites,
+deployments, or package installs. Each game loads instantly, plays for a few
+minutes, and ends cleanly. No accounts, no tracking, no engagement traps.
 
-## Stack
+## Games
 
-- Astro 6
-- SolidJS
-- Tailwind CSS v4
-- TypeScript (strict)
-- Bun
-- Vitest
-- ESLint + Prettier + Husky
+| Game                        | Category | Session |
+| --------------------------- | -------- | ------- |
+| [Sudoku](/sudoku)           | Logic    | 3–8 min |
+| [Wordle](/wordle)           | Word     | 1–5 min |
+| [Minesweeper](/minesweeper) | Logic    | 1–5 min |
+| [2048](/2048)               | Arcade   | 2–6 min |
 
-## Features
+## Philosophy
 
-- Static output (`output: "static"`)
-- Four shipped puzzle games: Sudoku, Wordle, Minesweeper, and 2048
-- Game-specific setup, persistence, and result flows built with SolidJS islands
-- Curated home/catalog metadata for category, status, and expected session length
-- Theme toggle that starts from system preference and then becomes manual
-- Local font hosting
-- Bun-first scripts and workflow
+- **No accounts.** Everything runs in your browser. Progress is local-only.
+- **No tracking.** No analytics, no cookies, no data collection.
+- **No dark patterns.** No streaks, notifications, leaderboards, or engagement
+  traps.
+- **Respects your time.** Games are short by design. Close the tab and you're
+  done.
 
-## Commands
-
-```bash
-bun install
-bun run dev
-bun run type-check
-bun run lint
-bun run format:check
-bun run test
-bun run build
-bun run verify
-```
-
-## Project Structure
-
-```text
-src/
-├── components/
-│   ├── GameGrid.tsx
-│   ├── Game2048App.tsx
-│   ├── MinesweeperApp.tsx
-│   ├── SudokuApp.tsx
-│   ├── WordleApp.tsx
-│   └── ...
-├── data/
-│   ├── games.ts
-│   └── wordleSolutionPools.ts
-├── layouts/
-│   └── BaseLayout.astro
-├── lib/
-│   ├── game2048.ts
-│   ├── minesweeper.ts
-│   ├── sudoku.ts
-│   ├── wordle.ts
-│   └── __tests__/
-├── pages/
-│   ├── 2048.astro
-│   ├── index.astro
-│   ├── minesweeper.astro
-│   ├── sudoku.astro
-│   └── wordle.astro
-└── styles/
-    └── global.css
-```
-
-## Quality Gate
-
-Before pushing changes:
-
-```bash
-bun run verify
-```
-
-This runs:
-
-- Astro type-checking
-- ESLint
-- Prettier check
-- Vitest
-- Production build
-
-## Git Hooks
-
-Local hooks are managed with Husky:
-
-- `pre-commit`: runs `lint-staged`
-- `commit-msg`: validates Conventional Commits with `commitlint`
-- `pre-push`: runs `bun run verify`
+[About Microbreak →](/about)
 
 ## License
 
