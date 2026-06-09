@@ -285,6 +285,8 @@ body {
   font-family: var(--font-body);
   user-select: none;
   position: relative;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transition:
     background-color 0.15s ease-out,
     border-color 0.2s ease-out,
@@ -299,6 +301,8 @@ body {
   font-family: var(--font-body);
   user-select: none;
   position: relative;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-color: var(--color-border);
   outline: none;
 }
@@ -341,34 +345,46 @@ body {
 @keyframes completionWave {
   0% {
     background-color: transparent;
-    transform: scale(1);
+    transform: perspective(600px) rotateX(0deg) scale(1);
   }
-  30% {
+  20% {
     background-color: color-mix(in srgb, var(--color-accent) 28%, var(--color-success) 20%);
-    transform: scale(1.06);
+    transform: perspective(600px) rotateX(180deg) scale(1.06);
   }
-  65% {
+  40% {
+    background-color: color-mix(in srgb, var(--color-accent) 28%, var(--color-success) 20%);
+    transform: perspective(600px) rotateX(180deg) scale(1.06);
+  }
+  70% {
     background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
-    transform: scale(1.02);
+    transform: perspective(600px) rotateX(0deg) scale(1.02);
   }
   100% {
     background-color: transparent;
-    transform: scale(1);
+    transform: perspective(600px) rotateX(0deg) scale(1);
   }
 }
 
 @keyframes groupSweep {
   0% {
     background-color: transparent;
+    transform: perspective(600px) rotateX(0deg);
   }
-  25% {
+  20% {
     background-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+    transform: perspective(600px) rotateX(90deg);
   }
-  60% {
+  30% {
+    background-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+    transform: perspective(600px) rotateX(90deg);
+  }
+  55% {
     background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
+    transform: perspective(600px) rotateX(0deg);
   }
   100% {
     background-color: transparent;
+    transform: perspective(600px) rotateX(0deg);
   }
 }
 
