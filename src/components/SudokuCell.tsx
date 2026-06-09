@@ -65,7 +65,10 @@ export default function SudokuCell(props: Props) {
   };
 
   // ── Border colour ──────────────────────────────────────────────────────────
-  const borderColorClass = () => (props.isError ? "border-error z-[1]" : "border-border");
+  const borderColorClass = () => "border-border";
+
+  // ── Error ring (inset, covers all 4 sides independently of border system) ─
+  const errorRingClass = () => (props.isError ? "ring-2 ring-inset ring-error" : "");
 
   // ── Hover class ────────────────────────────────────────────────────────────
   const hoverClass = () =>
@@ -115,10 +118,12 @@ export default function SudokuCell(props: Props) {
         props.fontSize,
         props.borderClasses,
         borderColorClass(),
+        errorRingClass(),
         bgClass(),
         textClass(),
         hoverClass(),
         "cursor-pointer",
+        "focus:outline-none",
       ]
         .filter(Boolean)
         .join(" ")}
