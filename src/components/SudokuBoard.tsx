@@ -147,14 +147,20 @@ export default function SudokuBoard(props: Props) {
       let delay: number | null = null;
 
       if (group.type === "row" && row === group.index) {
-        delay = Math.abs(col - group.origin[1]) * 45;
+        const dist = Math.abs(col - group.origin[1]);
+        if (dist === 0) continue;
+        delay = (dist - 1) * 45;
       } else if (group.type === "col" && col === group.index) {
-        delay = Math.abs(row - group.origin[0]) * 45;
+        const dist = Math.abs(row - group.origin[0]);
+        if (dist === 0) continue;
+        delay = (dist - 1) * 45;
       } else if (group.type === "box") {
         const br = Math.floor(group.index / numBoxCols) * boxRows;
         const bc = (group.index % numBoxCols) * boxCols;
         if (row >= br && row < br + boxRows && col >= bc && col < bc + boxCols) {
-          delay = (Math.abs(row - group.origin[0]) + Math.abs(col - group.origin[1])) * 45;
+          const dist = Math.abs(row - group.origin[0]) + Math.abs(col - group.origin[1]);
+          if (dist === 0) continue;
+          delay = (dist - 1) * 45;
         }
       }
 
