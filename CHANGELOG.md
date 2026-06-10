@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.14](https://github.com/abijith-suresh/microbreak/compare/v0.0.13...v0.0.14) (2026-06-09)
+
+
+### Bug Fixes
+
+* remove focus-visible outline and use inset ring for error state ([2bafe58](https://github.com/abijith-suresh/microbreak/commit/2bafe5895774a4acce986aaf216f73d8737ae87e))
+
 ## [0.0.13](https://github.com/abijith-suresh/microbreak/compare/v0.0.12...v0.0.13) (2026-06-01)
 
 
