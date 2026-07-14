@@ -31,7 +31,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@astrojs/solid-js": "^6.0.1",
+    "@astrojs/solid-js": "^7.0.1",
     "@lucide/astro": "^1.22.0",
     "@tailwindcss/vite": "^4.3.2",
     "astro": "^6.4.2",
