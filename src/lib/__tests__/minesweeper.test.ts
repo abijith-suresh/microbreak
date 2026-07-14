@@ -1,15 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  checkWin,
+  countFlags,
   createEmptyBoard,
   generateBoard,
-  revealCell,
-  toggleFlag,
-  checkWin,
-  isMine,
-  getWrongFlags,
-  countFlags,
   getCurrentPresetMode,
   getNeighbors,
+  getWrongFlags,
+  isMine,
+  revealCell,
+  toggleFlag,
 } from "../minesweeper";
 
 // ── Board creation ──────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import { createSignal, onMount } from "solid-js";
-import { Sun, Moon } from "@/lib/icons";
+import { Moon, Sun } from "@/lib/icons";
 
 const STORAGE_KEY = "microbreak-theme";
 
@@ -38,6 +38,7 @@ export default function ThemeToggle() {
 
   return (
     <button
+      type="button"
       data-theme-toggle
       onClick={toggle}
       class="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-fg-secondary transition-all hover:border-border-strong hover:text-fg hover:shadow-sm"

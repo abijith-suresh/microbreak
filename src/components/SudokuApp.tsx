@@ -1,15 +1,15 @@
-import { Show } from "solid-js";
 import type { JSX } from "solid-js";
+import { Show } from "solid-js";
+import { formatTimer } from "@/lib/elapsedTimer";
+import { type GridSize, getBoxDims } from "@/lib/sudoku";
 import { createSudokuGame } from "@/lib/sudokuGame";
-import { getBoxDims, type GridSize } from "@/lib/sudoku";
+import GameScreen from "./GameScreen";
+import NumberPad from "./NumberPad";
 import SudokuBoard from "./SudokuBoard";
 import SudokuSetup from "./SudokuSetup";
-import NumberPad from "./NumberPad";
-import ResultScreen from "./ui/ResultScreen";
-import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import { formatTimer } from "@/lib/elapsedTimer";
+import ResultScreen from "./ui/ResultScreen";
 
 function sizeLabel(size: number): string {
   if (size === 4) return "4×4";

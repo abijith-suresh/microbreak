@@ -58,7 +58,7 @@ export default function Game2048Tile(props: Props): JSX.Element {
       <div
         class={
           "w-full h-full flex items-center justify-center rounded-md font-body font-bold select-none" +
-          (innerAnimationClass() ? " " + innerAnimationClass() : "")
+          (innerAnimationClass() ? ` ${innerAnimationClass()}` : "")
         }
         style={
           {

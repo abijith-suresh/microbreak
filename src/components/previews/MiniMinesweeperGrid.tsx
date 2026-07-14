@@ -1,4 +1,4 @@
-import { For, createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, For, onCleanup } from "solid-js";
 import { STATIC_MINESWEEPER_CELLS } from "@/data/previewGrids";
 import { PreviewFrame } from "./PreviewFrame";
 
@@ -53,6 +53,7 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
             >
               {cell === "flagged" ? (
                 <svg
+                  aria-hidden="true"
                   width="7"
                   height="7"
                   viewBox="0 0 24 24"

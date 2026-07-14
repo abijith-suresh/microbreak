@@ -4,16 +4,16 @@
  * Covers: generation, solving, validation, and edge cases
  * for 4×4, 6×6, and 9×9 grids at all difficulty levels.
  */
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  type Board,
+  type Difficulty,
+  type GridSize,
   generate,
-  validate,
-  solve,
   getConflictingCells,
   isGroupComplete,
-  type Board,
-  type GridSize,
-  type Difficulty,
+  solve,
+  validate,
 } from "../sudoku";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

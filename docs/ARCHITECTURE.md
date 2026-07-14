@@ -163,8 +163,8 @@ custom properties:
 `bun run verify` runs sequentially:
 
 1. `astro check` — TypeScript type-checking
-2. `eslint .` — Linting
-3. `prettier --check .` — Format validation
+2. `biome lint .` — Linting
+3. `biome format .` — Format validation
 4. `vitest run` — Unit tests
 5. `astro build` — Production build
 

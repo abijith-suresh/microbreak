@@ -1,5 +1,5 @@
-import { createSignal, onCleanup } from "solid-js";
 import type { JSX } from "solid-js";
+import { createSignal, onCleanup } from "solid-js";
 import type { CellState, CellValue } from "@/lib/minesweeper";
 
 interface Props {
@@ -105,6 +105,7 @@ export default function MinesweeperCell(props: Props) {
         return (
           <span class="relative inline-flex items-center justify-center">
             <svg
+              aria-hidden="true"
               width="14"
               height="14"
               viewBox="0 0 24 24"
@@ -136,6 +137,7 @@ export default function MinesweeperCell(props: Props) {
       // Normal flag
       return (
         <svg
+          aria-hidden="true"
           width="14"
           height="14"
           viewBox="0 0 24 24"
@@ -156,6 +158,7 @@ export default function MinesweeperCell(props: Props) {
         // Mine icon
         return (
           <svg
+            aria-hidden="true"
             width="14"
             height="14"
             viewBox="0 0 24 24"
@@ -226,6 +229,7 @@ export default function MinesweeperCell(props: Props) {
 
   return (
     <button
+      type="button"
       class={[
         "minesweeper-cell",
         props.cellSize,

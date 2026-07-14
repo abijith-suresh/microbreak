@@ -1,4 +1,4 @@
-import { generate, type Difficulty, type GridSize } from "./sudoku";
+import { type Difficulty, type GridSize, generate } from "./sudoku";
 
 interface SudokuGeneratorResponse {
   puzzle: (number | null)[][];

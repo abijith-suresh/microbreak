@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import { formatTimer } from "@/lib/elapsedTimer";
 import { create2048Game } from "@/lib/game2048Game";
 import Game2048Board from "./Game2048Board";
 import Game2048WinOverlay from "./Game2048WinOverlay";
@@ -6,7 +7,6 @@ import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import Button from "./ui/Button";
-import { formatTimer } from "@/lib/elapsedTimer";
 
 function formatNumber(n: number): string {
   return n.toLocaleString();
@@ -23,10 +23,7 @@ export default function Game2048App() {
     <>
       {/* ── Setup Phase (just a start button) ────────────────────────── */}
       <Show when={game.phase() === "setup"}>
-        <div
-          class="flex flex-col min-h-screen"
-          class="animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
-        >
+        <div class="flex flex-col min-h-screen animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both">
           {/* Top bar */}
           <div class="flex items-center justify-between px-5 py-4">
             <BackLink label="Games" href="/" />
@@ -43,6 +40,7 @@ export default function Game2048App() {
             </div>
 
             <button
+              type="button"
               onClick={() => game.startGame()}
               class="px-10 py-3.5 rounded-xl bg-accent text-white font-medium text-base hover:bg-accent-hover"
               style={{
@@ -82,10 +80,7 @@ export default function Game2048App() {
                   </span>
                   <Show when={game.scorePopup()}>
                     {(popup) => (
-                      <span
-                        class="absolute -top-1 left-1/2 -translate-x-1/2 text-accent font-semibold text-xs tabular-nums pointer-events-none"
-                        class="animate-score-float"
-                      >
+                      <span class="absolute -top-1 left-1/2 -translate-x-1/2 text-accent font-semibold text-xs tabular-nums pointer-events-none animate-score-float">
                         +{popup().value}
                       </span>
                     )}
@@ -112,10 +107,7 @@ export default function Game2048App() {
           <Show
             when={game.tiles.length > 0}
             fallback={
-              <div
-                class="w-full max-w-[336px] aspect-square rounded-lg bg-surface border border-border"
-                class="animate-pulse"
-              />
+              <div class="w-full max-w-[336px] aspect-square rounded-lg bg-surface border border-border animate-pulse" />
             }
           >
             <Game2048Board tiles={game.tiles} onMove={game.handleMove} />

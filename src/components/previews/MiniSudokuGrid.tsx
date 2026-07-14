@@ -1,4 +1,4 @@
-import { For, createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, For, onCleanup } from "solid-js";
 import { ALL_SUDOKU_CELLS, SUDOKU_PREVIEW_PATTERN } from "@/data/previewGrids";
 import { PreviewFrame } from "./PreviewFrame";
 

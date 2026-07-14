@@ -1,14 +1,14 @@
 import { Show } from "solid-js";
+import { formatTimer } from "@/lib/elapsedTimer";
 import { Circle } from "@/lib/icons";
-import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import type { Difficulty } from "@/lib/minesweeper";
+import { createMinesweeperGame } from "@/lib/minesweeperGame";
+import GameScreen from "./GameScreen";
 import MinesweeperBoard from "./MinesweeperBoard";
 import MinesweeperSetup from "./MinesweeperSetup";
-import ResultScreen from "./ui/ResultScreen";
-import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import { formatTimer } from "@/lib/elapsedTimer";
+import ResultScreen from "./ui/ResultScreen";
 
 function difficultyLabel(d: Difficulty): string {
   return d.charAt(0).toUpperCase() + d.slice(1);
@@ -30,13 +30,18 @@ export default function MinesweeperApp() {
 
       {/* ── Result Overlay ───────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && game.gameResult() !== null}>
-        <ResultScreen
-          type={game.gameResult()!}
-          solveTime={game.timerSeconds()}
-          difficulty={difficultyLabel(game.difficulty())}
-          onBackToGames={handleBackToGames}
-          onPlayAgain={game.playAgain}
-        />
+        {(_) => {
+          const result = _;
+          return (
+            <ResultScreen
+              type={result}
+              solveTime={game.timerSeconds()}
+              difficulty={difficultyLabel(game.difficulty())}
+              onBackToGames={handleBackToGames}
+              onPlayAgain={game.playAgain}
+            />
+          );
+        }}
       </Show>
 
       {/* ── Playing Phase ────────────────────────────────────────── */}
@@ -62,6 +67,7 @@ export default function MinesweeperApp() {
             <div class="flex flex-col items-center gap-2">
               <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
                 <button
+                  type="button"
                   onClick={() => game.digMode() || game.toggleMode()}
                   style={{
                     transition: "background-color 0.15s ease-out, color 0.15s ease-out",
@@ -73,6 +79,7 @@ export default function MinesweeperApp() {
                   }`}
                 >
                   <svg
+                    aria-hidden="true"
                     width="14"
                     height="14"
                     viewBox="0 0 24 24"
@@ -86,6 +93,7 @@ export default function MinesweeperApp() {
                   Dig
                 </button>
                 <button
+                  type="button"
                   onClick={() => !game.digMode() || game.toggleMode()}
                   style={{
                     transition: "background-color 0.15s ease-out, color 0.15s ease-out",
@@ -97,6 +105,7 @@ export default function MinesweeperApp() {
                   }`}
                 >
                   <svg
+                    aria-hidden="true"
                     width="14"
                     height="14"
                     viewBox="0 0 24 24"

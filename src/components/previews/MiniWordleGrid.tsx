@@ -1,5 +1,5 @@
-import { For, createEffect, createSignal, onCleanup } from "solid-js";
-import { WORDLE_PREVIEW_WORDS, WORDLE_PREVIEW_COLORS } from "@/data/previewGrids";
+import { createEffect, createSignal, For, onCleanup } from "solid-js";
+import { WORDLE_PREVIEW_COLORS, WORDLE_PREVIEW_WORDS } from "@/data/previewGrids";
 import { PreviewFrame } from "./PreviewFrame";
 
 const ticksPerRow = 10;

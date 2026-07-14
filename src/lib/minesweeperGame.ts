@@ -7,10 +7,13 @@
  */
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { createElapsedTimer } from "./elapsedTimer";
 import {
+  type Board,
   checkWin,
   countFlags,
   createEmptyBoard,
+  type Difficulty,
   generateBoard,
   getCurrentPresetMode,
   getDifficultyPreset,
@@ -19,8 +22,6 @@ import {
   revealAllMines,
   revealCell,
   toggleFlag,
-  type Board,
-  type Difficulty,
 } from "./minesweeper";
 import {
   isPersistedMinesweeperSession,
@@ -28,7 +29,6 @@ import {
 } from "./minesweeperSession";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
-import { createElapsedTimer } from "./elapsedTimer";
 
 export type Phase = "setup" | "playing";
 export type { Difficulty };
