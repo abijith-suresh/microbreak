@@ -1,6 +1,6 @@
 import { Index } from "solid-js";
-import WordleTile from "./WordleTile";
 import type { GuessResult, LetterState } from "@/lib/wordle";
+import WordleTile from "./WordleTile";
 
 interface Props {
   letters: string;
@@ -26,7 +26,7 @@ export default function WordleRow(props: Props) {
   };
 
   return (
-    <div class={"flex gap-1.5 sm:gap-2" + (props.isShaking ? " animate-row-shake" : "")}>
+    <div class={`flex gap-1.5 sm:gap-2${props.isShaking ? " animate-row-shake" : ""}`}>
       {/* <Index> (not <For>) is used here so that each tile DOM element is
           reused by index rather than by object identity. New plain objects
           are created on every render, so <For> would remount every tile,

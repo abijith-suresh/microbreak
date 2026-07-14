@@ -1,5 +1,5 @@
-import { createSignal } from "solid-js";
 import type { JSX } from "solid-js";
+import { createSignal } from "solid-js";
 import type { Cell } from "@/lib/sudoku";
 
 export type CellHighlight = "selected" | "row-col" | "box" | "number" | null;
@@ -111,6 +111,7 @@ export default function SudokuCell(props: Props) {
 
   return (
     <button
+      type="button"
       class={[
         "sudoku-cell",
         cellAnimationClass(),

@@ -8,30 +8,30 @@
  */
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { createElapsedTimer } from "./elapsedTimer";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
-import { createElapsedTimer } from "./elapsedTimer";
-import { buildWordList } from "./wordleWordList";
-import { isPersistedWordleSession, type PersistedWordleSession } from "./wordleSession";
+import {
+  computeGuess,
+  type GuessResult,
+  getMaxGuesses,
+  isWordValid,
+  type LetterState,
+  mergeKeyboardState,
+  pickRandomSolution,
+  type Variant,
+  type WordList,
+} from "./wordle";
 import {
   addRecentWordleAnswer,
   createEmptyRecentWordleAnswers,
   isRecentWordleAnswers,
 } from "./wordlePersistence";
-import {
-  computeGuess,
-  getMaxGuesses,
-  isWordValid,
-  mergeKeyboardState,
-  pickRandomSolution,
-  type GuessResult,
-  type LetterState,
-  type Variant,
-  type WordList,
-} from "./wordle";
+import { isPersistedWordleSession, type PersistedWordleSession } from "./wordleSession";
+import { buildWordList } from "./wordleWordList";
 
 export type Phase = "setup" | "playing";
-export type { Variant, LetterState, GuessResult };
+export type { GuessResult, LetterState, Variant };
 
 const wordListCache = new Map<Variant, Promise<WordList>>();
 

@@ -29,17 +29,22 @@ export default function Game2048WinOverlay(props: Props) {
 
   return (
     <div
-      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/90 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/90 backdrop-blur-sm sr-only"
       role="dialog"
       aria-modal="true"
       aria-labelledby="game-2048-win-title"
     >
-      <div class="sr-only" aria-live="assertive">
-        {`2048 reached with ${props.score} points`}
-      </div>
+      <div aria-live="assertive">{`2048 reached with ${props.score} points`}</div>
       {/* Star icon */}
-      <div class="mb-6" class="animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both">
-        <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
+      <div class="mb-6 animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both">
+        <svg
+          aria-hidden="true"
+          ref={(el) => (svgRef = el)}
+          width="80"
+          height="80"
+          viewBox="0 0 96 96"
+          fill="none"
+        >
           <path
             class="win-star"
             d="M48 8L56.9 35.6L86 36.2L62.7 53.8L71.2 81.6L48 64.8L24.8 81.6L33.3 53.8L10 36.2L39.1 35.6L48 8Z"
@@ -54,25 +59,18 @@ export default function Game2048WinOverlay(props: Props) {
       {/* Heading */}
       <h1
         id="game-2048-win-title"
-        class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300 fill-mode-both"
+        class="font-display text-5xl md:text-6xl text-fg italic tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300 fill-mode-both"
       >
         2048!
       </h1>
 
       {/* Score */}
-      <p
-        class="mt-3 text-2xl md:text-3xl font-light text-accent tabular-nums"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-500 fill-mode-both"
-      >
+      <p class="mt-3 text-2xl md:text-3xl font-light text-accent tabular-nums animate-in fade-in slide-in-from-bottom-2 duration-500 delay-500 fill-mode-both">
         {props.score} points
       </p>
 
       {/* Actions */}
-      <div
-        class="flex flex-col sm:flex-row items-center gap-3 mt-10"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both"
-      >
+      <div class="flex flex-col sm:flex-row items-center gap-3 mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
         <Button onClick={() => props.onKeepPlaying()}>Keep Playing</Button>
         <Button variant="secondary" onClick={() => props.onNewGame()}>
           New Game
@@ -80,10 +78,7 @@ export default function Game2048WinOverlay(props: Props) {
       </div>
 
       {/* Tagline */}
-      <p
-        class="mt-10 text-xs text-fg-tertiary tracking-widest uppercase"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both"
-      >
+      <p class="mt-10 text-xs text-fg-tertiary tracking-widest uppercase animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
         Nice break · Now back to building
       </p>
     </div>

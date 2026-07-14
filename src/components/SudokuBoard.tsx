@@ -1,10 +1,10 @@
-import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
 import {
-  getBoxDims,
   type Board,
   type Cell,
   type CompletingGroup,
   type GridSize,
+  getBoxDims,
 } from "@/lib/sudoku";
 import SudokuCell, { type CellHighlight } from "./SudokuCell";
 
@@ -79,7 +79,7 @@ export default function SudokuBoard(props: Props) {
         props.onSelectCell(-1, -1);
         break;
       default: {
-        const num = parseInt(e.key);
+        const num = parseInt(e.key, 10);
         if (num >= 1 && num <= size()) {
           e.preventDefault();
           window.dispatchEvent(

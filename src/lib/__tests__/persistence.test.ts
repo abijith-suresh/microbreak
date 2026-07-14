@@ -11,9 +11,9 @@ import {
   saveStoredString,
 } from "../storage";
 import { isPersistedSudokuSession } from "../sudokuSession";
-import { createEmptyRecentWordleAnswers, addRecentWordleAnswer } from "../wordlePersistence";
-import { isPersistedWordleSession } from "../wordleSession";
 import { pickRandomSolution } from "../wordle";
+import { addRecentWordleAnswer, createEmptyRecentWordleAnswers } from "../wordlePersistence";
+import { isPersistedWordleSession } from "../wordleSession";
 
 class LocalStorageMock {
   private store = new Map<string, string>();

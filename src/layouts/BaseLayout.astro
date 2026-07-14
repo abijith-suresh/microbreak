@@ -62,7 +62,7 @@ const imageUrl = new URL(image, url).href;
     />
     <title>{title}</title>
     <script is:inline>
-      (function () {
+      (() => {
         const stored = localStorage.getItem("microbreak-theme");
         let theme;
         if (stored === "light" || stored === "dark") {

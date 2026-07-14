@@ -5,7 +5,7 @@ interface BackLinkProps {
   label: string;
   /** When provided, renders an <a href={href}>. Mutually exclusive with onClick. */
   href?: string;
-  /** When provided, renders a <button onClick={onClick}>. Mutually exclusive with href. */
+  /** When provided, renders a <button type="button" onClick={onClick}>. Mutually exclusive with href. */
   onClick?: () => void;
 }
 
@@ -13,7 +13,7 @@ interface BackLinkProps {
  * Back-navigation control used in top bars and setup screens.
  *
  * - `href` mode:  renders an `<a>` element for page navigation.
- * - `onClick` mode: renders a `<button>` element with press-feedback animation.
+ * - `onClick` mode: renders a `<button type="button" >` element with press-feedback animation.
  *
  * Visual output and press behaviour match the patterns previously duplicated
  * across every game app and setup screen.
@@ -36,6 +36,7 @@ export default function BackLink(props: BackLinkProps) {
 
   return (
     <button
+      type="button"
       onClick={props.onClick}
       class={`${commonClasses} active:scale-[0.93] transition duration-100 ease-out`}
       aria-label={`Return to ${props.label.toLowerCase()}`}

@@ -12,7 +12,7 @@
  * @see https://lucide.dev
  */
 
-import { type JSX } from "solid-js";
+import type { JSX } from "solid-js";
 
 type IconProps = {
   size?: number;

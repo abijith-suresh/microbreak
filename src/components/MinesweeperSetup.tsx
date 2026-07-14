@@ -86,10 +86,7 @@ export default function MinesweeperSetup(props: Props) {
       {/* Setup area */}
       <div class="flex-1 flex flex-col items-center justify-center px-6 pb-16 gap-12">
         {/* Header */}
-        <div
-          class="text-center space-y-2"
-          class="animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
-        >
+        <div class="text-center space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both">
           <h1 class="font-display text-5xl md:text-6xl text-fg italic tracking-tight">
             Minesweeper
           </h1>
@@ -98,10 +95,7 @@ export default function MinesweeperSetup(props: Props) {
         </div>
 
         {/* Difficulty selection */}
-        <div
-          class="w-full max-w-md space-y-8"
-          class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 fill-mode-both"
-        >
+        <div class="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 fill-mode-both">
           <div class="space-y-3">
             <label class="text-xs font-medium text-fg-tertiary uppercase tracking-widest">
               Difficulty

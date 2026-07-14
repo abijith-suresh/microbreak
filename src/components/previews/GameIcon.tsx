@@ -6,6 +6,7 @@ export function GameIcon(props: { name: string }) {
   return (
     <Show when={path()}>
       <svg
+        aria-hidden="true"
         width="48"
         height="48"
         viewBox="0 0 24 24"

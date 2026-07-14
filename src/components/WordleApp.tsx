@@ -1,13 +1,13 @@
 import { Show } from "solid-js";
+import { formatTimer } from "@/lib/elapsedTimer";
 import { createWordleGame } from "@/lib/wordleGame";
-import WordleSetup from "./WordleSetup";
-import WordleBoard from "./WordleBoard";
-import WordleKeyboard from "./WordleKeyboard";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import ResultScreen from "./ui/ResultScreen";
-import { formatTimer } from "@/lib/elapsedTimer";
+import WordleBoard from "./WordleBoard";
+import WordleKeyboard from "./WordleKeyboard";
+import WordleSetup from "./WordleSetup";
 
 function variantLabel(v: number): string {
   return `${v} letters`;
@@ -72,10 +72,7 @@ export default function WordleApp() {
             role="status"
             aria-live="polite"
           >
-            <div
-              class="px-5 py-2.5 rounded-lg bg-fg text-bg text-sm font-bold"
-              class="animate-in fade-in slide-in-from-bottom-2 duration-200 fill-mode-both"
-            >
+            <div class="px-5 py-2.5 rounded-lg bg-fg text-bg text-sm font-bold animate-in fade-in slide-in-from-bottom-2 duration-200 fill-mode-both">
               {game.toastMessage()}
             </div>
           </div>
@@ -91,10 +88,7 @@ export default function WordleApp() {
             onPlayAgain={game.playAgain}
           >
             <Show when={game.gameResult() === "lost"}>
-              <div
-                class="mt-4 flex gap-1"
-                class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both"
-              >
+              <div class="mt-4 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both">
                 {game
                   .answer()
                   .split("")
@@ -110,10 +104,7 @@ export default function WordleApp() {
                     </div>
                   ))}
               </div>
-              <p
-                class="mt-2 text-xs text-fg-tertiary tracking-wide"
-                class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-700 fill-mode-both"
-              >
+              <p class="mt-2 text-xs text-fg-tertiary tracking-wide animate-in fade-in slide-in-from-bottom-2 duration-300 delay-700 fill-mode-both">
                 The word was{" "}
                 <span class="text-accent font-semibold uppercase tracking-widest">
                   {game.answer()}
