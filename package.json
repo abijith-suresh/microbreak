@@ -36,7 +36,8 @@
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^6.4.2",
     "solid-js": "^1.9.14",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "vite": "^7.3.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",

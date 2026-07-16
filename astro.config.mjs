@@ -8,7 +8,7 @@ export default defineConfig({
   output: "static",
   integrations: [solid()],
   vite: {
-    plugins: [tailwindcss()],
+    plugins: /** @type {any} */ (tailwindcss()),
     resolve: {
       alias: {
         "@": "/src",
