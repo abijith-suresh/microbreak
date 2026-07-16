@@ -1,6 +1,6 @@
 import { Index } from "solid-js";
-import WordleTile from "./WordleTile";
 import type { GuessResult, LetterState } from "@/lib/wordle";
+import WordleTile from "./WordleTile";
 
 interface Props {
   letters: string;

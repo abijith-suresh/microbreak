@@ -6,21 +6,21 @@
  */
 
 import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { createElapsedTimer } from "./elapsedTimer";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
+import { STORAGE_KEYS } from "./storageKeys";
 import {
-  getConflictingCells,
-  getJustCompletedGroups,
-  validate,
   type Board,
   type Cell,
   type CompletingGroup,
   type Difficulty,
   type GridSize,
+  getConflictingCells,
+  getJustCompletedGroups,
+  validate,
 } from "./sudoku";
 import { requestSudokuPuzzle } from "./sudokuGenerator";
 import { isPersistedSudokuSession, type PersistedSudokuSession } from "./sudokuSession";
-import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
-import { STORAGE_KEYS } from "./storageKeys";
-import { createElapsedTimer } from "./elapsedTimer";
 
 export type Phase = "setup" | "playing";
 export type { CompletingGroup };

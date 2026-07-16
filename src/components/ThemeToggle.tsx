@@ -1,5 +1,5 @@
 import { createSignal, onMount } from "solid-js";
-import { Sun, Moon } from "@/lib/icons";
+import { Moon, Sun } from "@/lib/icons";
 
 const STORAGE_KEY = "microbreak-theme";
 

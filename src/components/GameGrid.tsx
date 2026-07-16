@@ -1,7 +1,7 @@
-import { For, createSignal, onCleanup, onMount } from "solid-js";
-import { getOrderedGames } from "@/data/games";
-import GamePreview from "@/components/previews/GamePreview";
+import { createSignal, For, onCleanup, onMount } from "solid-js";
 import { GameIcon } from "@/components/previews/GameIcon";
+import GamePreview from "@/components/previews/GamePreview";
+import { getOrderedGames } from "@/data/games";
 
 export default function GameGrid() {
   const [animationsEnabled, setAnimationsEnabled] = createSignal(false);

@@ -1,5 +1,5 @@
-import type { GuessResult, LetterState, Variant } from "./wordle";
 import { isRecord } from "./storage";
+import type { GuessResult, LetterState, Variant } from "./wordle";
 
 export interface PersistedWordleSession {
   phase: "playing";

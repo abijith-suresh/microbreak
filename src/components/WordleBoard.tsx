@@ -1,7 +1,7 @@
 import { Index } from "solid-js";
-import WordleRow from "./WordleRow";
-import { getMaxGuesses } from "@/lib/wordle";
 import type { GuessResult, Variant } from "@/lib/wordle";
+import { getMaxGuesses } from "@/lib/wordle";
+import WordleRow from "./WordleRow";
 
 interface Props {
   variant: Variant;

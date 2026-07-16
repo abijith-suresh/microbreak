@@ -1,10 +1,10 @@
-import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
 import {
-  getBoxDims,
   type Board,
   type Cell,
   type CompletingGroup,
   type GridSize,
+  getBoxDims,
 } from "@/lib/sudoku";
 import SudokuCell, { type CellHighlight } from "./SudokuCell";
 

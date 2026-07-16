@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
 import { STATIC_2048_TILES } from "@/data/previewGrids";
 import { PreviewFrame } from "./PreviewFrame";
 

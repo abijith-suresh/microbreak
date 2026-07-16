@@ -1,5 +1,5 @@
-import { createSignal, onCleanup } from "solid-js";
 import type { JSX } from "solid-js";
+import { createSignal, onCleanup } from "solid-js";
 import type { CellState, CellValue } from "@/lib/minesweeper";
 
 interface Props {

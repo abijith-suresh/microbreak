@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import { formatTimer } from "@/lib/elapsedTimer";
 import { create2048Game } from "@/lib/game2048Game";
 import Game2048Board from "./Game2048Board";
 import Game2048WinOverlay from "./Game2048WinOverlay";
@@ -6,7 +7,6 @@ import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import Button from "./ui/Button";
-import { formatTimer } from "@/lib/elapsedTimer";
 
 function formatNumber(n: number): string {
   return n.toLocaleString();
