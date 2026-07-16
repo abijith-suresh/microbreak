@@ -48,7 +48,7 @@ export default function WordleBoard(props: Props) {
       const isRevealingCurrent = props.revealRow === currentIdx && props.pendingReveal !== null;
 
       result.push({
-        letters: isRevealingCurrent ? props.pendingReveal!.word : props.currentInput,
+        letters: isRevealingCurrent ? props.pendingReveal!.word : (props.currentInput ?? ""),
         guessResult: isRevealingCurrent ? props.pendingReveal! : undefined,
         isCurrent: !isRevealingCurrent,
         isEmpty: false,

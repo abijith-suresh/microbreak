@@ -79,7 +79,7 @@ export default function SudokuBoard(props: Props) {
         props.onSelectCell(-1, -1);
         break;
       default: {
-        const num = parseInt(e.key);
+        const num = parseInt(e.key, 10);
         if (num >= 1 && num <= size()) {
           e.preventDefault();
           window.dispatchEvent(

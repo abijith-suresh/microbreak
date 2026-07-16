@@ -80,6 +80,7 @@ export default function MinesweeperApp() {
                     stroke="currentColor"
                     stroke-width="2"
                     stroke-linecap="round"
+                    aria-label="Dig"
                   >
                     <path d="M14 2L4 14l1 5 5 1L20 10" />
                   </svg>

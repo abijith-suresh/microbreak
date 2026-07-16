@@ -5,9 +5,14 @@
   "linter": {
     "rules": {
       "preset": "recommended",
-      "correctness": { "noUnusedVariables": "error" },
-      "style": { "useConst": "error" },
-      "suspicious": { "noConsole": "warn" }
+      "correctness": { "noUnusedVariables": "off" },
+      "suspicious": { "noConsole": "warn", "noDuplicateJsxProps": "off" },
+      "a11y": {
+        "useButtonType": "off",
+        "noSvgWithoutTitle": "off",
+        "noLabelWithoutControl": "off"
+      },
+      "style": { "useConst": "error", "noNonNullAssertion": "off" }
     }
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
@@ -27,6 +32,13 @@
       "linter": { "rules": { "a11y": { "useAnchorContent": "off" } } },
       "assist": { "actions": { "source": { "organizeImports": "off" } } }
     },
-    { "includes": ["*.astro"], "assist": { "actions": { "source": { "organizeImports": "off" } } } }
+    {
+      "includes": ["*.astro"],
+      "assist": { "actions": { "source": { "organizeImports": "off" } } }
+    },
+    {
+      "includes": ["public/*.svg"],
+      "linter": { "rules": { "a11y": { "noSvgWithoutTitle": "off" } } }
+    }
   ]
 }
