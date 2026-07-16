@@ -90,9 +90,9 @@ describe("spawnTile", () => {
     const grid = createEmptyGrid();
     const result = spawnTile(grid, 1);
     expect(result).not.toBeNull();
-    expect(result!.tile.id).toBe(1);
-    expect([2, 4]).toContain(result!.tile.value);
-    expect(result!.grid[result!.tile.row][result!.tile.col]).toBe(result!.tile.value);
+    expect(result?.tile.id).toBe(1);
+    expect([2, 4]).toContain(result?.tile.value);
+    expect(result?.grid[result?.tile.row][result?.tile.col]).toBe(result?.tile.value);
   });
 
   it("returns null on a full grid", () => {

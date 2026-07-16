@@ -1,9 +1,9 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
-import ThemeToggle from "./ThemeToggle";
-import BackLink from "./ui/BackLink";
-import type { Variant } from "@/lib/wordle";
 import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
+import type { Variant } from "@/lib/wordle";
+import ThemeToggle from "./ThemeToggle";
+import BackLink from "./ui/BackLink";
 import Button from "./ui/Button";
 
 interface Props {

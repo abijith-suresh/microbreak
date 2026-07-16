@@ -1,7 +1,7 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
-import type { Difficulty, GridSize } from "@/lib/sudoku";
 import { loadStoredJSON, saveStoredJSON } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
+import type { Difficulty, GridSize } from "@/lib/sudoku";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import Button from "./ui/Button";

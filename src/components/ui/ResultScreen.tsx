@@ -1,4 +1,4 @@
-import { onMount, type JSX } from "solid-js";
+import { type JSX, onMount } from "solid-js";
 import Button from "./Button";
 
 interface Props {

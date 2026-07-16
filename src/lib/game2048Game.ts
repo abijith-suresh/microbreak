@@ -1,16 +1,17 @@
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createStore, produce, reconcile } from "solid-js/store";
+import { createElapsedTimer } from "./elapsedTimer";
 import {
   canMove,
   createEmptyGrid,
+  type Direction,
+  type Grid,
   hasWon,
   moveWithTiles,
   nextTileId,
   resetTileIdCounter,
   seedTileIdCounter,
   spawnTile,
-  type Direction,
-  type Grid,
   type Tile,
 } from "./game2048";
 import {
@@ -26,7 +27,6 @@ import {
   saveStoredNumber,
 } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
-import { createElapsedTimer } from "./elapsedTimer";
 
 export type Phase = "setup" | "playing";
 

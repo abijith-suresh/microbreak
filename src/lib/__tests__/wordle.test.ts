@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
+import words4 from "../../data/words-4.json";
+import words5 from "../../data/words-5.json";
+import words6 from "../../data/words-6.json";
 import {
   computeGuess,
   getMaxGuesses,
   isWordValid,
-  mergeKeyboardState,
   type LetterState,
+  mergeKeyboardState,
   type WordList,
 } from "../wordle";
 import { buildWordList } from "../wordleWordList";
-import words4 from "../../data/words-4.json";
-import words5 from "../../data/words-5.json";
-import words6 from "../../data/words-6.json";
 
 describe("getMaxGuesses", () => {
   it("returns guess count scaled to variant", () => {

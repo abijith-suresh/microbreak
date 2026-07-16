@@ -1,5 +1,5 @@
-import type { Variant } from "./wordle";
 import { isRecord } from "./storage";
+import type { Variant } from "./wordle";
 
 export interface RecentWordleAnswers {
   4: string[];

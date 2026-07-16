@@ -280,7 +280,7 @@ export function getConflictingCells(board: Board): Set<string> {
       const v = board[r][c];
       if (v === null) continue;
       if (!seen.has(v)) seen.set(v, []);
-      seen.get(v)!.push(c);
+      seen.get(v)?.push(c);
     }
     for (const cols of seen.values()) {
       if (cols.length > 1) {
@@ -296,7 +296,7 @@ export function getConflictingCells(board: Board): Set<string> {
       const v = board[r][c];
       if (v === null) continue;
       if (!seen.has(v)) seen.set(v, []);
-      seen.get(v)!.push(r);
+      seen.get(v)?.push(r);
     }
     for (const rows of seen.values()) {
       if (rows.length > 1) {
@@ -318,7 +318,7 @@ export function getConflictingCells(board: Board): Set<string> {
           const v = board[r][c];
           if (v === null) continue;
           if (!seen.has(v)) seen.set(v, []);
-          seen.get(v)!.push([r, c]);
+          seen.get(v)?.push([r, c]);
         }
       }
       for (const cells of seen.values()) {

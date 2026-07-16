@@ -1,14 +1,14 @@
 import { Show } from "solid-js";
+import { formatTimer } from "@/lib/elapsedTimer";
 import { Circle } from "@/lib/icons";
-import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import type { Difficulty } from "@/lib/minesweeper";
+import { createMinesweeperGame } from "@/lib/minesweeperGame";
+import GameScreen from "./GameScreen";
 import MinesweeperBoard from "./MinesweeperBoard";
 import MinesweeperSetup from "./MinesweeperSetup";
-import ResultScreen from "./ui/ResultScreen";
-import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
-import { formatTimer } from "@/lib/elapsedTimer";
+import ResultScreen from "./ui/ResultScreen";
 
 function difficultyLabel(d: Difficulty): string {
   return d.charAt(0).toUpperCase() + d.slice(1);
@@ -80,6 +80,7 @@ export default function MinesweeperApp() {
                     stroke="currentColor"
                     stroke-width="2"
                     stroke-linecap="round"
+                    aria-label="Dig"
                   >
                     <path d="M14 2L4 14l1 5 5 1L20 10" />
                   </svg>

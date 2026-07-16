@@ -1,4 +1,4 @@
-import { For, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
 import type { Board } from "@/lib/minesweeper";
 import MinesweeperCell from "./MinesweeperCell";
 

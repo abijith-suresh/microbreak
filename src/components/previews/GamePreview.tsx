@@ -1,7 +1,7 @@
 import type { GameCard } from "@/data/games";
-import { MiniSudokuGrid } from "./MiniSudokuGrid";
-import { MiniMinesweeperGrid } from "./MiniMinesweeperGrid";
 import { Mini2048Grid } from "./Mini2048Grid";
+import { MiniMinesweeperGrid } from "./MiniMinesweeperGrid";
+import { MiniSudokuGrid } from "./MiniSudokuGrid";
 import { MiniWordleGrid } from "./MiniWordleGrid";
 
 export default function GamePreview(props: { game: GameCard; animated: boolean }) {

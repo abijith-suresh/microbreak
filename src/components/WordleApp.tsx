@@ -1,13 +1,13 @@
 import { Show } from "solid-js";
+import { formatTimer } from "@/lib/elapsedTimer";
 import { createWordleGame } from "@/lib/wordleGame";
-import WordleSetup from "./WordleSetup";
-import WordleBoard from "./WordleBoard";
-import WordleKeyboard from "./WordleKeyboard";
 import GameScreen from "./GameScreen";
 import ThemeToggle from "./ThemeToggle";
 import BackLink from "./ui/BackLink";
 import ResultScreen from "./ui/ResultScreen";
-import { formatTimer } from "@/lib/elapsedTimer";
+import WordleBoard from "./WordleBoard";
+import WordleKeyboard from "./WordleKeyboard";
+import WordleSetup from "./WordleSetup";
 
 function variantLabel(v: number): string {
   return `${v} letters`;

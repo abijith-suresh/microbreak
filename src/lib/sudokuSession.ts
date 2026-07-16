@@ -1,5 +1,5 @@
-import type { Board, Difficulty, GridSize } from "./sudoku";
 import { isRecord, isTuple2 } from "./storage";
+import type { Board, Difficulty, GridSize } from "./sudoku";
 
 export interface PersistedSudokuSession {
   phase: "playing";

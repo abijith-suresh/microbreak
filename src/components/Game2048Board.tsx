@@ -1,4 +1,4 @@
-import { For, createSignal, onCleanup, onMount } from "solid-js";
+import { createSignal, For, onCleanup, onMount } from "solid-js";
 import type { Direction, Tile } from "@/lib/game2048";
 import Game2048Tile from "./Game2048Tile";
 
