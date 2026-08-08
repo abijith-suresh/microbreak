@@ -54,8 +54,7 @@ export default function ResultScreen(props: Props) {
 
   return (
     <div
-      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg"
-      class="animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelId}
@@ -114,8 +113,7 @@ export default function ResultScreen(props: Props) {
       {/* Heading */}
       <h1
         id={labelId}
-        class="font-display text-5xl md:text-6xl text-fg italic tracking-tight"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300 fill-mode-both"
+        class="font-display text-5xl md:text-6xl text-fg italic tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300 fill-mode-both"
       >
         {headingText(props.type, props.heading)}
       </h1>
@@ -138,18 +136,12 @@ export default function ResultScreen(props: Props) {
       </p>
 
       {/* Difficulty / variant info */}
-      <p
-        class="mt-1 text-xs text-fg-tertiary tracking-wide"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-500 fill-mode-both"
-      >
+      <p class="mt-1 text-xs text-fg-tertiary tracking-wide animate-in fade-in slide-in-from-bottom-2 duration-500 delay-500 fill-mode-both">
         {props.difficulty}
       </p>
 
       {/* Actions */}
-      <div
-        class="flex flex-col sm:flex-row items-center gap-3 mt-10"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both"
-      >
+      <div class="flex flex-col sm:flex-row items-center gap-3 mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
         <Button onClick={() => props.onPlayAgain()}>Play Again</Button>
         <Button variant="secondary" onClick={() => props.onBackToGames()}>
           Back to Games
@@ -157,10 +149,7 @@ export default function ResultScreen(props: Props) {
       </div>
 
       {/* Tagline */}
-      <p
-        class="mt-10 text-xs text-fg-tertiary tracking-widest uppercase"
-        class="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both"
-      >
+      <p class="mt-10 text-xs text-fg-tertiary tracking-widest uppercase animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
         {taglineText(props.type)}
       </p>
     </div>
