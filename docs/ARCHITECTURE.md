@@ -180,3 +180,6 @@ Git hooks enforce this:
 - PR titles are validated for Conventional Commits format
 - Merges to `main` trigger release-please which creates release PRs with
   changelog entries and version bumps
+- Vercel deploys with `bun install`. The install command removes a restored
+  `node_modules` first so a stale build cache cannot leave broken nested
+  packages (Astro resolving Vite in particular)
