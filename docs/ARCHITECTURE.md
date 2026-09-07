@@ -10,7 +10,7 @@
 | Language   | TypeScript (strict mode)                   |
 | Runtime    | Bun (package manager, scripts)             |
 | Testing    | Vitest                                     |
-| Linting    | ESLint + Prettier                          |
+| Linting    | Biome (lint + format)                      |
 | Git hooks  | Husky + lint-staged + commitlint           |
 | CI         | GitHub Actions                             |
 | Deployment | Vercel (static)                            |
@@ -162,15 +162,15 @@ custom properties:
 
 `bun run verify` runs sequentially:
 
-1. `astro check` — TypeScript type-checking
-2. `eslint .` — Linting
-3. `prettier --check .` — Format validation
+1. `astro sync && tsc --noEmit` — TypeScript type-checking
+2. `biome lint .` — Linting
+3. `biome format .` — Format validation
 4. `vitest run` — Unit tests
 5. `astro build` — Production build
 
 Git hooks enforce this:
 
-- `pre-commit`: lint-staged (ESLint + Prettier on staged files)
+- `pre-commit`: lint-staged (Biome on staged files)
 - `commit-msg`: commitlint (Conventional Commits)
 - `pre-push`: full verify
 
