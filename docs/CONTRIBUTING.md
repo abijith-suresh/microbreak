@@ -26,10 +26,10 @@ Available scripts:
 | `bun run dev`          | Start Astro dev server           |
 | `bun run build`        | Production build to `dist/`      |
 | `bun run preview`      | Preview production build locally |
-| `bun run type-check`   | Run `astro check` (TypeScript)   |
-| `bun run lint`         | Run ESLint                       |
+| `bun run type-check`   | Run `tsc --noEmit` (TypeScript)  |
+| `bun run lint`         | Run Biome                        |
 | `bun run lint:fix`     | Auto-fix lint issues             |
-| `bun run format`       | Run Prettier (write)             |
+| `bun run format`       | Run Biome format (write)         |
 | `bun run format:check` | Check formatting                 |
 | `bun run test`         | Run Vitest once                  |
 | `bun run test:watch`   | Run Vitest in watch mode         |
@@ -48,7 +48,7 @@ production build. The same command runs in CI on every PR.
 
 Git hooks are managed by Husky:
 
-- **pre-commit**: lint-staged runs ESLint + Prettier on staged files
+- **pre-commit**: lint-staged runs Biome on staged files
 - **commit-msg**: validates Conventional Commits format
 - **pre-push**: runs the full verify script
 
