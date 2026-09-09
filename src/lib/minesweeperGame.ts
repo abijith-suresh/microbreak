@@ -308,22 +308,13 @@ export function createMinesweeperGame() {
   }
 
   // ── Event listeners ───────────────────────────────────────────────────────
-  function handleMinesweeperAction(e: Event) {
-    const detail = (e as CustomEvent).detail;
-    if (detail) handleCellClick(detail.row, detail.col);
-  }
-
-  function handleMinesweeperFlag(e: Event) {
-    const detail = (e as CustomEvent).detail;
-    if (detail) {
-      // Force flag mode for this action
-      const currentBoard = board();
-      if (!currentBoard.length || gameResult() || !boardGenerated) return;
-      const cell = currentBoard[detail.row][detail.col];
-      if (cell.state === "revealed") return;
-      const flagged = toggleFlag(currentBoard, detail.row, detail.col);
-      setBoard(flagged);
-    }
+  /** Flag/unflag a cell regardless of the current dig/flag mode. */
+  function flagCell(row: number, col: number) {
+    const currentBoard = board();
+    if (!currentBoard.length || gameResult() || !boardGenerated) return;
+    const cell = currentBoard[row][col];
+    if (cell.state === "revealed") return;
+    setBoard(toggleFlag(currentBoard, row, col));
   }
 
   function handleVisibility() {
@@ -337,8 +328,6 @@ export function createMinesweeperGame() {
   onMount(() => {
     restoreSession();
     document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("minesweeper-action", handleMinesweeperAction);
-    window.addEventListener("minesweeper-flag", handleMinesweeperFlag);
     setPersistenceReady(true);
   });
 
@@ -350,8 +339,6 @@ export function createMinesweeperGame() {
   onCleanup(() => {
     if (typeof window === "undefined") return;
     document.removeEventListener("visibilitychange", handleVisibility);
-    window.removeEventListener("minesweeper-action", handleMinesweeperAction);
-    window.removeEventListener("minesweeper-flag", handleMinesweeperFlag);
     timer.cleanup();
     if (completionTimer) clearTimeout(completionTimer);
   });
@@ -380,6 +367,7 @@ export function createMinesweeperGame() {
     returnToSetup,
     playAgain,
     handleCellClick,
+    flagCell,
     toggleMode,
     selectCell,
   };

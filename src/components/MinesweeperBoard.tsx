@@ -12,6 +12,7 @@ interface Props {
   wrongFlags: [number, number][];
   gameOver: boolean;
   onCellClick: (row: number, col: number) => void;
+  onFlagCell: (row: number, col: number) => void;
   /** True while the pre-result animation is playing */
   isCompleting: boolean;
   /** The cell that triggered game-end — origin for animation stagger */
@@ -73,7 +74,7 @@ export default function MinesweeperBoard(props: Props) {
       case "f":
       case "F":
         e.preventDefault();
-        window.dispatchEvent(new CustomEvent("minesweeper-flag", { detail: { row, col } }));
+        props.onFlagCell(row, col);
         break;
       case "Escape":
         e.preventDefault();
@@ -186,7 +187,7 @@ export default function MinesweeperBoard(props: Props) {
               }}
               onFlag={() => {
                 props.onSelectCell(row, col);
-                window.dispatchEvent(new CustomEvent("minesweeper-flag", { detail: { row, col } }));
+                props.onFlagCell(row, col);
               }}
             />
           );
