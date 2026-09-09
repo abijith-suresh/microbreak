@@ -190,10 +190,6 @@ export function create2048Game() {
     });
   }
 
-  function restart() {
-    startGame();
-  }
-
   function returnToSetup() {
     resetState();
     setPhase("setup");
@@ -342,7 +338,6 @@ export function create2048Game() {
     timerSeconds,
     scorePopup,
     startGame,
-    restart,
     returnToSetup,
     playAgain,
     handleMove,

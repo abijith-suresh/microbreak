@@ -244,14 +244,6 @@ export function createWordleGame() {
     }
   }
 
-  function restart() {
-    if (phase() !== "playing") return;
-    startRequestId++;
-    setLoading(false);
-    resetProgress();
-    setPhase("playing");
-  }
-
   function returnToSetup() {
     startRequestId++;
     setLoading(false);
@@ -408,7 +400,6 @@ export function createWordleGame() {
     toastMessage,
     // Actions
     startGame,
-    restart,
     returnToSetup,
     playAgain,
     typeLetter,

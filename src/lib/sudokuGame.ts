@@ -218,20 +218,6 @@ export function createSudokuGame() {
     queuePuzzleGeneration(size, diff);
   }
 
-  function restart() {
-    clearPendingGeneration();
-    if (puzzle().length !== gridSize() || solution().length !== gridSize()) {
-      queuePuzzleGeneration(gridSize(), difficulty());
-      return;
-    }
-
-    resetProgress();
-    batch(() => {
-      setUserBoard(puzzle().map((row) => [...row]));
-      setSelectedCell(null);
-    });
-  }
-
   function returnToSetup() {
     clearPendingGeneration();
     prepareLoadingState();
@@ -247,6 +233,7 @@ export function createSudokuGame() {
   }
 
   function fillCell(row: number, col: number, value: Cell) {
+    if (completing() || completed()) return;
     const puz = puzzle();
     if (!puz.length) return;
     if (puz[row][col] !== null) return; // given cell — immutable
@@ -369,7 +356,6 @@ export function createSudokuGame() {
     numberPlacedCounts,
     // Actions
     startGame,
-    restart,
     returnToSetup,
     playAgain,
     selectCell,
