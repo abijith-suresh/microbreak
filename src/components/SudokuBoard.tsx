@@ -14,6 +14,7 @@ interface Props {
   size: GridSize;
   selectedCell: [number, number] | null;
   onSelectCell: (row: number, col: number) => void;
+  onFillCell: (row: number, col: number, value: Cell) => void;
   userBoard: Board;
   conflictedCells: Set<string>;
   completing: boolean;
@@ -72,7 +73,7 @@ export default function SudokuBoard(props: Props) {
       case "Backspace":
       case "Delete":
         e.preventDefault();
-        window.dispatchEvent(new CustomEvent("sudoku-erase", { detail: { row, col } }));
+        props.onFillCell(row, col, null);
         break;
       case "Escape":
         e.preventDefault();
@@ -82,9 +83,7 @@ export default function SudokuBoard(props: Props) {
         const num = parseInt(e.key, 10);
         if (num >= 1 && num <= size()) {
           e.preventDefault();
-          window.dispatchEvent(
-            new CustomEvent("sudoku-number-input", { detail: { row, col, num } })
-          );
+          props.onFillCell(row, col, num);
         }
         break;
       }

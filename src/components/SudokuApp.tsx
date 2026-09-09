@@ -169,6 +169,7 @@ export default function SudokuApp() {
               size={game.gridSize()}
               selectedCell={game.selectedCell()}
               onSelectCell={game.selectCell}
+              onFillCell={game.fillCell}
               userBoard={game.userBoard()}
               conflictedCells={game.conflictedCells()}
               completing={game.completing()}

@@ -308,16 +308,6 @@ export function createSudokuGame() {
   }
 
   // ── Event listeners ───────────────────────────────────────────────────────
-  function handleSudokuNumberInput(e: Event) {
-    const detail = (e as CustomEvent).detail;
-    if (detail) fillCell(detail.row, detail.col, detail.num);
-  }
-
-  function handleSudokuErase(e: Event) {
-    const detail = (e as CustomEvent).detail;
-    if (detail) fillCell(detail.row, detail.col, null);
-  }
-
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
       stopTimer();
@@ -329,8 +319,6 @@ export function createSudokuGame() {
   onMount(() => {
     restoreSession();
     document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("sudoku-number-input", handleSudokuNumberInput);
-    window.addEventListener("sudoku-erase", handleSudokuErase);
     setPersistenceReady(true);
   });
 
@@ -342,8 +330,6 @@ export function createSudokuGame() {
   onCleanup(() => {
     if (typeof window === "undefined") return;
     document.removeEventListener("visibilitychange", handleVisibility);
-    window.removeEventListener("sudoku-number-input", handleSudokuNumberInput);
-    window.removeEventListener("sudoku-erase", handleSudokuErase);
     clearPendingGeneration();
     timer.cleanup();
     if (groupSweepTimer) clearTimeout(groupSweepTimer);

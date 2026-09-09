@@ -130,6 +130,7 @@ export default function MinesweeperApp() {
               wrongFlags={game.wrongFlags()}
               gameOver={false}
               onCellClick={game.handleCellClick}
+              onFlagCell={game.flagCell}
               isCompleting={game.completing()}
               completionOrigin={game.completionOrigin()}
             />
