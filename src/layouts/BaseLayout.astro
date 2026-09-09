@@ -10,7 +10,7 @@ interface Props {
 const {
   title = "Microbreak — Puzzles for the gaps between builds",
   description = "Short, non-addictive puzzles to fill build wait time with healthy microbreaks.",
-  image = "/og-image.svg",
+  image = "/og-image.png",
 } = Astro.props;
 
 const url = new URL(Astro.url.pathname, Astro.site);
@@ -37,6 +37,7 @@ const imageUrl = new URL(image, url).href;
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
@@ -63,6 +64,7 @@ const imageUrl = new URL(image, url).href;
     <title>{title}</title>
     <script is:inline>
       (function () {
+        const THEME_COLORS = { light: "#c45d3e", dark: "#e07a5a" };
         const stored = localStorage.getItem("microbreak-theme");
         let theme;
         if (stored === "light" || stored === "dark") {
@@ -71,6 +73,8 @@ const imageUrl = new URL(image, url).href;
           theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         }
         document.documentElement.setAttribute("data-theme", theme);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", THEME_COLORS[theme]);
       })();
     </script>
   </head>
