@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   dependency-review:
-    uses: abijith-suresh/workflows/.github/workflows/dependency-review.yml@0f257b2642d2a010fefe0ff9d03374799d73eb44 # Release Please v0.3.0
+    uses: abijith-suresh/workflows/.github/workflows/dependency-review.yml@e2088a6610d40b7c978e6e8e7ca3272be8d06020 # Release Please v0.4.0
     with:
       fail-on-severity: high
     permissions:
