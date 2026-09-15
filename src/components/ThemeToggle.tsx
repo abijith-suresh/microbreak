@@ -3,12 +3,16 @@ import { Moon, Sun } from "@/lib/icons";
 
 const STORAGE_KEY = "microbreak-theme";
 
+const THEME_COLORS = { light: "#c45d3e", dark: "#e07a5a" };
+
 function getSystemTheme(): "light" | "dark" {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function applyTheme(theme: "light" | "dark") {
   document.documentElement.setAttribute("data-theme", theme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", THEME_COLORS[theme]);
 }
 
 export function initTheme(): "light" | "dark" {
