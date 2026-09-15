@@ -376,7 +376,6 @@ export function createMinesweeperGame() {
     mineCounter,
     // Actions
     startGame,
-    restart,
     returnToSetup,
     playAgain,
     handleCellClick,
