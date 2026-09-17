@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.15](https://github.com/abijith-suresh/microbreak/compare/v0.0.14...v0.0.15) (2026-09-15)
+
+
+### Bug Fixes
+
+* remove unused restart and guard sudoku completion window ([#158](https://github.com/abijith-suresh/microbreak/issues/158)) ([999fd90](https://github.com/abijith-suresh/microbreak/commit/999fd90475dbc7ed90a04e88aadee9bc115532c7))
+* ship PNG social preview image and theme-aware theme-color ([#157](https://github.com/abijith-suresh/microbreak/issues/157)) ([e0942ab](https://github.com/abijith-suresh/microbreak/commit/e0942abc892e0d1376dd766ae2b75918d0ad1687))
+
 ## [0.0.14](https://github.com/abijith-suresh/microbreak/compare/v0.0.13...v0.0.14) (2026-09-07)
 
 
