@@ -9,7 +9,7 @@
 | Styling    | Tailwind CSS v4 (Vite plugin, not PostCSS) |
 | Language   | TypeScript (strict mode)                   |
 | Runtime    | Bun (package manager, scripts)             |
-| Testing    | Vitest                                     |
+| Testing    | Vitest, Playwright (browser smoke tests)   |
 | Linting    | Biome (lint + format)                      |
 | Git hooks  | Husky + lint-staged + commitlint           |
 | CI         | GitHub Actions                             |
@@ -98,6 +98,9 @@ public/
 ├── favicon.svg
 ├── og-image.svg
 └── fonts/                     Self-hosted WOFF2 fonts
+
+tests/e2e/                     Playwright browser tests
+playwright.config.ts           Playwright config (projects, preview server, traces)
 ```
 
 ## Game Architecture Pattern
@@ -176,7 +179,14 @@ Git hooks enforce this:
 
 ## CI/CD
 
-- PRs to `main` run the full quality gate
+- PRs to `main` run the shared workflow
+  `abijith-suresh/workflows/.github/workflows/ci.yml`: Bun from `mise.toml`,
+  `bun install --frozen-lockfile`, type-check, lint, format check, unit tests,
+  build, then the Playwright suite (chromium, firefox, webkit)
+- The caller-side `gate` job depends on the shared CI call so branch protection
+  can require one stable check
+- A failing browser run uploads `test-results/` and `playwright-report/` as the
+  `browser-test-results` artifact
 - PR titles are validated for Conventional Commits format
 - Merges to `main` trigger release-please which creates release PRs with
   changelog entries and version bumps

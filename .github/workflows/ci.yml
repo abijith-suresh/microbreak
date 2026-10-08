@@ -4,16 +4,33 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: quality
-    uses: abijith-suresh/workflows/.github/workflows/bun-quality.yml@163055ac24b4169ae93ae05c5d7491b1cd5d96c7 # v0.6.0
+  ci:
+    name: CI
     permissions:
       contents: read
+    uses: abijith-suresh/workflows/.github/workflows/ci.yml@a53b4c876bca362ca058c99c01c4c0a955d71c9d # 0.7.0
+
+  gate:
+    name: gate
+    if: ${{ !cancelled() }}
+    needs: [ci]
+    runs-on: ubuntu-24.04
+    permissions: {}
+    steps:
+      - name: Require CI success
+        shell: bash
+        env:
+          CI_RESULT: ${{ needs.ci.result }}
+        run: |
+          set -euo pipefail
+          if [[ "$CI_RESULT" != success ]]; then
+            echo "CI result: $CI_RESULT" >&2
+            exit 1
+          fi

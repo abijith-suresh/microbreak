@@ -32,6 +32,7 @@ Available scripts:
 | `bun run format`       | Run Biome format (write)         |
 | `bun run format:check` | Check formatting                 |
 | `bun run test`         | Run Vitest once                  |
+| `bun run test:e2e`     | Build and run Playwright browser tests |
 | `bun run test:watch`   | Run Vitest in watch mode         |
 | `bun run verify`       | Run full quality gate            |
 
@@ -44,7 +45,18 @@ bun run verify
 ```
 
 This executes type-checking, linting, format check, unit tests, and a
-production build. The same command runs in CI on every PR.
+production build.
+
+Browser tests run separately and need Playwright browsers installed once:
+
+```bash
+bunx playwright install chromium
+bun run test:e2e
+```
+
+`test:e2e` builds the site and runs the suite in `tests/e2e/` against Playwright's
+own preview server. CI runs the same steps through the shared workflow, with
+chromium, firefox, and webkit.
 
 Git hooks are managed by Husky:
 
