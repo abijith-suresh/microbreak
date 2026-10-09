@@ -183,8 +183,9 @@ Git hooks enforce this:
   `abijith-suresh/workflows/.github/workflows/ci.yml`: Bun from `mise.toml`,
   `bun install --frozen-lockfile`, type-check, lint, format check, unit tests,
   build, then the Playwright suite (chromium, firefox, webkit)
-- The caller-side `gate` job depends on the shared CI call so branch protection
-  can require one stable check
+- The same caller runs the shared dependency review; the caller-side `gate` job
+  needs the CI and dependency-review calls so branch protection can require one
+  stable check
 - A failing browser run uploads `test-results/` and `playwright-report/` as the
   `browser-test-results` artifact
 - PR titles are validated for Conventional Commits format
