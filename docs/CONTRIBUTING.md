@@ -51,7 +51,7 @@ production build.
 Browser tests run separately and need Playwright browsers installed once:
 
 ```bash
-bunx playwright install chromium
+bunx playwright install --with-deps chromium firefox webkit
 bun run test:e2e:build
 ```
 
