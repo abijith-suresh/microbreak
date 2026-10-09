@@ -21,20 +21,21 @@ bun run dev
 
 Available scripts:
 
-| Command                | Description                      |
-| ---------------------- | -------------------------------- |
-| `bun run dev`          | Start Astro dev server           |
-| `bun run build`        | Production build to `dist/`      |
-| `bun run preview`      | Preview production build locally |
-| `bun run type-check`   | Run `tsc --noEmit` (TypeScript)  |
-| `bun run lint`         | Run Biome                        |
-| `bun run lint:fix`     | Auto-fix lint issues             |
-| `bun run format`       | Run Biome format (write)         |
-| `bun run format:check` | Check formatting                 |
-| `bun run test`         | Run Vitest once                  |
-| `bun run test:e2e`     | Build and run Playwright browser tests |
-| `bun run test:watch`   | Run Vitest in watch mode         |
-| `bun run verify`       | Run full quality gate            |
+| Command                  | Description                                    |
+| ------------------------ | ---------------------------------------------- |
+| `bun run dev`            | Start Astro dev server                         |
+| `bun run build`          | Production build to `dist/`                    |
+| `bun run preview`        | Preview production build locally               |
+| `bun run type-check`     | Run `tsc --noEmit` (TypeScript)                |
+| `bun run lint`           | Run Biome                                      |
+| `bun run lint:fix`       | Auto-fix lint issues                           |
+| `bun run format`         | Run Biome format (write)                       |
+| `bun run format:check`   | Check formatting                               |
+| `bun run test`           | Run Vitest once                                |
+| `bun run test:e2e`       | Run Playwright tests against an existing build |
+| `bun run test:e2e:build` | Build, then run Playwright tests               |
+| `bun run test:watch`     | Run Vitest in watch mode                       |
+| `bun run verify`         | Run full quality gate                          |
 
 ## Quality Gate
 
@@ -51,12 +52,13 @@ Browser tests run separately and need Playwright browsers installed once:
 
 ```bash
 bunx playwright install chromium
-bun run test:e2e
+bun run test:e2e:build
 ```
 
-`test:e2e` builds the site and runs the suite in `tests/e2e/` against Playwright's
-own preview server. CI runs the same steps through the shared workflow, with
-chromium, firefox, and webkit.
+`test:e2e:build` builds the site, then runs the suite in `tests/e2e/` against
+Playwright's own preview server. `test:e2e` runs the same suite against the
+existing `dist/` build. CI runs `bun run build` followed by `bun run test:e2e`
+through the shared workflow, with chromium, firefox, and webkit.
 
 Git hooks are managed by Husky:
 
