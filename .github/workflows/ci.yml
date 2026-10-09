@@ -4,16 +4,46 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: quality
-    uses: abijith-suresh/workflows/.github/workflows/bun-quality.yml@163055ac24b4169ae93ae05c5d7491b1cd5d96c7 # v0.6.0
+  ci:
+    name: CI
     permissions:
       contents: read
+    uses: abijith-suresh/workflows/.github/workflows/ci.yml@6838f8e2495013c024606bbf8d63d3d5c66344fa # 0.8.0
+
+  dependency-review:
+    name: dependency-review
+    permissions:
+      contents: read
+    uses: abijith-suresh/workflows/.github/workflows/dependency-review.yml@6838f8e2495013c024606bbf8d63d3d5c66344fa # 0.8.0
+    with:
+      fail-on-severity: high
+
+  gate:
+    name: gate
+    if: ${{ !cancelled() }}
+    needs: [ci, dependency-review]
+    runs-on: ubuntu-24.04
+    permissions: {}
+    steps:
+      - name: Require CI and dependency review success
+        shell: bash
+        env:
+          CI_RESULT: ${{ needs.ci.result }}
+          DEPENDENCY_REVIEW_RESULT: ${{ needs.dependency-review.result }}
+        run: |
+          set -euo pipefail
+          if [[ "$CI_RESULT" != success ]]; then
+            echo "CI result: $CI_RESULT" >&2
+            exit 1
+          fi
+          if [[ "$DEPENDENCY_REVIEW_RESULT" != success ]]; then
+            echo "Dependency review result: $DEPENDENCY_REVIEW_RESULT" >&2
+            exit 1
+          fi
