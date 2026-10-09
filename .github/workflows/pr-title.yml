@@ -10,6 +10,6 @@ permissions:
 jobs:
   pr-title:
     name: pr-title
-    uses: abijith-suresh/workflows/.github/workflows/conventional-commit-title.yml@163055ac24b4169ae93ae05c5d7491b1cd5d96c7 # v0.6.0
+    uses: abijith-suresh/workflows/.github/workflows/conventional-commit-title.yml@6838f8e2495013c024606bbf8d63d3d5c66344fa # 0.8.0
     permissions:
       pull-requests: read
