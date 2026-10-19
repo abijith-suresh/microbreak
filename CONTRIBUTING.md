@@ -26,7 +26,7 @@ Available scripts:
 | `bun run dev`            | Start Astro dev server                         |
 | `bun run build`          | Production build to `dist/`                    |
 | `bun run preview`        | Preview production build locally               |
-| `bun run type-check`     | Run `tsc --noEmit` (TypeScript)                |
+| `bun run type-check`     | Run `astro sync && tsc --noEmit`               |
 | `bun run lint`           | Run Biome                                      |
 | `bun run lint:fix`       | Auto-fix lint issues                           |
 | `bun run format`         | Run Biome format (write)                       |
@@ -46,7 +46,7 @@ bun run verify
 ```
 
 This executes type-checking, linting, format check, unit tests, and a
-production build.
+production build sequentially.
 
 Browser tests run separately and need Playwright browsers installed once:
 
@@ -74,12 +74,9 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/):
 type(optional-scope): subject
 ```
 
-Allowed types: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `ci`, `build`
-
-Rules:
-
-- Subject must be ≤ 72 characters
-- Subject must not end with a period
+The allowed types and the enforced subject rules (maximum length, trailing
+period) live in `commitlint.config.ts`. Update the config there rather than
+restating the list in prose.
 
 Releases are automated via release-please based on commit messages. Before v1.0.0:
 
