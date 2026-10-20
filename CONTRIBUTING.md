@@ -26,7 +26,7 @@ Available scripts:
 | `bun run dev`            | Start Astro dev server                         |
 | `bun run build`          | Production build to `dist/`                    |
 | `bun run preview`        | Preview production build locally               |
-| `bun run type-check`     | Run `tsc --noEmit` (TypeScript)                |
+| `bun run type-check`     | Run `astro sync && tsc --noEmit`               |
 | `bun run lint`           | Run Biome                                      |
 | `bun run lint:fix`       | Auto-fix lint issues                           |
 | `bun run format`         | Run Biome format (write)                       |
@@ -45,8 +45,8 @@ Before pushing, run:
 bun run verify
 ```
 
-This executes type-checking, linting, format check, unit tests, and a
-production build.
+That is the agreement: a green `verify` plus focused tests for the logic you
+touched. CI owns the full suite.
 
 Browser tests run separately and need Playwright browsers installed once:
 
@@ -66,6 +66,16 @@ Git hooks are managed by Husky:
 - **commit-msg**: validates Conventional Commits format
 - **pre-push**: runs the full verify script
 
+## Pull Requests
+
+- Branch, open one pull request, squash merge. Never push directly to `main`.
+- Keep a pull request scoped to one concern; leave unrelated refactors and
+  formatting fixes out.
+- Run `bun run test:e2e:build` when you change UI flows.
+- Never hand-edit `CHANGELOG.md`; it is release-please output.
+- New games follow the same layered shape as the existing ones — see
+  [Adding a New Game](#adding-a-new-game).
+
 ## Commit Convention
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/):
@@ -74,12 +84,9 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/):
 type(optional-scope): subject
 ```
 
-Allowed types: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `ci`, `build`
-
-Rules:
-
-- Subject must be ≤ 72 characters
-- Subject must not end with a period
+The allowed types and the enforced subject rules (maximum length, trailing
+period) live in `commitlint.config.ts`. Update the config there rather than
+restating the list in prose.
 
 Releases are automated via release-please based on commit messages. Before v1.0.0:
 
