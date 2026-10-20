@@ -45,8 +45,8 @@ Before pushing, run:
 bun run verify
 ```
 
-This executes type-checking, linting, format check, unit tests, and a
-production build sequentially.
+That is the agreement: a green `verify` plus focused tests for the logic you
+touched. CI owns the full suite.
 
 Browser tests run separately and need Playwright browsers installed once:
 
@@ -65,6 +65,16 @@ Git hooks are managed by Husky:
 - **pre-commit**: lint-staged runs Biome on staged files
 - **commit-msg**: validates Conventional Commits format
 - **pre-push**: runs the full verify script
+
+## Pull Requests
+
+- Branch, open one pull request, squash merge. Never push directly to `main`.
+- Keep a pull request scoped to one concern; leave unrelated refactors and
+  formatting fixes out.
+- Run `bun run test:e2e:build` when you change UI flows.
+- Never hand-edit `CHANGELOG.md`; it is release-please output.
+- New games follow the same layered shape as the existing ones — see
+  [Adding a New Game](#adding-a-new-game).
 
 ## Commit Convention
 
