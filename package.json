@@ -33,17 +33,17 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@astrojs/solid-js": "^7.1.1",
-    "@lucide/astro": "^1.61.0",
+    "@astrojs/solid-js": "^7.1.2",
+    "@lucide/astro": "^1.64.0",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.4.2",
-    "solid-js": "^1.9.17",
+    "astro": "^7.4.4",
+    "solid-js": "^1.9.18",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@biomejs/biome": "^2.6.2",
+    "@biomejs/biome": "^2.6.4",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@playwright/test": "^1.64.1",
