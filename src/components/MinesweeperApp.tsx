@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 import { formatTimer } from "@/lib/elapsedTimer";
 import { Circle, Flag } from "@/lib/icons";
-import type { Difficulty } from "@/lib/minesweeper";
+import { DIFFICULTY_PRESETS, type Difficulty } from "@/lib/minesweeper";
 import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import GameScreen from "./GameScreen";
 import MinesweeperBoard from "./MinesweeperBoard";
@@ -11,7 +11,7 @@ import BackLink from "./ui/BackLink";
 import ResultScreen from "./ui/ResultScreen";
 
 function difficultyLabel(d: Difficulty): string {
-  return d.charAt(0).toUpperCase() + d.slice(1);
+  return DIFFICULTY_PRESETS[d].label;
 }
 
 export default function MinesweeperApp() {
@@ -102,7 +102,7 @@ export default function MinesweeperApp() {
                 </button>
               </div>
               <p class="text-xs text-fg-tertiary tracking-wide text-center">
-                Tap to dig · right-click or hold to flag
+                Hold or right-click to flag
               </p>
             </div>
           }

@@ -46,7 +46,7 @@ export default function Game2048App() {
                 transition: "background-color 0.2s ease, transform 0.1s ease-out",
               }}
             >
-              New Game
+              Start
             </button>
 
             <p class="text-xs text-fg-tertiary tracking-wide">
@@ -123,20 +123,20 @@ export default function Game2048App() {
             <div
               class="sr-only"
               aria-live="assertive"
-            >{`2048 game over with ${formatNumber(game.score())} points`}</div>
+            >{`Game over, ${formatNumber(game.score())} points`}</div>
             <h1
               id="game-2048-over-title"
               class="font-display text-5xl text-fg italic tracking-tight"
             >
-              Game Over
+              Game over
             </h1>
             <p class="mt-3 text-2xl font-light text-fg-secondary tabular-nums">
               {formatNumber(game.score())} points
             </p>
             <div class="flex items-center gap-3 mt-8">
-              <Button onClick={game.playAgain}>Try Again</Button>
+              <Button onClick={game.playAgain}>Play again</Button>
               <Button variant="secondary" onClick={handleBackToGames}>
-                Back to Games
+                Back to games
               </Button>
             </div>
           </div>

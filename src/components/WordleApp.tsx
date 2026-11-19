@@ -104,12 +104,6 @@ export default function WordleApp() {
                     </div>
                   ))}
               </div>
-              <p class="mt-2 text-xs text-fg-tertiary tracking-wide animate-in fade-in slide-in-from-bottom-2 duration-300 delay-700 fill-mode-both">
-                The word was{" "}
-                <span class="text-accent font-semibold uppercase tracking-widest">
-                  {game.answer()}
-                </span>
-              </p>
             </Show>
           </ResultScreen>
         </Show>
