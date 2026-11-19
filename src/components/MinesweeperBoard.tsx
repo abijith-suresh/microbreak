@@ -1,4 +1,5 @@
 import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
+import { shouldIgnoreGameKey } from "@/lib/keyboard";
 import type { Board } from "@/lib/minesweeper";
 import MinesweeperCell from "./MinesweeperCell";
 
@@ -38,6 +39,7 @@ export default function MinesweeperBoard(props: Props) {
 
   // ── Keyboard navigation ────────────────────────────────────────────────────
   function handleKeyDown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     const sel = props.selectedCell;
     if (!sel) {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
@@ -124,6 +126,7 @@ export default function MinesweeperBoard(props: Props) {
 
   return (
     <div
+      data-game-keys
       class="inline-grid rounded-sm overflow-hidden border-2 border-border-strong shadow-md shadow-shadow"
       style={{ "grid-template-columns": `repeat(${cols()}, auto)` }}
     >

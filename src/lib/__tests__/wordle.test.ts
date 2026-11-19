@@ -4,6 +4,7 @@ import words5 from "../../data/words-5.json";
 import words6 from "../../data/words-6.json";
 import {
   computeGuess,
+  getGameResult,
   getMaxGuesses,
   isWordValid,
   type LetterState,
@@ -17,6 +18,24 @@ describe("getMaxGuesses", () => {
     expect(getMaxGuesses(4)).toBe(5);
     expect(getMaxGuesses(5)).toBe(6);
     expect(getMaxGuesses(6)).toBe(7);
+  });
+});
+
+describe("getGameResult", () => {
+  const miss = { word: "slate", states: Array<LetterState>(5).fill("absent") };
+  const hit = { word: "crane", states: Array<LetterState>(5).fill("correct") };
+
+  it("is won when the last guess is all correct", () => {
+    expect(getGameResult([miss, hit], 5)).toBe("won");
+  });
+
+  it("is lost when guesses run out without a win", () => {
+    expect(getGameResult(Array(6).fill(miss), 5)).toBe("lost");
+  });
+
+  it("is still in progress otherwise", () => {
+    expect(getGameResult([], 5)).toBeNull();
+    expect(getGameResult([miss], 5)).toBeNull();
   });
 });
 
