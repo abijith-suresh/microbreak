@@ -52,6 +52,7 @@ export default function NumberPad(props: Props) {
       <div class={`grid ${cols()} gap-1.5 justify-items-center`}>
         {numbers().map((num) => (
           <button
+            type="button"
             onClick={() => props.onNumber(num)}
             disabled={isDone(num)}
             onPointerDown={() => !isDone(num) && setPressedNum(num)}
@@ -76,6 +77,7 @@ export default function NumberPad(props: Props) {
       </div>
 
       <button
+        type="button"
         onClick={() => props.onErase()}
         onPointerDown={() => setErasePressed(true)}
         onPointerUp={() => setErasePressed(false)}

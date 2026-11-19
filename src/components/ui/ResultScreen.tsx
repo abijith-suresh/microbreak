@@ -73,7 +73,14 @@ export default function ResultScreen(props: Props) {
       {/* Icon */}
       <div class="mb-6 animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both">
         {isWon() ? (
-          <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
+          <svg
+            aria-hidden="true"
+            ref={(el) => (svgRef = el)}
+            width="80"
+            height="80"
+            viewBox="0 0 96 96"
+            fill="none"
+          >
             <circle
               class="result-checkmark-circle"
               cx="48"
@@ -94,7 +101,7 @@ export default function ResultScreen(props: Props) {
             />
           </svg>
         ) : (
-          <svg width="80" height="80" viewBox="0 0 96 96" fill="none">
+          <svg aria-hidden="true" width="80" height="80" viewBox="0 0 96 96" fill="none">
             <circle
               cx="48"
               cy="48"

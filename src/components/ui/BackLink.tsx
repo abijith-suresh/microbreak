@@ -44,6 +44,7 @@ export default function BackLink(props: BackLinkProps) {
 
   return (
     <button
+      type="button"
       onClick={props.onClick}
       class={`${commonClasses} active:scale-[0.93] transition duration-100 ease-out`}
       aria-label={ariaLabel}

@@ -104,6 +104,7 @@ export default function SudokuCell(props: Props) {
 
   return (
     <button
+      type="button"
       class={[
         "sudoku-cell",
         cellAnimationClass(),

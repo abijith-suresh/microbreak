@@ -48,6 +48,7 @@ export default function WordleKeyboard(props: Props) {
 
                 return (
                   <button
+                    type="button"
                     onClick={() => handleKey(key)}
                     aria-label={key === "Backspace" ? "Backspace" : undefined}
                     class="flex items-center justify-center rounded-md font-bold uppercase select-none transition-colors duration-150"

@@ -43,6 +43,7 @@ export default function Game2048App() {
             </div>
 
             <button
+              type="button"
               onClick={() => game.startGame()}
               class="px-10 py-3.5 rounded-xl bg-accent text-white font-medium text-base hover:bg-accent-hover"
               style={{

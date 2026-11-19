@@ -64,6 +64,7 @@ export default function MinesweeperApp() {
             <div class="flex flex-col items-center gap-2 pb-4">
               <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
                 <button
+                  type="button"
                   onClick={() => game.digMode() || game.toggleMode()}
                   aria-pressed={game.digMode()}
                   style={{
@@ -76,6 +77,7 @@ export default function MinesweeperApp() {
                   }`}
                 >
                   <svg
+                    aria-hidden="true"
                     width="14"
                     height="14"
                     viewBox="0 0 24 24"
@@ -89,6 +91,7 @@ export default function MinesweeperApp() {
                   Dig
                 </button>
                 <button
+                  type="button"
                   onClick={() => !game.digMode() || game.toggleMode()}
                   aria-pressed={!game.digMode()}
                   style={{
