@@ -1,14 +1,23 @@
 # microbreak — agent brief
 
-A small collection of short, non-addictive puzzle games for the moments between builds, test runs, deployments, and package installs.
+Puzzle games that make you think, for the minutes while your coding agents work.
 
 ## The Project
 
-Microbreak exists to replace mindless scrolling with a few minutes of genuine mental engagement, then get out of the way. Everything runs in the browser: no accounts, no server, no tracking.
+Microbreak is a brain gym for agent wait time. Instead of scrolling while an agent runs, you play
+a game that takes real thought, drop it the moment the agent needs you, and pick it up later
+exactly where you left it.
 
-What makes it special is restraint. Every game is short by design and ends cleanly, and there are no ads, streaks, notifications, leaderboards, or analytics. These are non-negotiables, not roadmap items. A change that needs a backend, an external API, tracking, or an engagement hook to work does not belong here.
+- **Thinking games.** Each game earns its place by how much thought it takes, not by being a
+  classic. Games that play on reflex can be switched off.
+- **Built for interruption.** Every game saves as you play and resumes after a reload, a closed
+  tab, or a day away. Play is unlimited.
+- **Private and local.** Everything runs in the browser. No accounts, backend, ads, or tracking.
+  Progress stays on the device: today that's a personal best per game.
+- **No nagging.** No streaks, notifications, or leaderboards. The goal is to replace a habit, not
+  build one.
 
-Status: maintained — shipped as a static site with no backend.
+Status: maintained, shipped as a static site.
 
 ## Sources of Truth
 
