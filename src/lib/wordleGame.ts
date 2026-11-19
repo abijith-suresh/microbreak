@@ -8,6 +8,7 @@
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createElapsedTimer } from "./elapsedTimer";
+import { shouldIgnoreGameKey } from "./keyboard";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import {
@@ -325,6 +326,7 @@ export function createWordleGame() {
 
   // ── Event listeners ───────────────────────────────────────────────────────
   function handleKeydown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     if (phase() !== "playing") return;
     if (gameResult() !== null) return;
 

@@ -19,6 +19,7 @@ import {
   isPersisted2048Session,
   type Persisted2048Session,
 } from "./game2048Session";
+import { shouldIgnoreGameKey } from "./keyboard";
 import {
   loadStoredJSON,
   loadStoredNumber,
@@ -263,6 +264,7 @@ export function create2048Game() {
   // ── Keyboard handling ───────────────────────────────────────────────────
 
   function handleKeydown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     const dirMap: Record<string, Direction> = {
       ArrowLeft: "left",
       ArrowRight: "right",
