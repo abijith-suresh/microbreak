@@ -183,7 +183,7 @@ export function create2048Game() {
 
   function handleMove(dir: Direction) {
     if (phase() !== "playing") return;
-    if (gameOver()) return;
+    if (gameOver() || hasShownWin()) return;
 
     const result = moveWithTiles(tiles, dir);
     if (!result.moved) return;
