@@ -140,7 +140,7 @@ export default function WordleSetup(props: Props) {
             disabled={props.loading}
             style={{ opacity: props.loading ? "0.7" : "1" }}
           >
-            {props.loading ? "Loading..." : "Start Game"}
+            {props.loading ? "Loading..." : "Start"}
           </Button>
         </div>
       </div>
