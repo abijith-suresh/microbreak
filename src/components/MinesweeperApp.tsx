@@ -61,7 +61,7 @@ export default function MinesweeperApp() {
           }
           right={<ThemeToggle />}
           belowContent={
-            <div class="flex flex-col items-center gap-2">
+            <div class="flex flex-col items-center gap-2 pb-4">
               <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
                 <button
                   onClick={() => game.digMode() || game.toggleMode()}
