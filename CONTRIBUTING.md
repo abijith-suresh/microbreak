@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- **Node.js 22** (exact version in `mise.toml`; `engines` requires 22.x)
-- **Bun** (version in `.bun-version`)
+- **Node.js 24** (exact version in `mise.toml`)
+- **Bun** (exact version in `mise.toml`)
 
 Install dependencies:
 

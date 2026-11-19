@@ -1,5 +1,6 @@
 {
   "name": "microbreak",
+  "private": true,
   "type": "module",
   "packageManager": "bun@1.4.1",
   "version": "0.0.15",
@@ -11,9 +12,6 @@
   },
   "bugs": {
     "url": "https://github.com/abijith-suresh/microbreak/issues"
-  },
-  "engines": {
-    "node": "22.x"
   },
   "scripts": {
     "dev": "astro dev",
