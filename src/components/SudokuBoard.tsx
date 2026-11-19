@@ -1,4 +1,5 @@
 import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
+import { shouldIgnoreGameKey } from "@/lib/keyboard";
 import {
   type Board,
   type Cell,
@@ -43,6 +44,7 @@ export default function SudokuBoard(props: Props) {
 
   // ── Keyboard navigation ────────────────────────────────────────────────────
   function handleKeyDown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     const sel = props.selectedCell;
     if (!sel) {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {

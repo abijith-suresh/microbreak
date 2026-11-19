@@ -8,12 +8,13 @@
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createElapsedTimer } from "./elapsedTimer";
+import { shouldIgnoreGameKey } from "./keyboard";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import {
   computeGuess,
   type GuessResult,
-  getMaxGuesses,
+  getGameResult,
   isWordValid,
   type LetterState,
   mergeKeyboardState,
@@ -123,7 +124,6 @@ export function createWordleGame() {
       phase() !== "playing" ||
       loading() ||
       gameResult() !== null ||
-      revealRow() >= 0 ||
       !wordList ||
       answer().length !== variant()
     ) {
@@ -131,15 +131,19 @@ export function createWordleGame() {
       return;
     }
 
+    // A guess mid-flip is already decided, so save it as committed.
+    const pending = pendingReveal();
+    const committed = pending ? [...guesses(), pending] : guesses();
+
     const session: PersistedWordleSession = {
       phase: "playing",
       variant: variant(),
       answer: answer(),
-      guesses: guesses().map((guess) => ({
+      guesses: committed.map((guess) => ({
         word: guess.word,
         states: [...guess.states],
       })),
-      currentInput: currentInput(),
+      currentInput: pending ? "" : currentInput(),
       timerSeconds: timerSeconds(),
       hasStartedPlaying,
     };
@@ -156,6 +160,7 @@ export function createWordleGame() {
       const loadedWordList = await loadWordList(session.variant);
       wordList = loadedWordList;
       hasStartedPlaying = session.hasStartedPlaying;
+      const result = getGameResult(session.guesses, session.variant);
 
       batch(() => {
         setPhase("playing");
@@ -166,7 +171,7 @@ export function createWordleGame() {
         );
         setCurrentInput(session.currentInput);
         setKeyboardState(buildKeyboardFromGuesses(session.guesses));
-        setGameResult(null);
+        setGameResult(result);
         setShakeRow(false);
         setRevealRow(-1);
         setPendingReveal(null);
@@ -174,7 +179,7 @@ export function createWordleGame() {
         setToastMessage("");
       });
 
-      if (hasStartedPlaying && document.visibilityState === "visible") {
+      if (!result && hasStartedPlaying && document.visibilityState === "visible") {
         timer.start();
       }
     } finally {
@@ -300,8 +305,7 @@ export function createWordleGame() {
     revealTimer = setTimeout(() => {
       const newGuesses = [...guesses(), result];
       const newKeyboard = mergeKeyboardState(keyboardState(), result);
-      const didWin = states.every((s) => s === "correct");
-      const didLose = !didWin && newGuesses.length >= getMaxGuesses(v);
+      const outcome = getGameResult(newGuesses, v);
 
       batch(() => {
         setGuesses(newGuesses);
@@ -310,9 +314,9 @@ export function createWordleGame() {
         setRevealRow(-1);
         setPendingReveal(null);
 
-        if (didWin || didLose) {
+        if (outcome) {
           timer.stop();
-          setGameResult(didWin ? "won" : "lost");
+          setGameResult(outcome);
         }
       });
 
@@ -322,6 +326,7 @@ export function createWordleGame() {
 
   // ── Event listeners ───────────────────────────────────────────────────────
   function handleKeydown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     if (phase() !== "playing") return;
     if (gameResult() !== null) return;
 

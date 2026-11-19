@@ -1,7 +1,9 @@
 import { createSignal, onMount } from "solid-js";
 import { Moon, Sun } from "@/lib/icons";
+import { loadStoredString, saveStoredString } from "@/lib/storage";
+import { STORAGE_KEYS } from "@/lib/storageKeys";
 
-const STORAGE_KEY = "microbreak-theme";
+const THEMES = ["light", "dark"] as const;
 
 const THEME_COLORS = { light: "#c45d3e", dark: "#e07a5a" };
 
@@ -19,15 +21,14 @@ export default function ThemeToggle() {
   const [current, setCurrent] = createSignal<"light" | "dark">("light");
 
   onMount(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as "light" | "dark" | null;
-    const theme = stored || getSystemTheme();
+    const theme = loadStoredString(STORAGE_KEYS.theme, THEMES, getSystemTheme());
     setCurrent(theme);
     applyTheme(theme);
   });
 
   function toggle() {
     const next = current() === "light" ? "dark" : "light";
-    localStorage.setItem(STORAGE_KEY, next);
+    saveStoredString(STORAGE_KEYS.theme, next);
     setCurrent(next);
     applyTheme(next);
   }

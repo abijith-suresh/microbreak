@@ -213,7 +213,7 @@ export function createMinesweeperGame() {
   function handleCellClick(row: number, col: number) {
     const currentBoard = board();
     if (!currentBoard.length) return;
-    if (gameResult()) return; // Game is over
+    if (gameResult() || completing()) return; // Game is over
 
     const cell = currentBoard[row][col];
 
@@ -300,7 +300,7 @@ export function createMinesweeperGame() {
   /** Flag/unflag a cell regardless of the current dig/flag mode. */
   function flagCell(row: number, col: number) {
     const currentBoard = board();
-    if (!currentBoard.length || gameResult() || !boardGenerated) return;
+    if (!currentBoard.length || gameResult() || completing() || !boardGenerated) return;
     const cell = currentBoard[row][col];
     if (cell.state === "revealed") return;
     setBoard(toggleFlag(currentBoard, row, col));
