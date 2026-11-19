@@ -385,7 +385,8 @@ describe("edge cases", () => {
         const vals = new Set<number>();
         for (let r = br * boxRows; r < (br + 1) * boxRows; r++) {
           for (let c = bc * boxCols; c < (bc + 1) * boxCols; c++) {
-            vals.add(solution[r][c]!);
+            const value = solution[r][c];
+            if (value !== null) vals.add(value);
           }
         }
         expect(vals.size).toBe(6);
@@ -408,7 +409,8 @@ describe("edge cases", () => {
         const vals = new Set<number>();
         for (let r = br * boxRows; r < (br + 1) * boxRows; r++) {
           for (let c = bc * boxCols; c < (bc + 1) * boxCols; c++) {
-            vals.add(solution[r][c]!);
+            const value = solution[r][c];
+            if (value !== null) vals.add(value);
           }
         }
         expect(vals.size).toBe(4);

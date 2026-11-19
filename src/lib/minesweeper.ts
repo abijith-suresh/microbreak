@@ -233,8 +233,8 @@ export function revealCell(board: Board, row: number, col: number): Board {
   const visited = new Set<string>();
   visited.add(`${row},${col}`);
 
-  while (queue.length > 0) {
-    const [r, c] = queue.shift()!;
+  for (let head = 0; head < queue.length; head++) {
+    const [r, c] = queue[head];
     const cell = newBoard[r][c];
 
     if (cell.state !== "hidden") continue;
