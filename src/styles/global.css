@@ -330,8 +330,6 @@ body {
   }
 }
 
-/* setupExit, skeletonPulse, fadeIn, scaleIn replaced by tw-animate-css */
-
 @keyframes checkmark {
   0% {
     stroke-dashoffset: 48;

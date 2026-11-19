@@ -1,5 +1,6 @@
 import { createEffect, createSignal, For, onCleanup } from "solid-js";
 import { STATIC_MINESWEEPER_CELLS } from "@/data/previewGrids";
+import { Flag } from "@/lib/icons";
 import { PreviewFrame } from "./PreviewFrame";
 
 export function MiniMinesweeperGrid(props: { animated: boolean }) {
@@ -52,18 +53,7 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
               }}
             >
               {cell === "flagged" ? (
-                <svg
-                  width="7"
-                  height="7"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--color-accent)"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                >
-                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                  <line x1="4" y1="22" x2="4" y2="15" />
-                </svg>
+                <Flag size={7} strokeWidth={2.5} stroke="var(--color-accent)" />
               ) : null}
             </div>
           )}

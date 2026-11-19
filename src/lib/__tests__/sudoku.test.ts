@@ -1,7 +1,7 @@
 /**
  * Comprehensive tests for the Sudoku engine.
  *
- * Covers: generation, solving, validation, and edge cases
+ * Covers: generation, validation, and edge cases
  * for 4×4, 6×6, and 9×9 grids at all difficulty levels.
  */
 import { describe, expect, it } from "vitest";
@@ -12,7 +12,6 @@ import {
   generate,
   getConflictingCells,
   isGroupComplete,
-  solve,
   validate,
 } from "../sudoku";
 
@@ -105,21 +104,6 @@ function getBoxDims(size: number): [number, number] {
   if (size === 4) return [2, 2];
   if (size === 6) return [2, 3];
   return [3, 3];
-}
-
-/** Parse a board string using . as blank */
-function parseBoard(input: string, size: GridSize): Board {
-  const chars = input.split("");
-  const board: Board = [];
-  for (let row = 0; row < size; row++) {
-    const rowValues: (number | null)[] = [];
-    for (let col = 0; col < size; col++) {
-      const ch = chars[row * size + col];
-      rowValues.push(ch === "." ? null : Number(ch));
-    }
-    board.push(rowValues);
-  }
-  return board;
 }
 
 /** Independent solution counter used to verify uniqueness claims */
@@ -260,11 +244,8 @@ describe("generate", () => {
         });
 
         it("puzzle should have a unique solution", () => {
-          // Generate the puzzle and verify the solution is obtainable via solve()
-          const { puzzle, solution } = generate(size, difficulty);
-          const solved = solve(puzzle);
-          expect(solved).not.toBeNull();
-          expect(solved).toEqual(solution);
+          const { puzzle } = generate(size, difficulty);
+          expect(countSolutionsIndependent(puzzle, 2)).toBe(1);
         });
       });
     }
@@ -308,66 +289,6 @@ describe("generate", () => {
       expect(countSolutionsIndependent(puzzle, 2)).toBe(1);
     }
   });
-});
-
-// ─── Solve Tests ────────────────────────────────────────────────────────────
-
-describe("solve", () => {
-  it("should solve a 9×9 easy puzzle back to its solution", () => {
-    const { puzzle, solution } = generate(9, "easy");
-    const solved = solve(puzzle);
-    expect(solved).toEqual(solution);
-  });
-
-  it("should solve a known 9×9 reference puzzle from sudoku.js", () => {
-    const puzzle = parseBoard(
-      ".17..69..356194.2..89..71.6.65...273872563419.43...685521......798..53..634...59.",
-      9
-    );
-    const expected = parseBoard(
-      "217386954356194728489257136165948273872563419943712685521439867798625341634871592",
-      9
-    );
-    expect(solve(puzzle)).toEqual(expected);
-  });
-
-  it("should solve a 4×4 puzzle", () => {
-    const { puzzle, solution } = generate(4, "easy");
-    const solved = solve(puzzle);
-    expect(solved).toEqual(solution);
-  });
-
-  it("should solve a 6×6 puzzle", () => {
-    const { puzzle, solution } = generate(6, "medium");
-    const solved = solve(puzzle);
-    expect(solved).toEqual(solution);
-  });
-
-  it("should return null for an unsolvable board", () => {
-    // Create an impossible board: two 1s in the first row
-    const board: Board = [
-      [1, 1, null, null],
-      [null, null, null, null],
-      [null, null, null, null],
-      [null, null, null, null],
-    ];
-    expect(solve(board)).toBeNull();
-  });
-
-  it("should return null for an empty 9×9 board with conflicting constraint", () => {
-    // First row has two 1s — immediate conflict
-    const board: Board = Array.from({ length: 9 }, () => Array(9).fill(null));
-    board[0][0] = 1;
-    board[0][1] = 1;
-    // Our solver should detect this quickly since placing values will fail
-    const result = solve(board);
-    // Even if it doesn't explicitly check, the backtracker should bail out
-    // since no valid placement exists for row 0
-    expect(result).toBeNull();
-  });
-
-  // NOTE: Solving a completely empty 9×9 board is equivalent to generating
-  // a full solution from scratch — too slow for a test. Skipped intentionally.
 });
 
 // ─── Validate Tests ─────────────────────────────────────────────────────────
@@ -445,7 +366,6 @@ describe("validate", () => {
       [4, 3, 2, 1],
     ] as Board;
     expect(validate(board)).toBe(false);
-    expect(solve(board)).toBeNull();
   });
 });
 
