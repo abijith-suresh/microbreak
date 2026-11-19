@@ -44,7 +44,7 @@ CI runs `verify` and the browser tests in Chromium, Firefox, and WebKit on every
 ## Product rules
 
 Read [AGENTS.md § The Project](AGENTS.md#the-project) before you propose a feature. A change
-that needs a backend, tracking, or an engagement hook will be turned down.
+that needs accounts, a backend, tracking, or streaks will be turned down.
 
 ## Adding a game
 

@@ -1,7 +1,6 @@
 # Microbreak
 
-Short puzzle games for the minutes you spend waiting on a build, a test run, or a deploy.
-Play one round, then get back to work.
+Puzzle games that make you think, for the minutes while your coding agents work.
 
 Play at [microbreak.vercel.app](https://microbreak.vercel.app).
 
@@ -10,14 +9,16 @@ Play at [microbreak.vercel.app](https://microbreak.vercel.app).
 - [Sudoku](https://microbreak.vercel.app/sudoku): 4×4, 6×6, or 9×9 boards
 - [Wordle](https://microbreak.vercel.app/wordle): 4, 5, or 6 letter words
 - [Minesweeper](https://microbreak.vercel.app/minesweeper): presets sized for phones and desktops
-- [2048](https://microbreak.vercel.app/2048): swipe or use the arrow keys
 
-A round takes a few minutes. There are no ads, accounts, tracking, streaks,
-notifications, or leaderboards. Your progress stays in your browser.
+Drop a game the moment your agent needs you. It saves as you play, so you pick up exactly where
+you left off, even after closing the tab. Play as long as you like.
+
+Everything stays in your browser. There are no accounts, ads, tracking, streaks, notifications,
+or leaderboards.
 
 ## Run it locally
 
-You need Bun and Node 22. Exact versions are in `mise.toml`.
+You need Bun and Node 24. Exact versions are in `mise.toml`.
 
 ```bash
 git clone https://github.com/abijith-suresh/microbreak.git
