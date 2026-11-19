@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 import { formatTimer } from "@/lib/elapsedTimer";
-import { Circle } from "@/lib/icons";
+import { Circle, Flag } from "@/lib/icons";
 import type { Difficulty } from "@/lib/minesweeper";
 import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import GameScreen from "./GameScreen";
@@ -97,19 +97,7 @@ export default function MinesweeperApp() {
                       : "bg-surface text-fg-tertiary hover:text-fg"
                   }`}
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                    <line x1="4" y1="22" x2="4" y2="15" />
-                  </svg>
+                  <Flag size={14} />
                   Flag
                 </button>
               </div>
@@ -128,7 +116,6 @@ export default function MinesweeperApp() {
               onSelectCell={game.selectCell}
               triggeredMine={game.triggeredMine()}
               wrongFlags={game.wrongFlags()}
-              gameOver={false}
               onCellClick={game.handleCellClick}
               onFlagCell={game.flagCell}
               isCompleting={game.completing()}

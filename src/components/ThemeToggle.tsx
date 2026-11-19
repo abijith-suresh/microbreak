@@ -15,14 +15,6 @@ function applyTheme(theme: "light" | "dark") {
   if (meta) meta.setAttribute("content", THEME_COLORS[theme]);
 }
 
-export function initTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "light";
-  const stored = localStorage.getItem(STORAGE_KEY) as "light" | "dark" | null;
-  const theme = stored || getSystemTheme();
-  applyTheme(theme);
-  return theme;
-}
-
 export default function ThemeToggle() {
   const [current, setCurrent] = createSignal<"light" | "dark">("light");
 

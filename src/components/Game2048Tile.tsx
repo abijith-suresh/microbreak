@@ -10,7 +10,7 @@ interface Props {
   gap: number;
 }
 
-function getTileColor(value: number): string {
+export function getTileColor(value: number): string {
   if (value <= 2048) return `var(--color-tile-${value})`;
   return "var(--color-tile-super)";
 }
