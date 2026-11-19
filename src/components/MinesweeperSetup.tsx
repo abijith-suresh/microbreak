@@ -90,7 +90,7 @@ export default function MinesweeperSetup(props: Props) {
           <h1 class="font-display text-5xl md:text-6xl text-fg italic tracking-tight">
             Minesweeper
           </h1>
-          <p class="text-sm text-fg-tertiary tracking-wide">Choose your challenge</p>
+          <p class="text-sm text-fg-tertiary tracking-wide">Avoid the mines</p>
           <div class="mx-auto mt-3 h-px w-12 bg-accent opacity-40" />
         </div>
 
@@ -148,7 +148,7 @@ export default function MinesweeperSetup(props: Props) {
             class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}
           >
-            Start Game
+            Start
           </Button>
         </div>
       </div>
