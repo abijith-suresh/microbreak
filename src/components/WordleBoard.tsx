@@ -1,5 +1,5 @@
 import { Index } from "solid-js";
-import type { GuessResult, Variant } from "@/lib/wordle";
+import type { GuessResult, LetterState, Variant } from "@/lib/wordle";
 import { getMaxGuesses } from "@/lib/wordle";
 import WordleRow from "./WordleRow";
 
@@ -12,6 +12,12 @@ interface Props {
   gameResult: "won" | "lost" | null;
   pendingReveal: GuessResult | null;
 }
+
+const STATE_WORDS: Record<LetterState, string> = {
+  correct: "correct",
+  present: "wrong spot",
+  absent: "not in word",
+};
 
 export default function WordleBoard(props: Props) {
   const maxGuesses = () => getMaxGuesses(props.variant);
@@ -75,8 +81,17 @@ export default function WordleBoard(props: Props) {
     return result;
   };
 
+  const lastGuess = () => {
+    const g = props.guesses.at(-1);
+    if (!g) return "";
+    return [...g.word].map((l, i) => `${l.toUpperCase()} ${STATE_WORDS[g.states[i]]}`).join(", ");
+  };
+
   return (
     <div class="flex flex-col items-center gap-1.5 sm:gap-2">
+      <p class="sr-only" aria-live="polite">
+        {lastGuess()}
+      </p>
       {/* <Index> keeps each row's DOM element alive across re-renders so the
           CSS flip transition fires correctly (it needs an existing element
           going from rotateX(0°) → rotateX(180°), not a fresh mount at 180°). */}
