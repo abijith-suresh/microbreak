@@ -125,7 +125,6 @@ export default function SudokuApp() {
       <Show when={game.phase() === "playing" && game.completed()}>
         <ResultScreen
           type="won"
-          heading="Solved"
           solveTime={game.timerSeconds()}
           difficulty={difficultyString(game.gridSize(), game.difficulty())}
           onBackToGames={handleBackToGames}

@@ -38,7 +38,7 @@ export default function BackLink(props: BackLinkProps) {
     <button
       onClick={props.onClick}
       class={`${commonClasses} active:scale-[0.93] transition duration-100 ease-out`}
-      aria-label={`Return to ${props.label.toLowerCase()}`}
+      aria-label={`Back to ${props.label.toLowerCase()}`}
     >
       {icon}
       {label}

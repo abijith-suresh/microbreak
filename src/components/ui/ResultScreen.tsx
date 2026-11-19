@@ -5,7 +5,7 @@ interface Props {
   type: "won" | "lost";
   solveTime: number;
   difficulty: string;
-  /** Optional override for the heading (defaults to "Cleared" / "Game Over") */
+  /** Optional override for the heading (defaults to "Solved" / "Game over") */
   heading?: string;
   onBackToGames: () => void;
   onPlayAgain: () => void;
@@ -22,11 +22,13 @@ function formatTime(seconds: number): string {
 
 function headingText(type: "won" | "lost", override?: string): string {
   if (override) return override;
-  return type === "won" ? "Cleared" : "Game Over";
+  return type === "won" ? "Solved" : "Game over";
 }
 
 function taglineText(type: "won" | "lost"): string {
-  return type === "won" ? "Nice break · Now back to building" : "Shake it off · Try again";
+  return type === "won"
+    ? "Nice break · Now back to building"
+    : "Shake it off · Now back to building";
 }
 
 export default function ResultScreen(props: Props) {
@@ -61,8 +63,8 @@ export default function ResultScreen(props: Props) {
     >
       <div class="sr-only" aria-live="assertive">
         {isWon()
-          ? `Puzzle cleared in ${formatTime(props.solveTime)} on ${props.difficulty}`
-          : `Game over after ${formatTime(props.solveTime)} on ${props.difficulty}`}
+          ? `Solved in ${formatTime(props.solveTime)}, ${props.difficulty}`
+          : `Game over after ${formatTime(props.solveTime)}, ${props.difficulty}`}
       </div>
 
       {/* Icon */}
@@ -142,9 +144,9 @@ export default function ResultScreen(props: Props) {
 
       {/* Actions */}
       <div class="flex flex-col sm:flex-row items-center gap-3 mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
-        <Button onClick={() => props.onPlayAgain()}>Play Again</Button>
+        <Button onClick={() => props.onPlayAgain()}>Play again</Button>
         <Button variant="secondary" onClick={() => props.onBackToGames()}>
-          Back to Games
+          Back to games
         </Button>
       </div>
 
