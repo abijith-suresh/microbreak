@@ -1,7 +1,11 @@
 export type Validator<T> = (value: unknown) => value is T;
 
 export function canUseStorage(): boolean {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  try {
+    return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  } catch {
+    return false;
+  }
 }
 
 export function loadStoredJSON<T>(key: string, validate: Validator<T>): T | null {
@@ -89,8 +93,19 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-export function isTuple2(value: unknown): value is [number, number] {
+export function isCellInGrid(
+  value: unknown,
+  rows: number,
+  cols: number
+): value is [number, number] {
   return (
-    Array.isArray(value) && value.length === 2 && value.every((item) => typeof item === "number")
+    Array.isArray(value) &&
+    value.length === 2 &&
+    Number.isInteger(value[0]) &&
+    Number.isInteger(value[1]) &&
+    value[0] >= 0 &&
+    value[0] < rows &&
+    value[1] >= 0 &&
+    value[1] < cols
   );
 }
