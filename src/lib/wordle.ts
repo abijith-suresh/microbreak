@@ -71,7 +71,6 @@ export function computeGuess(guess: string, answer: string): LetterState[] {
  * Check if a word is a valid guess (exists in either solutions or guesses list).
  */
 export function isWordValid(word: string, wordList: WordList): boolean {
-  // Binary search since lists are sorted
   return binarySearch(wordList.guesses, word) || binarySearch(wordList.solutions, word);
 }
 

@@ -1,20 +1,7 @@
 import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
 import { STATIC_2048_TILES } from "@/data/previewGrids";
+import { getTileColor } from "../Game2048Tile";
 import { PreviewFrame } from "./PreviewFrame";
-
-const tileColors: Record<number, string> = {
-  2: "var(--color-tile-2)",
-  4: "var(--color-tile-4)",
-  8: "var(--color-tile-8)",
-  16: "var(--color-tile-16)",
-  32: "var(--color-tile-32)",
-  64: "var(--color-tile-64)",
-  128: "var(--color-tile-128)",
-  256: "var(--color-tile-256)",
-  512: "var(--color-tile-512)",
-  1024: "var(--color-tile-1024)",
-  2048: "var(--color-tile-2048)",
-};
 
 export function Mini2048Grid(props: { animated: boolean }) {
   const [tiles, setTiles] =
@@ -78,8 +65,7 @@ export function Mini2048Grid(props: { animated: boolean }) {
                           (props.animated ? " animate-tile-appear" : "")
                         }
                         style={{
-                          "background-color":
-                            tileColors[entry().value] || "var(--color-tile-super)",
+                          "background-color": getTileColor(entry().value),
                           color:
                             entry().value <= 4
                               ? "var(--color-tile-text)"

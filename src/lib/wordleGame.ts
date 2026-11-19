@@ -1,8 +1,7 @@
 /**
  * createWordleGame — SolidJS composable for all Wordle game state.
  *
- * Mirrors the sudokuGame.ts / minesweeperGame.ts architecture:
- * encapsulates signals, derived values, actions, keyboard listeners,
+ * Encapsulates signals, derived values, actions, keyboard listeners,
  * timer management, and lazy word-list loading so WordleApp.tsx can be
  * a pure layout shell.
  */
@@ -60,26 +59,11 @@ export function createWordleGame() {
 
   // ── Internal mutable state ───────────────────────────────────────────────
   let wordList: WordList | null = null;
-  let timerRunning = false;
   let shakeTimer: ReturnType<typeof setTimeout> | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
   let revealTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedPlaying = false;
   let startRequestId = 0;
-
-  // ── Timer ─────────────────────────────────────────────────────────────────
-  function startTimer() {
-    if (timerRunning) return;
-    timer.start();
-    timerRunning = true;
-  }
-
-  function stopTimer() {
-    if (timerRunning) {
-      timer.stop();
-      timerRunning = false;
-    }
-  }
 
   // ── Toast ─────────────────────────────────────────────────────────────────
   function showToast(message: string, duration = 1500) {
@@ -93,7 +77,7 @@ export function createWordleGame() {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function resetProgress() {
-    stopTimer();
+    timer.stop();
     if (shakeTimer) {
       clearTimeout(shakeTimer);
       shakeTimer = null;
@@ -191,7 +175,7 @@ export function createWordleGame() {
       });
 
       if (hasStartedPlaying && document.visibilityState === "visible") {
-        startTimer();
+        timer.start();
       }
     } finally {
       setLoading(false);
@@ -300,7 +284,7 @@ export function createWordleGame() {
     // Start timer on first valid guess
     if (!hasStartedPlaying) {
       hasStartedPlaying = true;
-      startTimer();
+      timer.start();
     }
 
     // Set the pending reveal — tile components will delay color changes
@@ -327,7 +311,7 @@ export function createWordleGame() {
         setPendingReveal(null);
 
         if (didWin || didLose) {
-          stopTimer();
+          timer.stop();
           setGameResult(didWin ? "won" : "lost");
         }
       });
@@ -355,9 +339,9 @@ export function createWordleGame() {
 
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
-      stopTimer();
+      timer.stop();
     } else if (hasStartedPlaying && !gameResult()) {
-      startTimer();
+      timer.start();
     }
   }
 
@@ -376,8 +360,7 @@ export function createWordleGame() {
     if (typeof window === "undefined") return;
     document.removeEventListener("keydown", handleKeydown);
     document.removeEventListener("visibilitychange", handleVisibility);
-    timer.cleanup();
-    timerRunning = false;
+    timer.stop();
     if (shakeTimer) clearTimeout(shakeTimer);
     if (toastTimer) clearTimeout(toastTimer);
     if (revealTimer) clearTimeout(revealTimer);

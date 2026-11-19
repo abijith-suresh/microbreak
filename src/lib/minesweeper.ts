@@ -23,13 +23,6 @@ export interface CellData {
 
 export type Board = CellData[][];
 
-export interface GameResult {
-  board: Board;
-  status: "playing" | "won" | "lost";
-  /** Position of the mine the player clicked (only set on loss) */
-  triggeredMine: [number, number] | null;
-}
-
 export interface DifficultyPreset {
   rows: number;
   cols: number;
@@ -110,11 +103,6 @@ export function getCurrentPresetMode(
   const mobile = MOBILE_DIFFICULTY_PRESETS[difficulty];
   if (mobile.rows === rows && mobile.cols === cols && mobile.mines === mineCount) {
     return "mobile";
-  }
-
-  const desktop = DIFFICULTY_PRESETS[difficulty];
-  if (desktop.rows === rows && desktop.cols === cols && desktop.mines === mineCount) {
-    return "desktop";
   }
 
   return "desktop";

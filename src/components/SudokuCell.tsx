@@ -64,9 +64,6 @@ export default function SudokuCell(props: Props) {
     return "";
   };
 
-  // ── Border colour ──────────────────────────────────────────────────────────
-  const borderColorClass = () => "border-border";
-
   // ── Error ring (inset, covers all 4 sides independently of border system) ─
   const errorRingClass = () => (props.isError ? "ring-2 ring-inset ring-error" : "");
 
@@ -76,14 +73,8 @@ export default function SudokuCell(props: Props) {
       ? "hover:bg-surface-hover"
       : "";
 
-  // ── Combined style (animation + press transform) ───────────────────────────
-  /**
-   * Always returns an object with both `animation` and `transform` so SolidJS
-   * reliably clears whichever property is not in use, preventing stale styles
-   * from a previous phase bleeding into the next.
-   *
-   * Priority: entrance > completion wave > group sweep > normal (error/press)
-   */
+  // ── Animation class ────────────────────────────────────────────────────────
+  /** Priority: entrance > completion wave > group sweep > error flash */
   const cellAnimationClass = (): string => {
     // 1. Board entrance — cells materialise centre-outward
     if (props.entering) return "animate-cell-reveal";
@@ -117,7 +108,7 @@ export default function SudokuCell(props: Props) {
         props.cellSize,
         props.fontSize,
         props.borderClasses,
-        borderColorClass(),
+        "border-border",
         errorRingClass(),
         bgClass(),
         textClass(),

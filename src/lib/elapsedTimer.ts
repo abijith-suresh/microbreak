@@ -29,16 +29,11 @@ export function createElapsedTimer(options: ElapsedTimerOptions) {
     options.setValue(nextValue);
   }
 
-  function cleanup() {
-    stop();
-  }
-
   return {
     start,
     stop,
     reset,
     set,
-    cleanup,
   };
 }
 

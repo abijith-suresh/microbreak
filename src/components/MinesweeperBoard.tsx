@@ -10,7 +10,6 @@ interface Props {
   onSelectCell: (row: number, col: number) => void;
   triggeredMine: [number, number] | null;
   wrongFlags: [number, number][];
-  gameOver: boolean;
   onCellClick: (row: number, col: number) => void;
   onFlagCell: (row: number, col: number) => void;
   /** True while the pre-result animation is playing */
@@ -172,7 +171,6 @@ export default function MinesweeperBoard(props: Props) {
               isTriggeredMine={isTriggeredMine()}
               isWrongFlag={isWrongFlag()}
               isSelected={isSelected()}
-              gameOver={props.gameOver}
               cellSize={cs}
               fontSize={fs}
               borderClasses={borders}
