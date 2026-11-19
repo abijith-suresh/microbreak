@@ -1,0 +1,18 @@
+---
+import Game2048App from "@/components/Game2048App";
+import { games } from "@/data/games";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Dynamic only so a disabled game is not built: no paths, no page.
+export function getStaticPaths() {
+  const enabled = games.find((game) => game.name === "2048")?.enabled !== false;
+  return enabled ? [{ params: { slug: "2048" } }] : [];
+}
+---
+
+<BaseLayout
+  title="2048 — Microbreak"
+  description="Swipe-friendly tile merging for numbers-oriented microbreaks."
+>
+  <Game2048App client:load />
+</BaseLayout>
