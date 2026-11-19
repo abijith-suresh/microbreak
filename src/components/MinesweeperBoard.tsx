@@ -158,7 +158,10 @@ export default function MinesweeperBoard(props: Props) {
           const completingDelay = () => {
             const origin = props.completionOrigin;
             return props.isCompleting && origin
-              ? (Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 35
+              ? Math.round(
+                  ((Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 300) /
+                    (rows() + cols() - 2)
+                )
               : 0;
           };
 
