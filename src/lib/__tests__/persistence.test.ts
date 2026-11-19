@@ -174,6 +174,43 @@ describe("session validators", () => {
   });
 });
 
+describe("saved selectedCell", () => {
+  const sudoku = {
+    phase: "playing",
+    gridSize: 4,
+    difficulty: "easy",
+    puzzle: Array.from({ length: 4 }, () => [null, null, null, null]),
+    solution: Array.from({ length: 4 }, () => [1, 2, 3, 4]),
+    userBoard: Array.from({ length: 4 }, () => [null, null, null, null]),
+    timerSeconds: 0,
+    selectedCell: null,
+    hasStartedFilling: false,
+  };
+  const minesweeper = {
+    phase: "playing",
+    difficulty: "beginner",
+    board: [[{ state: "hidden", value: 0, isMine: false }]],
+    rows: 1,
+    cols: 1,
+    mineCount: 0,
+    timerSeconds: 0,
+    selectedCell: null,
+    digMode: true,
+    hasStartedPlaying: false,
+    boardGenerated: false,
+  };
+
+  it.each([[[4, 0]], [[0, -1]], [[1.5, 0]]])("rejects %j", (selectedCell) => {
+    expect(isPersistedSudokuSession({ ...sudoku, selectedCell })).toBe(false);
+    expect(isPersistedMinesweeperSession({ ...minesweeper, selectedCell })).toBe(false);
+  });
+
+  it("accepts a cell inside the grid", () => {
+    expect(isPersistedSudokuSession({ ...sudoku, selectedCell: [3, 3] })).toBe(true);
+    expect(isPersistedMinesweeperSession({ ...minesweeper, selectedCell: [0, 0] })).toBe(true);
+  });
+});
+
 describe("wordle persistence helpers", () => {
   it("accepts a valid in-progress wordle session", () => {
     const session = {
