@@ -1,9 +1,8 @@
 /**
  * createMinesweeperGame — SolidJS composable for all Minesweeper game state.
  *
- * Mirrors the sudokuGame.ts architecture: encapsulates signals, derived values,
- * actions, timer management, and event listeners so MinesweeperApp.tsx can be
- * a pure layout shell.
+ * Encapsulates signals, derived values, actions, timer management, and event
+ * listeners so MinesweeperApp.tsx can be a pure layout shell.
  */
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
@@ -65,18 +64,9 @@ export function createMinesweeperGame() {
   let hasStartedPlaying = false;
   let boardGenerated = false;
 
-  // ── Timer ─────────────────────────────────────────────────────────────────
-  function startTimer() {
-    timer.start();
-  }
-
-  function stopTimer() {
-    timer.stop();
-  }
-
   // ── Helpers ───────────────────────────────────────────────────────────────
   function resetProgress() {
-    stopTimer();
+    timer.stop();
     if (completionTimer !== null) {
       clearTimeout(completionTimer);
       completionTimer = null;
@@ -150,14 +140,13 @@ export function createMinesweeperGame() {
     });
 
     if (hasStartedPlaying && document.visibilityState === "visible") {
-      startTimer();
+      timer.start();
     }
   }
 
   // ── Completion helper ─────────────────────────────────────────────────────
   /**
    * Plays the pre-result animation then shows the result screen.
-   * Mirrors sudokuGame's `setCompleting(true) → setTimeout → setCompleted(true)`.
    *
    * @param result  "won" | "lost"
    * @param originRow  Row of the cell that ended the game (for stagger origin).
@@ -244,12 +233,12 @@ export function createMinesweeperGame() {
 
         if (!hasStartedPlaying) {
           hasStartedPlaying = true;
-          startTimer();
+          timer.start();
         }
 
         // Check win (technically impossible on first click, but be safe)
         if (checkWin(revealed)) {
-          stopTimer();
+          timer.stop();
           triggerCompletion("won", row, col);
         }
         return;
@@ -265,7 +254,7 @@ export function createMinesweeperGame() {
           setTriggeredMine([row, col]);
           setWrongFlags(getWrongFlags(currentBoard));
         });
-        stopTimer();
+        timer.stop();
         triggerCompletion("lost", row, col);
         return;
       }
@@ -276,12 +265,12 @@ export function createMinesweeperGame() {
 
       if (!hasStartedPlaying) {
         hasStartedPlaying = true;
-        startTimer();
+        timer.start();
       }
 
       // Check win
       if (checkWin(revealed)) {
-        stopTimer();
+        timer.stop();
         triggerCompletion("won", row, col);
       }
     } else {
@@ -319,9 +308,9 @@ export function createMinesweeperGame() {
 
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
-      stopTimer();
+      timer.stop();
     } else if (hasStartedPlaying && !gameResult() && !completing()) {
-      startTimer();
+      timer.start();
     }
   }
 
@@ -339,7 +328,7 @@ export function createMinesweeperGame() {
   onCleanup(() => {
     if (typeof window === "undefined") return;
     document.removeEventListener("visibilitychange", handleVisibility);
-    timer.cleanup();
+    timer.stop();
     if (completionTimer) clearTimeout(completionTimer);
   });
 

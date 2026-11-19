@@ -79,22 +79,13 @@ export function createSudokuGame() {
     return counts;
   });
 
-  // ── Timer ─────────────────────────────────────────────────────────────────
-  function startTimer() {
-    timer.start();
-  }
-
-  function stopTimer() {
-    timer.stop();
-  }
-
   // ── Helpers ───────────────────────────────────────────────────────────────
   function isBoardFull(board: Board): boolean {
     return board.every((row) => row.every((cell) => cell !== null));
   }
 
   function resetProgress() {
-    stopTimer();
+    timer.stop();
     hasStartedFilling = false;
     if (groupSweepTimer) {
       clearTimeout(groupSweepTimer);
@@ -192,7 +183,7 @@ export function createSudokuGame() {
     });
 
     if (hasStartedFilling && document.visibilityState === "visible") {
-      startTimer();
+      timer.start();
     }
   }
 
@@ -244,7 +235,7 @@ export function createSudokuGame() {
 
     if (!hasStartedFilling && value !== null) {
       hasStartedFilling = true;
-      startTimer();
+      timer.start();
     }
 
     const newConflicts = getConflictingCells(newBoard);
@@ -257,7 +248,7 @@ export function createSudokuGame() {
         groupSweepTimer = null;
       }
       setCompletingGroups([]);
-      stopTimer();
+      timer.stop();
       setCompletionOrigin([row, col]);
       setCompleting(true);
       completionTimer = setTimeout(() => {
@@ -278,10 +269,6 @@ export function createSudokuGame() {
     }
   }
 
-  function eraseCell(row: number, col: number) {
-    fillCell(row, col, null);
-  }
-
   function handleKeyboardNumber(num: number) {
     const sel = selectedCell();
     if (!sel) return;
@@ -297,9 +284,9 @@ export function createSudokuGame() {
   // ── Event listeners ───────────────────────────────────────────────────────
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
-      stopTimer();
+      timer.stop();
     } else if (hasStartedFilling && !completed() && !completing()) {
-      startTimer();
+      timer.start();
     }
   }
 
@@ -318,7 +305,7 @@ export function createSudokuGame() {
     if (typeof window === "undefined") return;
     document.removeEventListener("visibilitychange", handleVisibility);
     clearPendingGeneration();
-    timer.cleanup();
+    timer.stop();
     if (groupSweepTimer) clearTimeout(groupSweepTimer);
     if (completionTimer) clearTimeout(completionTimer);
   });
@@ -346,7 +333,6 @@ export function createSudokuGame() {
     playAgain,
     selectCell,
     fillCell,
-    eraseCell,
     handleKeyboardNumber,
     handleKeyboardErase,
   };
