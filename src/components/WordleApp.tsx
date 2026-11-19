@@ -79,33 +79,35 @@ export default function WordleApp() {
         </Show>
 
         {/* ── Result overlay ──────────────────────────────────────── */}
-        <Show when={game.gameResult() !== null}>
-          <ResultScreen
-            type={game.gameResult()!}
-            solveTime={game.timerSeconds()}
-            difficulty={variantLabel(game.variant())}
-            onBackToGames={handleBackToGames}
-            onPlayAgain={game.playAgain}
-          >
-            <Show when={game.gameResult() === "lost"}>
-              <div class="mt-4 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both">
-                {game
-                  .answer()
-                  .split("")
-                  .map((letter) => (
-                    <div
-                      class="flex items-center justify-center size-10 rounded-md text-lg font-bold uppercase"
-                      style={{
-                        "background-color": "var(--color-wl-correct)",
-                        color: "var(--color-wl-correct-text)",
-                      }}
-                    >
-                      {letter}
-                    </div>
-                  ))}
-              </div>
-            </Show>
-          </ResultScreen>
+        <Show when={game.gameResult()}>
+          {(result) => (
+            <ResultScreen
+              type={result()}
+              solveTime={game.timerSeconds()}
+              difficulty={variantLabel(game.variant())}
+              onBackToGames={handleBackToGames}
+              onPlayAgain={game.playAgain}
+            >
+              <Show when={game.gameResult() === "lost"}>
+                <div class="mt-4 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both">
+                  {game
+                    .answer()
+                    .split("")
+                    .map((letter) => (
+                      <div
+                        class="flex items-center justify-center size-10 rounded-md text-lg font-bold uppercase"
+                        style={{
+                          "background-color": "var(--color-wl-correct)",
+                          color: "var(--color-wl-correct-text)",
+                        }}
+                      >
+                        {letter}
+                      </div>
+                    ))}
+                </div>
+              </Show>
+            </ResultScreen>
+          )}
         </Show>
       </Show>
     </>

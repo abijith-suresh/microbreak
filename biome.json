@@ -6,14 +6,14 @@
   "linter": {
     "rules": {
       "preset": "recommended",
-      "correctness": { "noUnusedVariables": "off" },
-      "suspicious": { "noConsole": "warn", "noDuplicateJsxProps": "off" },
+      "correctness": { "noUnusedVariables": "error" },
+      "suspicious": { "noConsole": "warn", "noVar": "error", "noDuplicateJsxProps": "off" },
       "a11y": {
         "useButtonType": "off",
         "noSvgWithoutTitle": "off",
         "noLabelWithoutControl": "off"
       },
-      "style": { "useConst": "error", "noNonNullAssertion": "off" }
+      "style": { "useConst": "error" }
     }
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
@@ -36,7 +36,9 @@
     {
       "includes": ["**/*.astro"],
       "assist": { "actions": { "source": { "organizeImports": "off" } } },
-      "linter": { "rules": { "correctness": { "noUnusedImports": "off" } } }
+      "linter": {
+        "rules": { "correctness": { "noUnusedVariables": "off", "noUnusedImports": "off" } }
+      }
     },
     {
       "includes": ["public/*.svg"],

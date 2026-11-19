@@ -21,21 +21,21 @@ bun run dev
 
 Available scripts:
 
-| Command                  | Description                                    |
-| ------------------------ | ---------------------------------------------- |
-| `bun run dev`            | Start Astro dev server                         |
-| `bun run build`          | Production build to `dist/`                    |
-| `bun run preview`        | Preview production build locally               |
-| `bun run type-check`     | Run `astro sync && tsc --noEmit`               |
-| `bun run lint`           | Run Biome                                      |
-| `bun run lint:fix`       | Auto-fix lint issues                           |
-| `bun run format`         | Run Biome format (write)                       |
-| `bun run format:check`   | Check formatting                               |
-| `bun run test`           | Run Vitest once                                |
-| `bun run test:e2e`       | Run Playwright tests against an existing build |
-| `bun run test:e2e:build` | Build, then run Playwright tests               |
-| `bun run test:watch`     | Run Vitest in watch mode                       |
-| `bun run verify`         | Run full quality gate                          |
+| Command                  | Description                                     |
+| ------------------------ | ----------------------------------------------- |
+| `bun run dev`            | Start Astro dev server                          |
+| `bun run build`          | Production build to `dist/`                     |
+| `bun run preview`        | Preview production build locally                |
+| `bun run type-check`     | Run `astro sync && astro check && tsc --noEmit` |
+| `bun run lint`           | Run Biome                                       |
+| `bun run lint:fix`       | Auto-fix lint issues                            |
+| `bun run format`         | Run Biome format (write)                        |
+| `bun run format:check`   | Check formatting                                |
+| `bun run test`           | Run Vitest once                                 |
+| `bun run test:e2e`       | Run Playwright tests against an existing build  |
+| `bun run test:e2e:build` | Build, then run Playwright tests                |
+| `bun run test:watch`     | Run Vitest in watch mode                        |
+| `bun run verify`         | Run full quality gate                           |
 
 ## Quality Gate
 

@@ -41,7 +41,10 @@ export default function WordleKeyboard(props: Props) {
               {(key) => {
                 const isSpecial = key === "Enter" || key === "Backspace";
                 const letterState = () => (!isSpecial ? props.keyboardState[key] : undefined);
-                const s = () => (letterState() ? stateStyles[letterState()!] : null);
+                const s = () => {
+                  const state = letterState();
+                  return state ? stateStyles[state] : null;
+                };
 
                 return (
                   <button

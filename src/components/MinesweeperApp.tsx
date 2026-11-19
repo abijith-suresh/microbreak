@@ -29,14 +29,16 @@ export default function MinesweeperApp() {
       </Show>
 
       {/* ── Result Overlay ───────────────────────────────────────── */}
-      <Show when={game.phase() === "playing" && game.gameResult() !== null}>
-        <ResultScreen
-          type={game.gameResult()!}
-          solveTime={game.timerSeconds()}
-          difficulty={difficultyLabel(game.difficulty())}
-          onBackToGames={handleBackToGames}
-          onPlayAgain={game.playAgain}
-        />
+      <Show when={game.phase() === "playing" ? game.gameResult() : null}>
+        {(result) => (
+          <ResultScreen
+            type={result()}
+            solveTime={game.timerSeconds()}
+            difficulty={difficultyLabel(game.difficulty())}
+            onBackToGames={handleBackToGames}
+            onPlayAgain={game.playAgain}
+          />
+        )}
       </Show>
 
       {/* ── Playing Phase ────────────────────────────────────────── */}
