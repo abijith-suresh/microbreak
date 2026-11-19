@@ -10,6 +10,8 @@ export interface GameCard {
   blurb: string;
   tags: string[];
   href?: string;
+  /** Set to false to hide the game everywhere. Omitted means shown. */
+  enabled?: boolean;
 }
 
 export const games: GameCard[] = [
@@ -52,6 +54,7 @@ export const games: GameCard[] = [
     blurb: "Swipe-friendly tile merging when you want momentum over rules lookup.",
     tags: ["numbers", "swipe", "momentum"],
     href: "/2048",
+    enabled: false,
   },
   {
     name: "Chess",
@@ -75,7 +78,8 @@ export const games: GameCard[] = [
 
 /** Return games sorted: available first (in defined order), then upcoming */
 export function getOrderedGames(): GameCard[] {
-  const available = games.filter((game) => game.status === "available");
-  const upcoming = games.filter((game) => game.status === "coming-soon");
+  const shown = games.filter((game) => game.enabled !== false);
+  const available = shown.filter((game) => game.status === "available");
+  const upcoming = shown.filter((game) => game.status === "coming-soon");
   return [...available, ...upcoming];
 }
