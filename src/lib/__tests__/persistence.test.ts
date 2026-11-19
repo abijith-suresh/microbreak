@@ -70,6 +70,17 @@ describe("storage helpers", () => {
     expect(loadStoredNumber("broken-number", 7)).toBe(7);
   });
 
+  it("falls back when reading localStorage throws", () => {
+    vi.stubGlobal("window", {
+      get localStorage(): Storage {
+        throw new DOMException("blocked", "SecurityError");
+      },
+    });
+
+    expect(loadStoredString("theme", ["light", "dark"], "dark")).toBe("dark");
+    expect(() => saveStoredString("theme", "light")).not.toThrow();
+  });
+
   it("removes stored values", () => {
     saveStoredString("theme", "dark");
     removeStoredValue("theme");

@@ -1,7 +1,11 @@
 export type Validator<T> = (value: unknown) => value is T;
 
 export function canUseStorage(): boolean {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  try {
+    return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  } catch {
+    return false;
+  }
 }
 
 export function loadStoredJSON<T>(key: string, validate: Validator<T>): T | null {
