@@ -214,7 +214,10 @@ export default function SudokuBoard(props: Props) {
           const completingDelay = () => {
             const origin = props.completionOrigin;
             return props.completing && origin
-              ? (Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 50
+              ? Math.round(
+                  ((Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 300) /
+                    (2 * (size() - 1))
+                )
               : 0;
           };
 
