@@ -23,11 +23,19 @@ export default function BackLink(props: BackLinkProps) {
 
   const label = <span class="text-sm font-medium hidden sm:inline">{props.label}</span>;
 
-  const commonClasses = "flex items-center gap-1.5 text-fg-tertiary hover:text-fg";
+  const ariaLabel = `Back to ${props.label.toLowerCase()}`;
+
+  // The ::after box widens the hit area to 44×44 without moving anything.
+  const commonClasses =
+    "relative flex items-center gap-1.5 text-fg-tertiary hover:text-fg after:absolute after:-inset-3.25";
 
   if (props.href !== undefined) {
     return (
-      <a href={props.href} class={`${commonClasses} transition-colors duration-200`}>
+      <a
+        href={props.href}
+        class={`${commonClasses} transition-colors duration-200`}
+        aria-label={ariaLabel}
+      >
         {icon}
         {label}
       </a>
@@ -38,7 +46,7 @@ export default function BackLink(props: BackLinkProps) {
     <button
       onClick={props.onClick}
       class={`${commonClasses} active:scale-[0.93] transition duration-100 ease-out`}
-      aria-label={`Back to ${props.label.toLowerCase()}`}
+      aria-label={ariaLabel}
     >
       {icon}
       {label}

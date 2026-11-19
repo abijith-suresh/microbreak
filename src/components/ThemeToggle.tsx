@@ -37,7 +37,7 @@ export default function ThemeToggle() {
     <button
       data-theme-toggle
       onClick={toggle}
-      class="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-fg-secondary transition-all hover:border-border-strong hover:text-fg hover:shadow-sm"
+      class="relative flex h-9 w-9 items-center justify-center rounded-lg after:absolute after:-inset-1.25 border border-border bg-surface text-fg-secondary transition-all hover:border-border-strong hover:text-fg hover:shadow-sm"
       aria-label={`Switch to ${current() === "light" ? "dark" : "light"} mode`}
       title={`Switch to ${current() === "light" ? "dark" : "light"} mode`}
     >
