@@ -418,27 +418,3 @@ export function getJustCompletedGroups(
 
   return result;
 }
-
-/** Solve a board (returns solution or null if unsolvable) */
-export function solve(board: Board): Board | null {
-  if (!hasValidShape(board)) return null;
-
-  const result = cloneBoard(board);
-  if (hasConflictingGivens(result)) return null;
-
-  function solveInner(): boolean {
-    const choice = findBestEmptyCell(result);
-    if (choice === null) return true;
-    if (choice.candidates.length === 0) return false;
-
-    for (const num of choice.candidates) {
-      result[choice.row][choice.col] = num;
-      if (solveInner()) return true;
-      result[choice.row][choice.col] = null;
-    }
-
-    return false;
-  }
-
-  return solveInner() ? result : null;
-}

@@ -5,65 +5,11 @@ import {
   createEmptyGrid,
   hasWon,
   isFull,
-  move,
   moveWithTiles,
   resetTileIdCounter,
-  slideRow,
   spawnTile,
   type Tile,
 } from "../game2048";
-
-// ── slideRow ───────────────────────────────────────────────────────────────────
-
-describe("slideRow", () => {
-  it("slides non-zero values to the left", () => {
-    expect(slideRow([0, 2, 0, 4]).result).toEqual([2, 4, 0, 0]);
-  });
-
-  it("merges two equal adjacent tiles", () => {
-    const { result, score, mergeIndices } = slideRow([2, 2, 0, 0]);
-    expect(result).toEqual([4, 0, 0, 0]);
-    expect(score).toBe(4);
-    expect(mergeIndices).toEqual([0]);
-  });
-
-  it("merges tiles that become adjacent after slide", () => {
-    const { result, score } = slideRow([2, 0, 2, 0]);
-    expect(result).toEqual([4, 0, 0, 0]);
-    expect(score).toBe(4);
-  });
-
-  it("does not merge already-merged tile with a third equal tile", () => {
-    const { result, score } = slideRow([2, 2, 2, 0]);
-    expect(result).toEqual([4, 2, 0, 0]);
-    expect(score).toBe(4);
-  });
-
-  it("handles four equal tiles as two merges", () => {
-    const { result, score } = slideRow([2, 2, 2, 2]);
-    expect(result).toEqual([4, 4, 0, 0]);
-    expect(score).toBe(8);
-  });
-
-  it("leaves an already-merged row unchanged", () => {
-    const { result, score, mergeIndices } = slideRow([4, 2, 0, 0]);
-    expect(result).toEqual([4, 2, 0, 0]);
-    expect(score).toBe(0);
-    expect(mergeIndices).toEqual([]);
-  });
-
-  it("handles an empty row", () => {
-    const { result, score } = slideRow([0, 0, 0, 0]);
-    expect(result).toEqual([0, 0, 0, 0]);
-    expect(score).toBe(0);
-  });
-
-  it("handles a full row with no merges", () => {
-    const { result, score } = slideRow([2, 4, 8, 16]);
-    expect(result).toEqual([2, 4, 8, 16]);
-    expect(score).toBe(0);
-  });
-});
 
 // ── createEmptyGrid / cloneGrid ────────────────────────────────────────────────
 
@@ -126,7 +72,7 @@ describe("isFull", () => {
   });
 });
 
-// ── move ────────────────────────────────────────────────────────────────────────
+// ── moveWithTiles ──────────────────────────────────────────────────────────────
 
 function tilesFromGrid(grid: number[][]): Tile[] {
   let id = 1;
@@ -150,7 +96,18 @@ function tilesFromGrid(grid: number[][]): Tile[] {
   return tiles;
 }
 
-describe("move", () => {
+/** Slide a single row left and return the row without the spawned tile. */
+function slideLeft(row: number[]) {
+  const grid = [row, [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+  const result = moveWithTiles(tilesFromGrid(grid), "left");
+  const spawn = result.tiles.find((t) => t.isNew);
+  const merged = result.tiles.filter((t) => t.isMerging && t.row === 0).map((t) => t.col);
+  const out = [0, 0, 0, 0];
+  for (const t of result.tiles) if (t.row === 0 && t !== spawn) out[t.col] = t.value;
+  return { out, score: result.score, merged };
+}
+
+describe("moveWithTiles", () => {
   beforeEach(() => {
     resetTileIdCounter();
   });
@@ -162,7 +119,7 @@ describe("move", () => {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
-    const result = move(grid, "left");
+    const result = moveWithTiles(tilesFromGrid(grid), "left");
     expect(result.moved).toBe(true);
     expect(result.grid[0][0]).toBe(4);
     expect(result.score).toBe(4);
@@ -175,7 +132,7 @@ describe("move", () => {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
-    const result = move(grid, "right");
+    const result = moveWithTiles(tilesFromGrid(grid), "right");
     expect(result.moved).toBe(true);
     expect(result.grid[0][3]).toBe(4);
     expect(result.score).toBe(4);
@@ -188,7 +145,7 @@ describe("move", () => {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
-    const result = move(grid, "up");
+    const result = moveWithTiles(tilesFromGrid(grid), "up");
     expect(result.moved).toBe(true);
     expect(result.grid[0][0]).toBe(4);
     expect(result.score).toBe(4);
@@ -201,7 +158,7 @@ describe("move", () => {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
-    const result = move(grid, "down");
+    const result = moveWithTiles(tilesFromGrid(grid), "down");
     expect(result.moved).toBe(true);
     expect(result.grid[3][0]).toBe(4);
     expect(result.score).toBe(4);
@@ -214,20 +171,23 @@ describe("move", () => {
       [512, 1024, 2, 4],
       [8, 16, 32, 64],
     ];
-    const result = move(grid, "left");
+    const tiles = tilesFromGrid(grid);
+    const result = moveWithTiles(tiles, "left");
     expect(result.moved).toBe(false);
     expect(result.score).toBe(0);
+    expect(result.tiles).toBe(tiles);
   });
 
-  it("spawns a new tile after a valid move", () => {
+  it("does not spawn a tile when the move changes nothing", () => {
     const grid = [
       [2, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
-    const result = move(grid, "left");
-    expect(result.moved).toBe(false); // already at left, no move
+    const result = moveWithTiles(tilesFromGrid(grid), "left");
+    expect(result.moved).toBe(false);
+    expect(result.tiles).toHaveLength(1);
   });
 
   it("spawns a tile when there is a valid slide", () => {
@@ -237,31 +197,69 @@ describe("move", () => {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
-    const result = move(grid, "left");
+    const result = moveWithTiles(tilesFromGrid(grid), "left");
     expect(result.moved).toBe(true);
-    // Should have the existing tile + one spawned tile
-    expect(result.tiles.length).toBeGreaterThanOrEqual(2);
+    expect(result.tiles).toHaveLength(2);
+    expect(result.tiles.filter((t) => t.isNew)).toHaveLength(1);
   });
 
-  it("matches the stable-id move path for grid and score", () => {
+  it("keeps tile ids stable and drops the consumed tile on merge", () => {
+    const tiles = tilesFromGrid([
+      [2, 2, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ]);
+    const result = moveWithTiles(tiles, "left");
+    const survivor = result.tiles.find((t) => t.id === tiles[0].id);
+    expect(survivor).toMatchObject({ value: 4, row: 0, col: 0, isMerging: true });
+    expect(result.tiles.some((t) => t.id === tiles[1].id)).toBe(false);
+  });
+
+  it("merges tiles that become adjacent after sliding", () => {
+    const { out, score, merged } = slideLeft([2, 0, 2, 0]);
+    expect(out).toEqual([4, 0, 0, 0]);
+    expect(score).toBe(4);
+    expect(merged).toEqual([0]);
+  });
+
+  it("does not merge an already-merged tile with a third equal tile", () => {
+    const { out, score } = slideLeft([2, 2, 2, 0]);
+    expect(out).toEqual([4, 2, 0, 0]);
+    expect(score).toBe(4);
+  });
+
+  it("handles four equal tiles as two merges", () => {
+    const { out, score } = slideLeft([2, 2, 2, 2]);
+    expect(out).toEqual([4, 4, 0, 0]);
+    expect(score).toBe(8);
+  });
+
+  it("leaves a settled row unchanged", () => {
+    const { out, score, merged } = slideLeft([4, 2, 0, 0]);
+    expect(out).toEqual([4, 2, 0, 0]);
+    expect(score).toBe(0);
+    expect(merged).toEqual([]);
+  });
+
+  it("produces the expected grid and score for a mixed board", () => {
     const grid = [
       [2, 0, 2, 4],
       [4, 4, 0, 0],
       [0, 2, 2, 0],
       [0, 0, 0, 0],
     ];
+    const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
+    const result = moveWithTiles(tilesFromGrid(grid), "left");
+    randomSpy.mockRestore();
 
-    const mathRandomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
-    const regularMove = move(grid, "left");
-    mathRandomSpy.mockRestore();
-
-    resetTileIdCounter();
-    const stableRandomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
-    const stableMove = moveWithTiles(tilesFromGrid(grid), "left");
-    stableRandomSpy.mockRestore();
-
-    expect(stableMove.score).toBe(regularMove.score);
-    expect(stableMove.grid).toEqual(regularMove.grid);
+    expect(result.score).toBe(4 + 8 + 4);
+    expect(result.grid).toEqual([
+      [4, 4, 2, 0], // the spawned 2 lands in the first empty cell
+      [8, 0, 0, 0],
+      [4, 0, 0, 0],
+      [0, 0, 0, 0],
+    ]);
   });
 });
 
