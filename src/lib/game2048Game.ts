@@ -19,6 +19,7 @@ import {
   isPersisted2048Session,
   type Persisted2048Session,
 } from "./game2048Session";
+import { shouldIgnoreGameKey } from "./keyboard";
 import {
   loadStoredJSON,
   loadStoredNumber,
@@ -183,7 +184,7 @@ export function create2048Game() {
 
   function handleMove(dir: Direction) {
     if (phase() !== "playing") return;
-    if (gameOver()) return;
+    if (gameOver() || hasShownWin()) return;
 
     const result = moveWithTiles(tiles, dir);
     if (!result.moved) return;
@@ -263,6 +264,7 @@ export function create2048Game() {
   // ── Keyboard handling ───────────────────────────────────────────────────
 
   function handleKeydown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     const dirMap: Record<string, Direction> = {
       ArrowLeft: "left",
       ArrowRight: "right",

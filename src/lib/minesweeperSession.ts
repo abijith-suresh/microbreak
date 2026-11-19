@@ -1,5 +1,5 @@
 import type { Board, CellData, Difficulty } from "./minesweeper";
-import { isRecord, isTuple2 } from "./storage";
+import { isCellInGrid, isRecord } from "./storage";
 
 export interface PersistedMinesweeperSession {
   phase: "playing";
@@ -59,7 +59,7 @@ export function isPersistedMinesweeperSession(
   return (
     isBoard(value.board, value.rows, value.cols) &&
     typeof value.timerSeconds === "number" &&
-    (value.selectedCell === null || isTuple2(value.selectedCell)) &&
+    (value.selectedCell === null || isCellInGrid(value.selectedCell, value.rows, value.cols)) &&
     typeof value.digMode === "boolean" &&
     typeof value.hasStartedPlaying === "boolean" &&
     typeof value.boardGenerated === "boolean"

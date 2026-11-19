@@ -1,4 +1,4 @@
-import { isRecord, isTuple2 } from "./storage";
+import { isCellInGrid, isRecord } from "./storage";
 import type { Board, Difficulty, GridSize } from "./sudoku";
 
 export interface PersistedSudokuSession {
@@ -38,7 +38,8 @@ export function isPersistedSudokuSession(value: unknown): value is PersistedSudo
     isSudokuBoard(value.solution, value.gridSize) &&
     isSudokuBoard(value.userBoard, value.gridSize) &&
     typeof value.timerSeconds === "number" &&
-    (value.selectedCell === null || isTuple2(value.selectedCell)) &&
+    (value.selectedCell === null ||
+      isCellInGrid(value.selectedCell, value.gridSize, value.gridSize)) &&
     typeof value.hasStartedFilling === "boolean"
   );
 }
