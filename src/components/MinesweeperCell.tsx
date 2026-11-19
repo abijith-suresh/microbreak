@@ -13,6 +13,8 @@ interface Props {
   cellSize: string;
   fontSize: string;
   borderClasses: string;
+  label: string;
+  tabIndex: number;
   /** True while the board entrance animation is playing */
   entering: boolean;
   /** ms delay for the centre-outward entrance stagger */
@@ -215,6 +217,8 @@ export default function MinesweeperCell(props: Props) {
             "background-color 0.15s ease-out, border-color 0.2s ease-out, transform 0.1s ease-out",
         } as JSX.CSSProperties & Record<string, string | undefined>
       }
+      aria-label={props.label}
+      tabIndex={props.tabIndex}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onPointerDown={(e) => {

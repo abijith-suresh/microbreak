@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
 import { shouldIgnoreGameKey } from "@/lib/keyboard";
 import {
   type Board,
@@ -97,6 +97,20 @@ export default function SudokuBoard(props: Props) {
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });
 
+  // ── Roving tabindex ────────────────────────────────────────────────────────
+  // The board is one tab stop; arrow keys carry focus along with the selection.
+  let boardRef!: HTMLDivElement;
+  createEffect(() => {
+    const sel = props.selectedCell;
+    if (sel && boardRef.contains(document.activeElement)) {
+      (boardRef.children[sel[0] * size() + sel[1]] as HTMLElement | undefined)?.focus();
+    }
+  });
+  const isTabStop = (row: number, col: number) => {
+    const sel = props.selectedCell;
+    return sel ? sel[0] === row && sel[1] === col : row === 0 && col === 0;
+  };
+
   // ── Per-cell helpers ───────────────────────────────────────────────────────
 
   function cellBorderClasses(row: number, col: number): string {
@@ -192,6 +206,7 @@ export default function SudokuBoard(props: Props) {
 
   return (
     <div
+      ref={boardRef}
       class="inline-grid border-border-strong rounded-sm overflow-hidden shadow-md shadow-shadow"
       style={{ "grid-template-columns": `repeat(${size()}, auto)` }}
     >
@@ -247,6 +262,8 @@ export default function SudokuBoard(props: Props) {
               borderClasses={borders}
               cellSize={cs}
               fontSize={fs}
+              label={`${value() ?? "Empty"}, row ${row + 1}, column ${col + 1}`}
+              tabIndex={isTabStop(row, col) ? 0 : -1}
               onSelect={() => props.onSelectCell(row, col)}
             />
           );
