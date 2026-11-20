@@ -250,6 +250,19 @@
   color-scheme: dark;
 }
 
+/* ─── Page frame ─── */
+/* One horizontal grid for page headers, content and footers, so their edges line up. */
+@utility page-frame {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @variant md {
+    padding-inline: 2.5rem;
+  }
+}
+
 /* ─── Base ─── */
 html {
   -webkit-font-smoothing: antialiased;

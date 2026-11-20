@@ -23,7 +23,7 @@ export default function GameGrid() {
   });
 
   return (
-    <div class="grid grid-cols-1 gap-4 px-4 mx-auto max-w-4xl sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
       <For each={getOrderedGames()}>
         {(game) => {
           const isAvailable = game.status === "available";

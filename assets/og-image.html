@@ -1,0 +1,93 @@
+<!doctype html>
+<!-- Source for public/og-image.png. Render with:
+  bunx playwright screenshot --viewport-size=1200,630 --wait-for-timeout=500 \
+    "file://$PWD/assets/og-image.html" public/og-image.png -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @font-face {
+        font-family: "Instrument Serif", serif;
+        src: url("../public/fonts/InstrumentSerif-Italic.woff2");
+        font-style: italic;
+      }
+      @font-face {
+        font-family: "DM Sans", sans-serif;
+        src: url("../public/fonts/DMSans-Variable.woff2");
+        font-weight: 100 900;
+      }
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 96px;
+        box-sizing: border-box;
+        background: #faf9f6;
+        font-family: "DM Sans", sans-serif;
+      }
+      h1 {
+        margin: 0;
+        font: italic 400 140px/0.92 "Instrument Serif", serif;
+        letter-spacing: -0.025em;
+        color: #1a1917;
+      }
+      p {
+        margin: 28px 0 0 6px;
+        font-size: 30px;
+        letter-spacing: 0.025em;
+        color: #6b6961;
+      }
+      hr {
+        margin: 32px 0 0 6px;
+        width: 84px;
+        border: 0;
+        border-top: 2px solid #c45d3e;
+        opacity: 0.4;
+      }
+      .board {
+        display: grid;
+        grid-template-columns: repeat(5, 58px);
+        gap: 6px;
+        padding: 14px;
+        border-radius: 16px;
+        background: #e8e6e1;
+      }
+      .board span {
+        display: grid;
+        place-items: center;
+        height: 58px;
+        border-radius: 6px;
+        background: #fff;
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+      }
+      .board .c {
+        background: #c45d3e;
+      }
+      .board .p {
+        background: #b8960c;
+      }
+      .board .a {
+        background: #d1cfc9;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>Microbreak</h1>
+      <p>Puzzles for the gaps between builds</p>
+      <hr />
+    </div>
+    <div class="board">
+      <span class="c">B</span><span class="a">U</span><span class="a">I</span><span class="a">L</span><span class="a">D</span>
+      <span class="p">R</span><span class="p">E</span><span class="a">R</span><span class="a">U</span><span class="a">N</span>
+      <span class="c">B</span><span class="c">R</span><span class="c">E</span><span class="c">A</span><span class="c">K</span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </body>
+</html>
