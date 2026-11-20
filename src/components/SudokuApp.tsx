@@ -1,15 +1,25 @@
 import type { JSX } from "solid-js";
 import { Show } from "solid-js";
 import { formatTimer } from "@/lib/elapsedTimer";
-import { type GridSize, getBoxDims } from "@/lib/sudoku";
+import { type Difficulty, type GridSize, getBoxDims } from "@/lib/sudoku";
 import { createSudokuGame } from "@/lib/sudokuGame";
 import GameScreen from "./GameScreen";
 import NumberPad from "./NumberPad";
 import SudokuBoard from "./SudokuBoard";
-import SudokuSetup from "./SudokuSetup";
-import ThemeToggle from "./ThemeToggle";
-import BackLink from "./ui/BackLink";
+import NewGameMenu from "./ui/NewGameMenu";
 import ResultScreen from "./ui/ResultScreen";
+
+const SIZE_OPTIONS = [
+  { value: 4, label: "4×4" },
+  { value: 6, label: "6×6" },
+  { value: 9, label: "9×9" },
+];
+
+const DIFFICULTY_OPTIONS = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
+];
 
 function sizeLabel(size: number): string {
   if (size === 4) return "4×4";
@@ -116,11 +126,6 @@ export default function SudokuApp() {
 
   return (
     <>
-      {/* ── Setup Phase ──────────────────────────────────────────── */}
-      <Show when={game.phase() === "setup"}>
-        <SudokuSetup onStart={game.startGame} />
-      </Show>
-
       {/* ── Result Overlay ──────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && game.completed()}>
         <ResultScreen
@@ -132,28 +137,33 @@ export default function SudokuApp() {
         />
       </Show>
 
-      {/* ── Playing Phase ────────────────────────────────────────── */}
-      <Show when={game.phase() === "playing" && !game.completed()}>
-        {/*
-          The container fades in as one unit. Individual cells then cascade in
-          centre-outward via the `cellReveal` keyframe inside SudokuBoard,
-          giving the puzzle a "materialising" entrance.
-        */}
+      <Show when={!game.completed()}>
         <GameScreen
-          left={<BackLink label="Setup" onClick={game.returnToSetup} />}
-          center={
-            <div class="flex items-center gap-2 text-xs text-fg-tertiary">
-              <span>{sizeLabel(game.gridSize())}</span>
-              <span class="opacity-40">·</span>
-              <span class="capitalize">{game.difficulty()}</span>
-              <span class="opacity-40 mx-1">|</span>
-              <span class="font-mono tabular-nums tracking-wider text-fg-secondary">
-                {formatTimer(game.timerSeconds())}
-              </span>
-            </div>
+          title="Sudoku"
+          meta={difficultyString(game.gridSize(), game.difficulty())}
+          timer={formatTimer(game.timerSeconds())}
+          menu={
+            <NewGameMenu
+              groups={[
+                { id: "size", label: "Size", options: SIZE_OPTIONS, value: game.gridSize() },
+                {
+                  id: "difficulty",
+                  label: "Difficulty",
+                  options: DIFFICULTY_OPTIONS,
+                  value: game.difficulty(),
+                },
+              ]}
+              note="Replaces the board in progress."
+              onStart={(values) =>
+                game.startGame(values.size as GridSize, values.difficulty as Difficulty)
+              }
+            />
           }
-          right={<ThemeToggle />}
         >
+          {/*
+            Individual cells cascade in centre-outward via the `cellReveal` keyframe
+            inside SudokuBoard, giving the puzzle a "materialising" entrance.
+          */}
           <Show
             when={
               game.puzzle().length === game.gridSize() &&

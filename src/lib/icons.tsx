@@ -46,6 +46,30 @@ export function ChevronLeft(props: IconProps) {
   );
 }
 
+// ── ChevronDown ────────────────────────────────────────────────────────────
+
+export function ChevronDown(props: IconProps) {
+  const size = () => props.size ?? 24;
+  const sw = () => props.strokeWidth ?? 2;
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size()}
+      height={size()}
+      viewBox="0 0 24 24"
+      fill={props.fill ?? "none"}
+      stroke="currentColor"
+      stroke-width={sw()}
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class={props.class}
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
 // ── Sun ────────────────────────────────────────────────────────────────────
 
 export function Sun(props: IconProps) {

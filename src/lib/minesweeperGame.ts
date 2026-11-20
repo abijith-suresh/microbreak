@@ -7,6 +7,7 @@
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createElapsedTimer } from "./elapsedTimer";
+import { loadMinesweeperDifficulty, saveMinesweeperDifficulty } from "./gamePreferences";
 import {
   type Board,
   checkWin,
@@ -29,12 +30,21 @@ import {
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 
-export type Phase = "setup" | "playing";
+/** "idle" until the page mounts and resumes or starts a game. */
+export type Phase = "idle" | "playing";
+
+/** Narrow screens get the taller mobile boards (same widths the setup screen used). */
+function prefersMobilePresets(): boolean {
+  return (
+    typeof window !== "undefined" && window.matchMedia?.("(max-width: 480px)").matches === true
+  );
+}
+
 export type { Difficulty };
 
 export function createMinesweeperGame() {
   // ── Raw signals ──────────────────────────────────────────────────────────
-  const [phase, setPhase] = createSignal<Phase>("setup");
+  const [phase, setPhase] = createSignal<Phase>("idle");
   const [difficulty, setDifficulty] = createSignal<Difficulty>("beginner");
 
   const [board, setBoard] = createSignal<Board>([]);
@@ -115,9 +125,9 @@ export function createMinesweeperGame() {
     saveStoredJSON(STORAGE_KEYS.minesweeperSession, session);
   }
 
-  function restoreSession() {
+  function restoreSession(): boolean {
     const session = loadStoredJSON(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
-    if (!session) return;
+    if (!session) return false;
 
     hasStartedPlaying = session.hasStartedPlaying;
     boardGenerated = session.boardGenerated;
@@ -142,6 +152,7 @@ export function createMinesweeperGame() {
     if (hasStartedPlaying && document.visibilityState === "visible") {
       timer.start();
     }
+    return true;
   }
 
   // ── Completion helper ─────────────────────────────────────────────────────
@@ -175,7 +186,8 @@ export function createMinesweeperGame() {
 
   // ── Public actions ────────────────────────────────────────────────────────
 
-  function startGame(diff: Difficulty, isMobile = false) {
+  function startGame(diff: Difficulty, isMobile = prefersMobilePresets()) {
+    saveMinesweeperDifficulty(diff);
     const preset = getDifficultyPreset(diff, isMobile);
 
     batch(() => {
@@ -195,15 +207,6 @@ export function createMinesweeperGame() {
   function restart() {
     const presetMode = getCurrentPresetMode(difficulty(), rows(), cols(), mineCount());
     startGame(difficulty(), presetMode === "mobile");
-  }
-
-  function returnToSetup() {
-    resetProgress();
-    setBoard([]);
-    setRows(0);
-    setCols(0);
-    setMineCount(0);
-    setPhase("setup");
   }
 
   function playAgain() {
@@ -315,7 +318,7 @@ export function createMinesweeperGame() {
   }
 
   onMount(() => {
-    restoreSession();
+    if (!restoreSession()) startGame(loadMinesweeperDifficulty());
     document.addEventListener("visibilitychange", handleVisibility);
     setPersistenceReady(true);
   });
@@ -352,7 +355,6 @@ export function createMinesweeperGame() {
     mineCounter,
     // Actions
     startGame,
-    returnToSetup,
     playAgain,
     handleCellClick,
     flagCell,

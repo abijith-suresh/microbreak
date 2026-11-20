@@ -5,14 +5,17 @@ import { DIFFICULTY_PRESETS, type Difficulty } from "@/lib/minesweeper";
 import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import GameScreen from "./GameScreen";
 import MinesweeperBoard from "./MinesweeperBoard";
-import MinesweeperSetup from "./MinesweeperSetup";
-import ThemeToggle from "./ThemeToggle";
-import BackLink from "./ui/BackLink";
+import NewGameMenu from "./ui/NewGameMenu";
 import ResultScreen from "./ui/ResultScreen";
 
 function difficultyLabel(d: Difficulty): string {
   return DIFFICULTY_PRESETS[d].label;
 }
+
+const DIFFICULTY_OPTIONS = (["beginner", "intermediate", "expert"] as const).map((value) => ({
+  value,
+  label: difficultyLabel(value),
+}));
 
 export default function MinesweeperApp() {
   const game = createMinesweeperGame();
@@ -23,11 +26,6 @@ export default function MinesweeperApp() {
 
   return (
     <>
-      {/* ── Setup Phase ──────────────────────────────────────────── */}
-      <Show when={game.phase() === "setup"}>
-        <MinesweeperSetup onStart={game.startGame} />
-      </Show>
-
       {/* ── Result Overlay ───────────────────────────────────────── */}
       <Show when={game.phase() === "playing" ? game.gameResult() : null}>
         {(result) => (
@@ -42,70 +40,82 @@ export default function MinesweeperApp() {
       </Show>
 
       {/* ── Playing Phase ────────────────────────────────────────── */}
-      <Show when={game.phase() === "playing" && game.gameResult() === null}>
+      <Show when={game.gameResult() === null}>
         <GameScreen
-          left={<BackLink label="Setup" onClick={game.returnToSetup} />}
-          center={
-            <div class="flex items-center gap-2 text-xs text-fg-tertiary">
-              <span class="flex items-center gap-1">
-                <Circle size={12} fill="var(--color-fg-tertiary)" />
-                {game.mineCounter()}
-              </span>
-              <span class="opacity-40">·</span>
-              <span>{difficultyLabel(game.difficulty())}</span>
-              <span class="opacity-40 mx-1">|</span>
-              <span class="font-mono tabular-nums tracking-wider text-fg-secondary">
-                {formatTimer(game.timerSeconds())}
-              </span>
-            </div>
+          title="Minesweeper"
+          meta={
+            game.rows() > 0
+              ? `${difficultyLabel(game.difficulty())} · ${game.cols()}×${game.rows()}`
+              : difficultyLabel(game.difficulty())
           }
-          right={<ThemeToggle />}
+          timer={formatTimer(game.timerSeconds())}
+          menu={
+            <NewGameMenu
+              groups={[
+                {
+                  id: "difficulty",
+                  label: "Difficulty",
+                  options: DIFFICULTY_OPTIONS,
+                  value: game.difficulty(),
+                },
+              ]}
+              note="Replaces the board in progress."
+              onStart={(values) => game.startGame(values.difficulty as Difficulty)}
+            />
+          }
           belowContent={
             <div class="flex flex-col items-center gap-2 pb-4">
-              <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
-                <button
-                  type="button"
-                  onClick={() => game.digMode() || game.toggleMode()}
-                  aria-pressed={game.digMode()}
-                  style={{
-                    transition: "background-color 0.15s ease-out, color 0.15s ease-out",
-                  }}
-                  class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium ${
-                    game.digMode()
-                      ? "bg-accent text-white"
-                      : "bg-surface text-fg-tertiary hover:text-fg"
-                  }`}
-                >
-                  <svg
-                    aria-hidden="true"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
+              <div class="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
+                <span class="flex items-center gap-1.5 text-sm tabular-nums text-fg-secondary">
+                  <Circle size={10} fill="var(--color-fg-tertiary)" />
+                  <span class="sr-only">Mines left:</span>
+                  {game.mineCounter()}
+                </span>
+                <div class="flex rounded-lg border border-border overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => game.digMode() || game.toggleMode()}
+                    aria-pressed={game.digMode()}
+                    style={{
+                      transition: "background-color 0.15s ease-out, color 0.15s ease-out",
+                    }}
+                    class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium ${
+                      game.digMode()
+                        ? "bg-accent text-white"
+                        : "bg-surface text-fg-tertiary hover:text-fg"
+                    }`}
                   >
-                    <path d="M14 2L4 14l1 5 5 1L20 10" />
-                  </svg>
-                  Dig
-                </button>
-                <button
-                  type="button"
-                  onClick={() => !game.digMode() || game.toggleMode()}
-                  aria-pressed={!game.digMode()}
-                  style={{
-                    transition: "background-color 0.15s ease-out, color 0.15s ease-out",
-                  }}
-                  class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-l border-border ${
-                    !game.digMode()
-                      ? "bg-accent text-white"
-                      : "bg-surface text-fg-tertiary hover:text-fg"
-                  }`}
-                >
-                  <Flag size={14} />
-                  Flag
-                </button>
+                    <svg
+                      aria-hidden="true"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
+                      <path d="M14 2L4 14l1 5 5 1L20 10" />
+                    </svg>
+                    Dig
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => !game.digMode() || game.toggleMode()}
+                    aria-pressed={!game.digMode()}
+                    style={{
+                      transition: "background-color 0.15s ease-out, color 0.15s ease-out",
+                    }}
+                    class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-l border-border ${
+                      !game.digMode()
+                        ? "bg-accent text-white"
+                        : "bg-surface text-fg-tertiary hover:text-fg"
+                    }`}
+                  >
+                    <Flag size={14} />
+                    Flag
+                  </button>
+                </div>
               </div>
               <p class="text-xs text-fg-tertiary tracking-wide text-center">
                 Hold or right-click to flag

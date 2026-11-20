@@ -1,11 +1,9 @@
-import { createEffect, createSignal, Show } from "solid-js";
+import { createEffect, createSignal, onMount, Show } from "solid-js";
 import { formatTimer } from "@/lib/elapsedTimer";
 import { create2048Game } from "@/lib/game2048Game";
 import Game2048Board from "./Game2048Board";
 import Game2048WinOverlay from "./Game2048WinOverlay";
 import GameScreen from "./GameScreen";
-import ThemeToggle from "./ThemeToggle";
-import BackLink from "./ui/BackLink";
 import Button from "./ui/Button";
 
 function formatNumber(n: number): string {
@@ -18,48 +16,17 @@ export default function Game2048App() {
   const [gameOverDialog, setGameOverDialog] = createSignal<HTMLDivElement>();
   createEffect(() => gameOverDialog()?.querySelector("button")?.focus());
 
+  // No setup screen: resume the saved game, or start one.
+  onMount(() => {
+    if (game.phase() !== "playing") game.startGame();
+  });
+
   function handleBackToGames() {
     window.location.href = "/";
   }
 
   return (
     <>
-      {/* ── Setup Phase (just a start button) ────────────────────────── */}
-      <Show when={game.phase() === "setup"}>
-        <div class="flex flex-col min-h-screen animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both">
-          {/* Top bar */}
-          <div class="flex items-center justify-between px-5 py-4">
-            <BackLink label="Games" href="/" />
-            <ThemeToggle />
-          </div>
-
-          {/* Setup content */}
-          <div class="flex-1 flex flex-col items-center justify-center gap-10 px-5 pb-16">
-            <div class="text-center">
-              <h1 class="font-display text-6xl md:text-7xl text-fg italic tracking-tight">2048</h1>
-              <p class="mt-2 text-sm text-fg-secondary tracking-wide">
-                Join the tiles, get to <span class="text-accent font-medium">2048</span>
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => game.startGame()}
-              class="px-10 py-3.5 rounded-xl bg-accent text-white font-medium text-base hover:bg-accent-hover"
-              style={{
-                transition: "background-color 0.2s ease, transform 0.1s ease-out",
-              }}
-            >
-              Start
-            </button>
-
-            <p class="text-xs text-fg-tertiary tracking-wide">
-              Use arrow keys or swipe to move tiles
-            </p>
-          </div>
-        </div>
-      </Show>
-
       {/* ── Win Overlay ──────────────────────────────────────────────── */}
       <Show when={game.phase() === "playing" && game.hasShownWin()}>
         <Game2048WinOverlay
@@ -70,10 +37,17 @@ export default function Game2048App() {
       </Show>
 
       {/* ── Playing Phase ────────────────────────────────────────────── */}
-      <Show when={game.phase() === "playing" && !game.hasShownWin()}>
+      <Show when={!game.hasShownWin()}>
         <GameScreen
-          left={<BackLink label="Setup" onClick={game.returnToSetup} />}
-          center={
+          title="2048"
+          meta="Join the tiles"
+          timer={formatTimer(game.timerSeconds())}
+          menu={
+            <Button variant="secondary" onClick={game.playAgain}>
+              New game
+            </Button>
+          }
+          stats={
             <div class="flex items-center gap-4 text-xs">
               <div class="flex flex-col items-center">
                 <span class="text-fg-tertiary text-xs tracking-widest uppercase">Score</span>
@@ -97,15 +71,8 @@ export default function Game2048App() {
                   {formatNumber(game.bestScore())}
                 </span>
               </div>
-
-              <span class="opacity-40">|</span>
-
-              <span class="font-mono tabular-nums tracking-wider text-fg-secondary">
-                {formatTimer(game.timerSeconds())}
-              </span>
             </div>
           }
-          right={<ThemeToggle />}
         >
           <Show
             when={game.tiles.length > 0}
@@ -139,8 +106,10 @@ export default function Game2048App() {
               {formatNumber(game.score())} points
             </p>
             <div class="flex items-center gap-3 mt-8">
-              <Button onClick={game.playAgain}>Play again</Button>
-              <Button variant="secondary" onClick={handleBackToGames}>
+              <Button size="lg" onClick={game.playAgain}>
+                Play again
+              </Button>
+              <Button size="lg" variant="secondary" onClick={handleBackToGames}>
                 Back to games
               </Button>
             </div>

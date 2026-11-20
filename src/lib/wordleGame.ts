@@ -8,6 +8,7 @@
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createElapsedTimer } from "./elapsedTimer";
+import { loadWordleVariant, saveWordleVariant } from "./gamePreferences";
 import { shouldIgnoreGameKey } from "./keyboard";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
@@ -30,14 +31,15 @@ import {
 import { isPersistedWordleSession, type PersistedWordleSession } from "./wordleSession";
 import { buildWordList } from "./wordleWordList";
 
-export type Phase = "setup" | "playing";
+/** "idle" until the page mounts and resumes or starts a game. */
+export type Phase = "idle" | "playing";
 export type { GuessResult, LetterState, Variant };
 
 const wordListCache = new Map<Variant, Promise<WordList>>();
 
 export function createWordleGame() {
   // ── Raw signals ──────────────────────────────────────────────────────────
-  const [phase, setPhase] = createSignal<Phase>("setup");
+  const [phase, setPhase] = createSignal<Phase>("idle");
   const [variant, setVariant] = createSignal<Variant>(5);
 
   const [answer, setAnswer] = createSignal("");
@@ -151,9 +153,9 @@ export function createWordleGame() {
     saveStoredJSON(STORAGE_KEYS.wordleSession, session);
   }
 
-  async function restoreSession() {
+  async function restoreSession(): Promise<boolean> {
     const session = loadStoredJSON(STORAGE_KEYS.wordleSession, isPersistedWordleSession);
-    if (!session) return;
+    if (!session) return false;
 
     setLoading(true);
     try {
@@ -182,6 +184,7 @@ export function createWordleGame() {
       if (!result && hasStartedPlaying && document.visibilityState === "visible") {
         timer.start();
       }
+      return true;
     } finally {
       setLoading(false);
     }
@@ -206,6 +209,9 @@ export function createWordleGame() {
   // ── Public actions ────────────────────────────────────────────────────────
 
   async function startGame(v: Variant) {
+    saveWordleVariant(v);
+    // On first load, size the empty board right away instead of after the word list arrives.
+    if (phase() === "idle") setVariant(v);
     const requestId = ++startRequestId;
     setLoading(true);
     try {
@@ -231,13 +237,6 @@ export function createWordleGame() {
         setLoading(false);
       }
     }
-  }
-
-  function returnToSetup() {
-    startRequestId++;
-    setLoading(false);
-    resetProgress();
-    setPhase("setup");
   }
 
   function playAgain() {
@@ -351,7 +350,9 @@ export function createWordleGame() {
   }
 
   onMount(() => {
-    void restoreSession().finally(() => setPersistenceReady(true));
+    void restoreSession()
+      .then((restored) => (restored ? undefined : startGame(loadWordleVariant())))
+      .finally(() => setPersistenceReady(true));
     document.addEventListener("keydown", handleKeydown);
     document.addEventListener("visibilitychange", handleVisibility);
   });
@@ -388,7 +389,6 @@ export function createWordleGame() {
     toastMessage,
     // Actions
     startGame,
-    returnToSetup,
     playAgain,
     typeLetter,
     deleteLetter,

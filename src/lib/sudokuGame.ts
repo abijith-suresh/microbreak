@@ -7,6 +7,7 @@
 
 import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { createElapsedTimer } from "./elapsedTimer";
+import { loadSudokuPreferences, saveSudokuPreferences } from "./gamePreferences";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import {
@@ -22,12 +23,13 @@ import {
 import { requestSudokuPuzzle } from "./sudokuGenerator";
 import { isPersistedSudokuSession, type PersistedSudokuSession } from "./sudokuSession";
 
-export type Phase = "setup" | "playing";
+/** "idle" until the page mounts and resumes or starts a game. */
+export type Phase = "idle" | "playing";
 export type { CompletingGroup };
 
 export function createSudokuGame() {
   // ── Raw signals ──────────────────────────────────────────────────────────
-  const [phase, setPhase] = createSignal<Phase>("setup");
+  const [phase, setPhase] = createSignal<Phase>("idle");
   const [gridSize, setGridSize] = createSignal<GridSize>(9);
   const [difficulty, setDifficulty] = createSignal<Difficulty>("medium");
 
@@ -159,9 +161,9 @@ export function createSudokuGame() {
     saveStoredJSON(STORAGE_KEYS.sudokuSession, session);
   }
 
-  function restoreSession() {
+  function restoreSession(): boolean {
     const session = loadStoredJSON(STORAGE_KEYS.sudokuSession, isPersistedSudokuSession);
-    if (!session) return;
+    if (!session) return false;
 
     hasStartedFilling = session.hasStartedFilling;
     const restoredUserBoard = session.userBoard.map((row) => [...row]);
@@ -185,6 +187,7 @@ export function createSudokuGame() {
     if (hasStartedFilling && document.visibilityState === "visible") {
       timer.start();
     }
+    return true;
   }
 
   function queuePuzzleGeneration(size: GridSize, diff: Difficulty) {
@@ -201,18 +204,13 @@ export function createSudokuGame() {
 
   // ── Public actions ────────────────────────────────────────────────────────
   function startGame(size: GridSize, diff: Difficulty) {
+    saveSudokuPreferences({ size, difficulty: diff });
     batch(() => {
       setGridSize(size);
       setDifficulty(diff);
       setPhase("playing");
     });
     queuePuzzleGeneration(size, diff);
-  }
-
-  function returnToSetup() {
-    clearPendingGeneration();
-    prepareLoadingState();
-    setPhase("setup");
   }
 
   function playAgain() {
@@ -291,7 +289,10 @@ export function createSudokuGame() {
   }
 
   onMount(() => {
-    restoreSession();
+    if (!restoreSession()) {
+      const preferences = loadSudokuPreferences();
+      startGame(preferences.size, preferences.difficulty);
+    }
     document.addEventListener("visibilitychange", handleVisibility);
     setPersistenceReady(true);
   });
@@ -329,7 +330,6 @@ export function createSudokuGame() {
     numberPlacedCounts,
     // Actions
     startGame,
-    returnToSetup,
     playAgain,
     selectCell,
     fillCell,

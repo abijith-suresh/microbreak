@@ -154,8 +154,10 @@ export default function ResultScreen(props: Props) {
 
       {/* Actions */}
       <div class="flex flex-col sm:flex-row items-center gap-3 mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
-        <Button onClick={() => props.onPlayAgain()}>Play again</Button>
-        <Button variant="secondary" onClick={() => props.onBackToGames()}>
+        <Button size="lg" onClick={() => props.onPlayAgain()}>
+          Play again
+        </Button>
+        <Button size="lg" variant="secondary" onClick={() => props.onBackToGames()}>
           Back to games
         </Button>
       </div>
