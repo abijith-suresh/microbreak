@@ -47,4 +47,10 @@ describe("shouldIgnoreGameKey", () => {
     const input = new FakeElement("input", body);
     expect(shouldIgnoreGameKey(keydown("a", input))).toBe(true);
   });
+
+  it("ignores every key while focus is in the new-game menu", () => {
+    const chip = new FakeElement("button", new FakeElement("[data-game-menu]", body));
+    expect(shouldIgnoreGameKey(keydown("a", chip))).toBe(true);
+    expect(shouldIgnoreGameKey(keydown("Backspace", chip))).toBe(true);
+  });
 });
