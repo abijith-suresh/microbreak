@@ -31,11 +31,16 @@ export default function GameScreen(props: Props) {
       <header class="border-b border-border">
         <div class="page-frame flex h-14 items-center gap-1.5 min-[360px]:gap-2 sm:h-15 sm:gap-3">
           <BackLink />
-          <div class="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2.5">
-            <h1 class="font-display text-[22px] leading-none text-fg italic sm:text-[26px]">
+          {/* Same height as the 36px buttons on phones (22px title + 14px settings line), so
+              its top, bottom and centre match theirs. From sm up it is one centred line. */}
+          <div
+            data-title-block
+            class="flex h-9 min-w-0 flex-col justify-between sm:h-auto sm:flex-row sm:items-baseline sm:gap-2.5 sm:pt-px"
+          >
+            <h1 class="font-display text-[22px] leading-[22px] text-fg italic sm:text-[26px] sm:leading-[26px]">
               {props.title}
             </h1>
-            <span class="truncate text-[11px] text-fg-tertiary sm:text-[13px]">
+            <span class="truncate text-[11px] leading-[14px] text-fg-tertiary sm:text-[13px] sm:leading-[18px]">
               {props.meta}
               <span class="sm:hidden">
                 {" · "}
