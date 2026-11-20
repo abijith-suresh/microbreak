@@ -29,7 +29,7 @@ export default function GameScreen(props: Props) {
   return (
     <div class="flex flex-col min-h-dvh">
       <header class="border-b border-border">
-        <div class="page-frame flex h-14 items-center gap-2 sm:h-15 sm:gap-3">
+        <div class="page-frame flex h-14 items-center gap-1.5 min-[360px]:gap-2 sm:h-15 sm:gap-3">
           <BackLink />
           <div class="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2.5">
             <h1 class="font-display text-[22px] leading-none text-fg italic sm:text-[26px]">
@@ -43,14 +43,15 @@ export default function GameScreen(props: Props) {
               </span>
             </span>
           </div>
-          <div class="flex-1" />
-          {props.stats}
-          <span class="hidden font-mono text-sm tabular-nums tracking-wider text-fg-secondary sm:inline">
-            {props.timer}
-          </span>
-          <span class="hidden h-5 w-px bg-border sm:block" aria-hidden="true" />
-          {props.menu}
-          <ThemeToggle />
+          <div class="ml-auto flex shrink-0 items-center gap-1.5 min-[360px]:gap-2 sm:gap-3">
+            {props.stats}
+            <span class="hidden font-mono text-sm tabular-nums tracking-wider text-fg-secondary sm:inline">
+              {props.timer}
+            </span>
+            <span class="hidden h-5 w-px bg-border sm:block" aria-hidden="true" />
+            {props.menu}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

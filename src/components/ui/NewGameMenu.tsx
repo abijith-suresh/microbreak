@@ -73,7 +73,7 @@ export default function NewGameMenu(props: Props) {
         <ChevronDown
           size={16}
           strokeWidth={1.5}
-          class={`transition-transform duration-200 ${open() ? "rotate-180" : ""}`}
+          class={`hidden transition-transform duration-200 min-[360px]:block ${open() ? "rotate-180" : ""}`}
         />
       </button>
 
