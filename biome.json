@@ -8,11 +8,6 @@
       "preset": "recommended",
       "correctness": { "noUnusedVariables": "error" },
       "suspicious": { "noConsole": "warn", "noVar": "error", "noDuplicateJsxProps": "off" },
-      "a11y": {
-        "useButtonType": "off",
-        "noSvgWithoutTitle": "off",
-        "noLabelWithoutControl": "off"
-      },
       "style": { "useConst": "error" }
     }
   },

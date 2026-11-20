@@ -86,10 +86,10 @@ export default function WordleSetup(props: Props) {
 
         {/* Variant selection */}
         <div class="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 fill-mode-both">
-          <div class="space-y-3">
-            <label class="text-xs font-medium text-fg-tertiary uppercase tracking-widest">
+          <fieldset class="min-w-0">
+            <legend class="text-xs leading-6 font-medium text-fg-tertiary uppercase tracking-widest">
               Word length
-            </label>
+            </legend>
             <div class="grid grid-cols-3 gap-2.5">
               {variants.map((v) => (
                 <Button
@@ -99,6 +99,7 @@ export default function WordleSetup(props: Props) {
                       ? "border-accent bg-accent-light"
                       : "border-border bg-surface hover:border-border-strong"
                   }`}
+                  aria-pressed={selectedVariant() === v.value}
                   onClick={() => setSelectedVariant(v.value)}
                 >
                   <span
@@ -129,7 +130,7 @@ export default function WordleSetup(props: Props) {
                 </Button>
               ))}
             </div>
-          </div>
+          </fieldset>
         </div>
 
         {/* Start button */}

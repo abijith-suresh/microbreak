@@ -1,4 +1,4 @@
-import { Show } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { formatTimer } from "@/lib/elapsedTimer";
 import { create2048Game } from "@/lib/game2048Game";
 import Game2048Board from "./Game2048Board";
@@ -14,6 +14,9 @@ function formatNumber(n: number): string {
 
 export default function Game2048App() {
   const game = create2048Game();
+
+  const [gameOverDialog, setGameOverDialog] = createSignal<HTMLDivElement>();
+  createEffect(() => gameOverDialog()?.querySelector("button")?.focus());
 
   function handleBackToGames() {
     window.location.href = "/";
@@ -40,6 +43,7 @@ export default function Game2048App() {
             </div>
 
             <button
+              type="button"
               onClick={() => game.startGame()}
               class="px-10 py-3.5 rounded-xl bg-accent text-white font-medium text-base hover:bg-accent-hover"
               style={{
@@ -115,6 +119,7 @@ export default function Game2048App() {
 
         <Show when={game.gameOver()}>
           <div
+            ref={setGameOverDialog}
             class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-bg/80 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"

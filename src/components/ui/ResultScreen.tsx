@@ -33,9 +33,11 @@ function taglineText(type: "won" | "lost"): string {
 
 export default function ResultScreen(props: Props) {
   let svgRef: SVGSVGElement | undefined;
+  let dialogRef!: HTMLDivElement;
   const isWon = () => props.type === "won";
 
   onMount(() => {
+    dialogRef.querySelector("button")?.focus();
     if (svgRef && isWon()) {
       const circle = svgRef.querySelector(".result-checkmark-circle") as SVGElement;
       const check = svgRef.querySelector(".result-checkmark-check") as SVGElement;
@@ -56,6 +58,7 @@ export default function ResultScreen(props: Props) {
 
   return (
     <div
+      ref={dialogRef}
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
       role="dialog"
       aria-modal="true"
@@ -70,7 +73,14 @@ export default function ResultScreen(props: Props) {
       {/* Icon */}
       <div class="mb-6 animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both">
         {isWon() ? (
-          <svg ref={(el) => (svgRef = el)} width="80" height="80" viewBox="0 0 96 96" fill="none">
+          <svg
+            aria-hidden="true"
+            ref={(el) => (svgRef = el)}
+            width="80"
+            height="80"
+            viewBox="0 0 96 96"
+            fill="none"
+          >
             <circle
               class="result-checkmark-circle"
               cx="48"
@@ -91,7 +101,7 @@ export default function ResultScreen(props: Props) {
             />
           </svg>
         ) : (
-          <svg width="80" height="80" viewBox="0 0 96 96" fill="none">
+          <svg aria-hidden="true" width="80" height="80" viewBox="0 0 96 96" fill="none">
             <circle
               cx="48"
               cy="48"

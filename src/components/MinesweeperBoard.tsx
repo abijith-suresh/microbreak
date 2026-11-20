@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
 import { shouldIgnoreGameKey } from "@/lib/keyboard";
 import type { Board } from "@/lib/minesweeper";
 import MinesweeperCell from "./MinesweeperCell";
@@ -89,6 +89,20 @@ export default function MinesweeperBoard(props: Props) {
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
   });
 
+  // ── Roving tabindex ────────────────────────────────────────────────────────
+  // The board is one tab stop; arrow keys carry focus along with the selection.
+  let boardRef!: HTMLDivElement;
+  createEffect(() => {
+    const sel = props.selectedCell;
+    if (sel && boardRef.contains(document.activeElement)) {
+      (boardRef.children[sel[0] * cols() + sel[1]] as HTMLElement | undefined)?.focus();
+    }
+  });
+  const isTabStop = (row: number, col: number) => {
+    const sel = props.selectedCell;
+    return sel ? sel[0] === row && sel[1] === col : row === 0 && col === 0;
+  };
+
   // ── Per-cell helpers ───────────────────────────────────────────────────────
 
   function cellBorderClasses(col: number): string {
@@ -126,6 +140,7 @@ export default function MinesweeperBoard(props: Props) {
 
   return (
     <div
+      ref={boardRef}
       data-game-keys
       class="inline-grid rounded-sm overflow-hidden border-2 border-border-strong shadow-md shadow-shadow"
       style={{ "grid-template-columns": `repeat(${cols()}, auto)` }}
@@ -145,6 +160,18 @@ export default function MinesweeperBoard(props: Props) {
             return tm !== null && tm[0] === row && tm[1] === col;
           };
           const isWrongFlag = () => wrongFlagsSet().has(`${row},${col}`);
+          const label = () => {
+            const c = cell();
+            const what =
+              !c || c.state === "hidden"
+                ? "Hidden"
+                : c.state === "flagged"
+                  ? "Flagged"
+                  : c.isMine
+                    ? "Mine"
+                    : c.value || "Empty";
+            return `${what}, row ${row + 1}, column ${col + 1}`;
+          };
 
           // ── Per-cell animation values ──────────────────────────────────────
           const centerRow = (rows() - 1) / 2;
@@ -180,6 +207,8 @@ export default function MinesweeperBoard(props: Props) {
               cellSize={cs}
               fontSize={fs}
               borderClasses={borders}
+              label={label()}
+              tabIndex={isTabStop(row, col) ? 0 : -1}
               entering={entering()}
               entranceDelay={entranceDelay}
               isCompleting={props.isCompleting}

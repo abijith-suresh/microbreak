@@ -9,8 +9,10 @@ interface Props {
 
 export default function Game2048WinOverlay(props: Props) {
   let svgRef: SVGSVGElement | undefined;
+  let dialogRef!: HTMLDivElement;
 
   onMount(() => {
+    dialogRef.querySelector("button")?.focus();
     if (svgRef) {
       const star = svgRef.querySelector(".win-star") as SVGElement;
       if (star) {
@@ -29,6 +31,7 @@ export default function Game2048WinOverlay(props: Props) {
 
   return (
     <div
+      ref={dialogRef}
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/90 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
@@ -40,12 +43,12 @@ export default function Game2048WinOverlay(props: Props) {
       {/* Star icon */}
       <div class="mb-6 animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both">
         <svg
+          aria-hidden="true"
           ref={(el) => (svgRef = el)}
           width="80"
           height="80"
           viewBox="0 0 96 96"
           fill="none"
-          aria-label="Star icon"
         >
           <path
             class="win-star"

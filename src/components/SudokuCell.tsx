@@ -23,6 +23,8 @@ interface Props {
   borderClasses: string;
   cellSize: string;
   fontSize: string;
+  label: string;
+  tabIndex: number;
   onSelect: () => void;
 }
 
@@ -102,6 +104,7 @@ export default function SudokuCell(props: Props) {
 
   return (
     <button
+      type="button"
       class={[
         "sudoku-cell",
         cellAnimationClass(),
@@ -114,7 +117,6 @@ export default function SudokuCell(props: Props) {
         textClass(),
         hoverClass(),
         "cursor-pointer",
-        "focus:outline-none",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -124,6 +126,8 @@ export default function SudokuCell(props: Props) {
           transform: cellTransform(),
         } as JSX.CSSProperties & Record<string, string | undefined>
       }
+      aria-label={props.label}
+      tabIndex={props.tabIndex}
       onClick={props.onSelect}
       onPointerDown={() => setPressing(true)}
       onPointerUp={() => setPressing(false)}

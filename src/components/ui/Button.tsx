@@ -61,6 +61,7 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset";
   children?: JSX.Element;
   "aria-label"?: string;
+  "aria-pressed"?: boolean;
 }
 
 export default function Button(props: ButtonProps) {
@@ -76,6 +77,7 @@ export default function Button(props: ButtonProps) {
       })}
       style={props.style}
       aria-label={props["aria-label"]}
+      aria-pressed={props["aria-pressed"]}
     >
       {props.children}
     </button>
