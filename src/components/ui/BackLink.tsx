@@ -1,56 +1,16 @@
 import { ChevronLeft } from "@/lib/icons";
+import { buttonVariants } from "./Button";
 
-interface BackLinkProps {
-  /** Label text next to the chevron icon (e.g. "Games", "Setup"). */
-  label: string;
-  /** When provided, renders an <a href={href}>. Mutually exclusive with onClick. */
-  href?: string;
-  /** When provided, renders a <button onClick={onClick}>. Mutually exclusive with href. */
-  onClick?: () => void;
-}
-
-/**
- * Back-navigation control used in top bars and setup screens.
- *
- * - `href` mode:  renders an `<a>` element for page navigation.
- * - `onClick` mode: renders a `<button>` element with press-feedback animation.
- *
- * Visual output and press behaviour match the patterns previously duplicated
- * across every game app and setup screen.
- */
-export default function BackLink(props: BackLinkProps) {
-  const icon = <ChevronLeft size={18} strokeWidth={1.5} class="shrink-0" />;
-
-  const label = <span class="text-sm font-medium hidden sm:inline">{props.label}</span>;
-
-  const ariaLabel = `Back to ${props.label.toLowerCase()}`;
-
-  // The ::after box widens the hit area to 44×44 without moving anything.
-  const commonClasses =
-    "relative flex items-center gap-1.5 text-fg-tertiary hover:text-fg after:absolute after:-inset-3.25";
-
-  if (props.href !== undefined) {
-    return (
-      <a
-        href={props.href}
-        class={`${commonClasses} transition-colors duration-200`}
-        aria-label={ariaLabel}
-      >
-        {icon}
-        {label}
-      </a>
-    );
-  }
-
+/** The top bar's way home: the same icon button as the theme toggle. */
+export default function BackLink() {
   return (
-    <button
-      type="button"
-      onClick={props.onClick}
-      class={`${commonClasses} active:scale-[0.93] transition duration-100 ease-out`}
-      aria-label={ariaLabel}
+    <a
+      href="/"
+      aria-label="Back to games"
+      title="Back to games"
+      class={buttonVariants({ variant: "secondary", size: "icon" })}
     >
-      {icon}
-      {label}
-    </button>
+      <ChevronLeft size={18} strokeWidth={1.5} />
+    </a>
   );
 }

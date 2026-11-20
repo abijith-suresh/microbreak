@@ -15,7 +15,6 @@ test("back link keeps its name on phones", async ({ page }) => {
 
 test("minesweeper board is one tab stop with labelled cells", async ({ page }) => {
   await page.goto("/minesweeper/");
-  await page.getByRole("button", { name: "Start", exact: true }).click();
 
   await expect(page.getByRole("button", { name: "Hidden, row 1, column 1" })).toBeVisible();
   await expect(page.locator(".minesweeper-cell[tabindex='0']")).toHaveCount(1);

@@ -173,11 +173,6 @@ export function create2048Game() {
     });
   }
 
-  function returnToSetup() {
-    resetState();
-    setPhase("setup");
-  }
-
   function playAgain() {
     startGame();
   }
@@ -321,7 +316,6 @@ export function create2048Game() {
     timerSeconds,
     scorePopup,
     startGame,
-    returnToSetup,
     playAgain,
     handleMove,
     continueAfterWin,

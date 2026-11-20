@@ -2,6 +2,7 @@ import { createSignal, onMount } from "solid-js";
 import { Moon, Sun } from "@/lib/icons";
 import { loadStoredString, saveStoredString } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/storageKeys";
+import { buttonVariants } from "./ui/Button";
 
 const THEMES = ["light", "dark"] as const;
 
@@ -38,7 +39,7 @@ export default function ThemeToggle() {
       type="button"
       data-theme-toggle
       onClick={toggle}
-      class="relative flex h-9 w-9 items-center justify-center rounded-lg after:absolute after:-inset-1.25 border border-border bg-surface text-fg-secondary transition-all hover:border-border-strong hover:text-fg hover:shadow-sm"
+      class={buttonVariants({ variant: "secondary", size: "icon" })}
       aria-label={`Switch to ${current() === "light" ? "dark" : "light"} mode`}
       title={`Switch to ${current() === "light" ? "dark" : "light"} mode`}
     >

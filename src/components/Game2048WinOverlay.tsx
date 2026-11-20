@@ -76,8 +76,10 @@ export default function Game2048WinOverlay(props: Props) {
 
       {/* Actions */}
       <div class="flex flex-col sm:flex-row items-center gap-3 mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
-        <Button onClick={() => props.onKeepPlaying()}>Keep playing</Button>
-        <Button variant="secondary" onClick={() => props.onNewGame()}>
+        <Button size="lg" onClick={() => props.onKeepPlaying()}>
+          Keep playing
+        </Button>
+        <Button size="lg" variant="secondary" onClick={() => props.onNewGame()}>
           Play again
         </Button>
       </div>

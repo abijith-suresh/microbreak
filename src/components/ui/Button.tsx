@@ -1,9 +1,13 @@
 import type { JSX } from "solid-js";
 
-// ── Types ──────────────────────────────────────────────────
+// One control set: two roles, one radius, two heights.
+//   primary   the one action a screen is about
+//   secondary everything else
+// Sizes: md (36px) for bars and menus, lg (44px) for screen actions, icon (36px square).
+// Pass layout classes (width, margin) through `class`, never another height or padding.
 
-export type ButtonVariant = "primary" | "secondary" | "ghost";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonVariant = "primary" | "secondary";
+export type ButtonSize = "md" | "lg" | "icon";
 
 interface ButtonVariantsProps {
   variant?: ButtonVariant;
@@ -11,45 +15,32 @@ interface ButtonVariantsProps {
   class?: string;
 }
 
-// ── buttonVariants ──────────────────────────────────────────
-// Standalone function so any element can use the same styling.
-
 export function buttonVariants({
   variant = "primary",
   size = "md",
   class: className,
 }: ButtonVariantsProps = {}) {
-  const base = [
-    // Layout
-    "inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap",
-    // Press feedback via CSS — no JS signals needed
-    "active:scale-[0.93] transition duration-100 ease-out",
-    // Focus ring
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-    // Disabled state
-    "disabled:pointer-events-none disabled:opacity-50",
-  ];
+  const base =
+    "inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[10px] border font-medium " +
+    "active:scale-[0.96] transition duration-100 ease-out " +
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent " +
+    "disabled:pointer-events-none disabled:opacity-50";
 
   const variants: Record<ButtonVariant, string> = {
-    primary: "rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover",
+    primary: "border-accent bg-accent text-white hover:border-accent-hover hover:bg-accent-hover",
     secondary:
-      "rounded-xl bg-surface border border-border text-fg-secondary font-medium text-sm hover:border-accent hover:text-accent",
-    ghost:
-      "rounded-lg bg-surface border border-border text-sm font-medium text-fg-tertiary hover:border-accent hover:text-accent",
+      "border-border bg-surface text-fg-secondary hover:border-accent hover:text-accent aria-expanded:border-accent aria-expanded:text-accent",
   };
 
   const sizes: Record<ButtonSize, string> = {
-    sm: "px-4 py-2 text-xs",
-    md: "px-8 py-3 text-sm",
-    lg: "px-10 py-4 text-base",
+    // md and icon are 36px; the ::after box widens their hit area to 44px.
+    md: "relative h-9 px-3.5 text-[13px] after:absolute after:-inset-1",
+    lg: "h-11 px-5.5 text-sm",
+    icon: "relative size-9 after:absolute after:-inset-1",
   };
 
-  return [base.join(" "), variants[variant], sizes[size], className].filter(Boolean).join(" ");
+  return [base, variants[variant], sizes[size], className].filter(Boolean).join(" ");
 }
-
-// ── Button ──────────────────────────────────────────────────
-// Thin component for the common case. Use `buttonVariants()`
-// directly when you need a different element (e.g. <a>).
 
 interface ButtonProps {
   onClick?: () => void;
