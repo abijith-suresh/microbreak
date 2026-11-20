@@ -4,42 +4,33 @@ interface Props {
 }
 
 const { currentPage } = Astro.props;
-
-const links: { label: string; href: string; show: boolean }[] = [
-  { label: "About", href: "/about", show: currentPage !== "about" },
-  {
-    label: "GitHub",
-    href: "https://github.com/abijith-suresh/microbreak",
-    show: true,
-  },
-];
-
-const visibleLinks = links.filter((l) => l.show);
 ---
 
-<footer class="px-5 md:px-10 pb-10">
-  <div class="h-px bg-border mb-6"></div>
-  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-    <p class="text-xs text-fg-tertiary tracking-widest uppercase">
-      No ads · No tracking · Just puzzles
+<footer class="px-5 pb-10 md:px-10">
+  <div
+    class="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-baseline sm:justify-between"
+  >
+    <p class="text-sm text-fg-tertiary">
+      <a href="/" class="font-display text-lg text-fg-secondary italic hover:text-accent">
+        Microbreak
+      </a>
+      <span class="mx-1.5 opacity-50">·</span>
+      A brain gym for agent wait time
     </p>
-    <div class="flex items-center gap-4 text-xs text-fg-tertiary">
+    <nav class="flex gap-5 text-sm text-fg-tertiary">
       {
-        visibleLinks.map((link, i) => (
-          <>
-            {i > 0 && <span class="opacity-30">·</span>}
-            <a
-              href={link.href}
-              {...(link.href.startsWith("http")
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {})}
-              class="hover:text-fg transition-colors"
-            >
-              {link.label}
-            </a>
-          </>
-        ))
+        currentPage !== "about" && (
+          <a href="/about" class="hover:text-fg transition-colors">
+            About
+          </a>
+        )
       }
-    </div>
+      <a
+        href="https://github.com/abijith-suresh/microbreak"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-fg transition-colors">GitHub</a
+      >
+    </nav>
   </div>
 </footer>

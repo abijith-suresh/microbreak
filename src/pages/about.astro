@@ -15,65 +15,26 @@ const gameNames = new Intl.ListFormat("en").format(
 
 <BaseLayout
   title="About — Microbreak"
-  description="Microbreak is a collection of short, non-addictive puzzles designed for the gaps between builds — no ads, no tracking, no dark patterns."
+  description="Thinking games for agent wait time. Every game saves as you play. No accounts, ads or tracking."
 >
   <div class="min-h-screen flex flex-col">
     <PageHeader title="About" />
 
-    <main class="flex-1 flex flex-col items-center px-5 md:px-10 pb-16">
-      <article class="w-full max-w-prose">
-        <div class="space-y-5 text-sm md:text-base text-fg-secondary tracking-wide leading-relaxed">
+    <main class="flex-1 px-5 md:px-10 pb-16">
+      <article class="max-w-prose">
+        <div class="space-y-5 text-base text-fg-secondary leading-relaxed md:text-lg">
           <p>
-            Microbreak is built for the in-between moments of software development: waiting for
-            builds, test suites, deployments, or package installs to finish.
+            An agent run takes a few minutes. That's too short to start something else and long
+            enough to lose you to a feed.
           </p>
           <p>
-            Those small gaps are awkward. They're too short to start meaningful work, but long
-            enough to break your flow if you drift too far. Microbreak fills that space with quick,
-            low-commitment puzzles that reset your brain without hijacking your attention.
+            Microbreak gives you {gameNames} instead. Each one takes real thought and saves as you
+            play. Leave when an agent needs you, and come back to it after a reload, a closed tab or
+            a day away.
           </p>
           <p>
-            The platform offers familiar games like {gameNames}, each
-            designed to load instantly, play smoothly, and end cleanly. You can jump in for a minute
-            or two, then get back to work without feeling trapped in an endless session.
-          </p>
-          <p>Microbreak is intentionally simple:</p>
-          <ul class="list-none pl-0 space-y-1.5">
-            <li class="flex items-start gap-2">
-              <span class="text-accent mt-0.5 select-none">–</span>
-              <span>No ads</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-accent mt-0.5 select-none">–</span>
-              <span>No tracking</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-accent mt-0.5 select-none">–</span>
-              <span>No notifications</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-accent mt-0.5 select-none">–</span>
-              <span>No streak systems</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-accent mt-0.5 select-none">–</span>
-              <span>No leaderboards</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-accent mt-0.5 select-none">–</span>
-              <span>No engagement traps</span>
-            </li>
-          </ul>
-          <p>
-            Everything runs entirely in your browser. There are no external API calls, no
-            unnecessary accounts, and no data collection. Your progress stays on your device, saved
-            locally.
-          </p>
-          <p>Close the tab, and you're done.</p>
-          <p>
-            Microbreak respects your time, your focus, and your privacy. It exists for one purpose:
-            giving developers and other knowledge workers a better way to spend the small waiting
-            periods built into modern work.
+            No accounts, ads or tracking. No streaks, notifications or leaderboards. Your games stay
+            in your browser.
           </p>
         </div>
 
