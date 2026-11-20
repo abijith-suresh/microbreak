@@ -25,7 +25,7 @@ function difficultyString(size: number, diff: string): string {
 
 // ── Skeleton board ─────────────────────────────────────────────────────────────
 /**
- * Shown for the brief window (~1 frame) while the puzzle is generating.
+ * Shown while the puzzle is generating.
  * Matches the board's grid dimensions with pulsing empty cells so the layout
  * doesn't jump when the real board mounts.
  */
@@ -125,7 +125,6 @@ export default function SudokuApp() {
       <Show when={game.phase() === "playing" && game.completed()}>
         <ResultScreen
           type="won"
-          heading="Solved"
           solveTime={game.timerSeconds()}
           difficulty={difficultyString(game.gridSize(), game.difficulty())}
           onBackToGames={handleBackToGames}

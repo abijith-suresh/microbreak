@@ -33,7 +33,7 @@ export default function WordleKeyboard(props: Props) {
   }
 
   return (
-    <div class="flex flex-col items-center gap-1.5 w-full max-w-[350px]">
+    <div data-game-keys class="flex flex-col items-center gap-1.5 w-full max-w-[350px]">
       <For each={KEYBOARD_ROWS}>
         {(row) => (
           <div class="flex gap-1 sm:gap-1.5 w-full justify-center">
@@ -41,7 +41,10 @@ export default function WordleKeyboard(props: Props) {
               {(key) => {
                 const isSpecial = key === "Enter" || key === "Backspace";
                 const letterState = () => (!isSpecial ? props.keyboardState[key] : undefined);
-                const s = () => (letterState() ? stateStyles[letterState()!] : null);
+                const s = () => {
+                  const state = letterState();
+                  return state ? stateStyles[state] : null;
+                };
 
                 return (
                   <button

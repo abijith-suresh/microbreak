@@ -26,6 +26,11 @@ export function getMaxGuesses(variant: Variant): number {
   return variant + 1; // 4→5, 5→6, 6→7
 }
 
+export function getGameResult(guesses: GuessResult[], variant: Variant): "won" | "lost" | null {
+  if (guesses.at(-1)?.states.every((s) => s === "correct")) return "won";
+  return guesses.length >= getMaxGuesses(variant) ? "lost" : null;
+}
+
 // ── Core evaluation ────────────────────────────────────────────────────────────
 
 /**
@@ -71,7 +76,6 @@ export function computeGuess(guess: string, answer: string): LetterState[] {
  * Check if a word is a valid guess (exists in either solutions or guesses list).
  */
 export function isWordValid(word: string, wordList: WordList): boolean {
-  // Binary search since lists are sorted
   return binarySearch(wordList.guesses, word) || binarySearch(wordList.solutions, word);
 }
 

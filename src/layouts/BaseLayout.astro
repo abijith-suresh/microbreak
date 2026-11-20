@@ -1,4 +1,5 @@
 ---
+import { STORAGE_KEYS } from "../lib/storageKeys";
 import "../styles/global.css";
 
 interface Props {
@@ -8,8 +9,8 @@ interface Props {
 }
 
 const {
-  title = "Microbreak — Puzzles for the gaps between builds",
-  description = "Short, non-addictive puzzles to fill build wait time with healthy microbreaks.",
+  title = "Microbreak — Think while your agents work",
+  description = "Puzzles that take real thought, for while your coding agents work. Leave mid-game and pick up where you left off.",
   image = "/og-image.png",
 } = Astro.props;
 
@@ -63,10 +64,13 @@ const imageUrl = new URL(image, url).href;
       crossorigin
     />
     <title>{title}</title>
-    <script is:inline>
+    <script is:inline define:vars={{ themeKey: STORAGE_KEYS.theme }}>
       (function () {
         const THEME_COLORS = { light: "#c45d3e", dark: "#e07a5a" };
-        const stored = localStorage.getItem("microbreak-theme");
+        let stored = null;
+        try {
+          stored = localStorage.getItem(themeKey);
+        } catch {}
         let theme;
         if (stored === "light" || stored === "dark") {
           theme = stored;
@@ -83,6 +87,5 @@ const imageUrl = new URL(image, url).href;
     <main>
       <slot />
     </main>
-    <slot name="footer" />
   </body>
 </html>

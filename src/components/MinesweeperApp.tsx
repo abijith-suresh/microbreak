@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 import { formatTimer } from "@/lib/elapsedTimer";
-import { Circle } from "@/lib/icons";
-import type { Difficulty } from "@/lib/minesweeper";
+import { Circle, Flag } from "@/lib/icons";
+import { DIFFICULTY_PRESETS, type Difficulty } from "@/lib/minesweeper";
 import { createMinesweeperGame } from "@/lib/minesweeperGame";
 import GameScreen from "./GameScreen";
 import MinesweeperBoard from "./MinesweeperBoard";
@@ -11,7 +11,7 @@ import BackLink from "./ui/BackLink";
 import ResultScreen from "./ui/ResultScreen";
 
 function difficultyLabel(d: Difficulty): string {
-  return d.charAt(0).toUpperCase() + d.slice(1);
+  return DIFFICULTY_PRESETS[d].label;
 }
 
 export default function MinesweeperApp() {
@@ -29,14 +29,16 @@ export default function MinesweeperApp() {
       </Show>
 
       {/* ── Result Overlay ───────────────────────────────────────── */}
-      <Show when={game.phase() === "playing" && game.gameResult() !== null}>
-        <ResultScreen
-          type={game.gameResult()!}
-          solveTime={game.timerSeconds()}
-          difficulty={difficultyLabel(game.difficulty())}
-          onBackToGames={handleBackToGames}
-          onPlayAgain={game.playAgain}
-        />
+      <Show when={game.phase() === "playing" ? game.gameResult() : null}>
+        {(result) => (
+          <ResultScreen
+            type={result()}
+            solveTime={game.timerSeconds()}
+            difficulty={difficultyLabel(game.difficulty())}
+            onBackToGames={handleBackToGames}
+            onPlayAgain={game.playAgain}
+          />
+        )}
       </Show>
 
       {/* ── Playing Phase ────────────────────────────────────────── */}
@@ -97,24 +99,12 @@ export default function MinesweeperApp() {
                       : "bg-surface text-fg-tertiary hover:text-fg"
                   }`}
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                    <line x1="4" y1="22" x2="4" y2="15" />
-                  </svg>
+                  <Flag size={14} />
                   Flag
                 </button>
               </div>
               <p class="text-xs text-fg-tertiary tracking-wide text-center">
-                Tap to dig · right-click or hold to flag
+                Hold or right-click to flag
               </p>
             </div>
           }
@@ -128,7 +118,6 @@ export default function MinesweeperApp() {
               onSelectCell={game.selectCell}
               triggeredMine={game.triggeredMine()}
               wrongFlags={game.wrongFlags()}
-              gameOver={false}
               onCellClick={game.handleCellClick}
               onFlagCell={game.flagCell}
               isCompleting={game.completing()}

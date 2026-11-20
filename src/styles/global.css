@@ -47,15 +47,22 @@
   --animate-tile-pop: tilePop 200ms ease-out both;
   --animate-tile-bounce: tileBounce 500ms ease both;
   --animate-score-float: scoreFloat 600ms ease-out forwards;
-  --animate-cell-reveal: cellReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  --animate-completion-wave: completionWave 0.5s ease-out forwards;
-  --animate-mine-blast: mineBlast 0.5s ease-out forwards;
-  --animate-group-sweep: groupSweep 0.45s ease-out forwards;
   --animate-error-appear: errorAppear 0.2s ease-out;
   --animate-row-shake: rowShake 500ms ease-out both;
 
   /* Sudoku grid strong borders (2.5px is intentional for box boundaries) */
   --border-width-strong: 2.5px;
+}
+
+/* Staggered animations read --tw-animation-delay per element. `inline` keeps var() in the  */
+/* emitted utility; in a plain @theme it would resolve once at :root and always be 0s.     */
+@theme inline {
+  --animate-cell-reveal: cellReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)
+    var(--tw-animation-delay, 0s) both;
+  --animate-completion-wave: completionWave 0.5s ease-out var(--tw-animation-delay, 0s) forwards;
+  --animate-mine-blast: mineBlast 0.5s ease-out var(--tw-animation-delay, 0s) forwards;
+  --animate-group-sweep: groupSweep 0.45s ease-out var(--tw-animation-delay, 0s) forwards;
+  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) var(--tw-animation-delay, 0s) infinite;
 }
 
 /* ─── Tailwind Runtime Token Aliases ─── */
@@ -263,6 +270,7 @@ body {
   *::before,
   *::after {
     animation-duration: 0.01ms;
+    animation-delay: 0s;
     animation-iteration-count: 1;
     transition-duration: 0.01ms;
     scroll-behavior: auto;
@@ -321,8 +329,6 @@ body {
     transform: scale(1);
   }
 }
-
-/* setupExit, skeletonPulse, fadeIn, scaleIn replaced by tw-animate-css */
 
 @keyframes checkmark {
   0% {

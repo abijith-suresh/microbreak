@@ -35,7 +35,7 @@ export default function Game2048WinOverlay(props: Props) {
       aria-labelledby="game-2048-win-title"
     >
       <div class="sr-only" aria-live="assertive">
-        {`2048 reached with ${props.score} points`}
+        {`Solved, ${props.score} points`}
       </div>
       {/* Star icon */}
       <div class="mb-6 animate-in fade-in zoom-in-90 duration-300 delay-100 fill-mode-both">
@@ -63,7 +63,7 @@ export default function Game2048WinOverlay(props: Props) {
         id="game-2048-win-title"
         class="font-display text-5xl md:text-6xl text-fg italic tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300 fill-mode-both"
       >
-        2048!
+        Solved
       </h1>
 
       {/* Score */}
@@ -73,9 +73,9 @@ export default function Game2048WinOverlay(props: Props) {
 
       {/* Actions */}
       <div class="flex flex-col sm:flex-row items-center gap-3 mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
-        <Button onClick={() => props.onKeepPlaying()}>Keep Playing</Button>
+        <Button onClick={() => props.onKeepPlaying()}>Keep playing</Button>
         <Button variant="secondary" onClick={() => props.onNewGame()}>
-          New Game
+          Play again
         </Button>
       </div>
 

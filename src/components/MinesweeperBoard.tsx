@@ -1,4 +1,5 @@
 import { createMemo, createSignal, For, onCleanup, onMount } from "solid-js";
+import { shouldIgnoreGameKey } from "@/lib/keyboard";
 import type { Board } from "@/lib/minesweeper";
 import MinesweeperCell from "./MinesweeperCell";
 
@@ -10,7 +11,6 @@ interface Props {
   onSelectCell: (row: number, col: number) => void;
   triggeredMine: [number, number] | null;
   wrongFlags: [number, number][];
-  gameOver: boolean;
   onCellClick: (row: number, col: number) => void;
   onFlagCell: (row: number, col: number) => void;
   /** True while the pre-result animation is playing */
@@ -39,6 +39,7 @@ export default function MinesweeperBoard(props: Props) {
 
   // ── Keyboard navigation ────────────────────────────────────────────────────
   function handleKeyDown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     const sel = props.selectedCell;
     if (!sel) {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
@@ -125,6 +126,7 @@ export default function MinesweeperBoard(props: Props) {
 
   return (
     <div
+      data-game-keys
       class="inline-grid rounded-sm overflow-hidden border-2 border-border-strong shadow-md shadow-shadow"
       style={{ "grid-template-columns": `repeat(${cols()}, auto)` }}
     >
@@ -156,7 +158,10 @@ export default function MinesweeperBoard(props: Props) {
           const completingDelay = () => {
             const origin = props.completionOrigin;
             return props.isCompleting && origin
-              ? (Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 35
+              ? Math.round(
+                  ((Math.abs(row - origin[0]) + Math.abs(col - origin[1])) * 300) /
+                    (rows() + cols() - 2)
+                )
               : 0;
           };
 
@@ -172,7 +177,6 @@ export default function MinesweeperBoard(props: Props) {
               isTriggeredMine={isTriggeredMine()}
               isWrongFlag={isWrongFlag()}
               isSelected={isSelected()}
-              gameOver={props.gameOver}
               cellSize={cs}
               fontSize={fs}
               borderClasses={borders}

@@ -1,5 +1,6 @@
 import type { JSX } from "solid-js";
 import { createSignal, onCleanup } from "solid-js";
+import { Flag } from "@/lib/icons";
 import type { CellState, CellValue } from "@/lib/minesweeper";
 
 interface Props {
@@ -9,7 +10,6 @@ interface Props {
   isTriggeredMine: boolean;
   isWrongFlag: boolean;
   isSelected: boolean;
-  gameOver: boolean;
   cellSize: string;
   fontSize: string;
   borderClasses: string;
@@ -61,22 +61,17 @@ export default function MinesweeperCell(props: Props) {
 
   // ── Hover class ────────────────────────────────────────────────────────────
   const hoverClass = () =>
-    !isAnimating() && props.state === "hidden" && !props.gameOver ? "hover:bg-surface-hover" : "";
+    !isAnimating() && props.state === "hidden" ? "hover:bg-surface-hover" : "";
 
   // ── Cursor ─────────────────────────────────────────────────────────────────
-  const cursorClass = () =>
-    props.state === "revealed" || props.gameOver ? "cursor-default" : "cursor-pointer";
+  const cursorClass = () => (props.state === "revealed" ? "cursor-default" : "cursor-pointer");
 
   // ── Selection highlight ────────────────────────────────────────────────────
   const selectionClass = () =>
-    !isAnimating() && props.isSelected && !props.gameOver ? "ring-2 ring-accent ring-inset" : "";
+    !isAnimating() && props.isSelected ? "ring-2 ring-accent ring-inset" : "";
 
   // ── Combined animation + press style ──────────────────────────────────────
-  /**
-   * Priority: entrance → completion animation → normal press feedback.
-   * Always returns both `animation` and `transform` so SolidJS reliably
-   * clears whichever is not in use.
-   */
+  /** Priority: entrance → completion animation → none. */
   const cellAnimationClass = (): string => {
     // 1. Board entrance — cells materialise centre-outward
     if (props.entering) return "animate-cell-reveal";
@@ -94,8 +89,7 @@ export default function MinesweeperCell(props: Props) {
     return undefined;
   };
 
-  const cellTransform = () =>
-    pressing() && props.state !== "revealed" && !props.gameOver ? "scale(0.93)" : "";
+  const cellTransform = () => (pressing() && props.state !== "revealed" ? "scale(0.93)" : "");
 
   // ── Cell content ───────────────────────────────────────────────────────────
   function renderContent() {
@@ -104,19 +98,7 @@ export default function MinesweeperCell(props: Props) {
         // Wrong flag — show flag with X
         return (
           <span class="relative inline-flex items-center justify-center">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--color-error)"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-              <line x1="4" y1="22" x2="4" y2="15" />
-            </svg>
+            <Flag size={14} stroke="var(--color-error)" />
             <svg
               class="absolute"
               width="10"
@@ -134,21 +116,7 @@ export default function MinesweeperCell(props: Props) {
         );
       }
       // Normal flag
-      return (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--color-accent)"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-          <line x1="4" y1="22" x2="4" y2="15" />
-        </svg>
-      );
+      return <Flag size={14} stroke="var(--color-accent)" />;
     }
 
     if (props.state === "revealed") {
@@ -199,7 +167,7 @@ export default function MinesweeperCell(props: Props) {
   }
 
   function startLongPress(pointerType: string) {
-    if (pointerType === "mouse" || props.state === "revealed" || props.gameOver) return;
+    if (pointerType === "mouse" || props.state === "revealed") return;
     clearLongPressTimer();
     longPressTimer = setTimeout(() => {
       setLongPressTriggered(true);

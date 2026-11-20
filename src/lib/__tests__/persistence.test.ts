@@ -19,7 +19,7 @@ class LocalStorageMock {
   private store = new Map<string, string>();
 
   getItem(key: string) {
-    return this.store.has(key) ? this.store.get(key)! : null;
+    return this.store.get(key) ?? null;
   }
 
   setItem(key: string, value: string) {
@@ -68,6 +68,17 @@ describe("storage helpers", () => {
     );
     expect(loadStoredNumber("score", 0)).toBe(42);
     expect(loadStoredNumber("broken-number", 7)).toBe(7);
+  });
+
+  it("falls back when reading localStorage throws", () => {
+    vi.stubGlobal("window", {
+      get localStorage(): Storage {
+        throw new DOMException("blocked", "SecurityError");
+      },
+    });
+
+    expect(loadStoredString("theme", ["light", "dark"], "dark")).toBe("dark");
+    expect(() => saveStoredString("theme", "light")).not.toThrow();
   });
 
   it("removes stored values", () => {
@@ -160,6 +171,43 @@ describe("session validators", () => {
     };
 
     expect(isPersistedMinesweeperSession(session)).toBe(true);
+  });
+});
+
+describe("saved selectedCell", () => {
+  const sudoku = {
+    phase: "playing",
+    gridSize: 4,
+    difficulty: "easy",
+    puzzle: Array.from({ length: 4 }, () => [null, null, null, null]),
+    solution: Array.from({ length: 4 }, () => [1, 2, 3, 4]),
+    userBoard: Array.from({ length: 4 }, () => [null, null, null, null]),
+    timerSeconds: 0,
+    selectedCell: null,
+    hasStartedFilling: false,
+  };
+  const minesweeper = {
+    phase: "playing",
+    difficulty: "beginner",
+    board: [[{ state: "hidden", value: 0, isMine: false }]],
+    rows: 1,
+    cols: 1,
+    mineCount: 0,
+    timerSeconds: 0,
+    selectedCell: null,
+    digMode: true,
+    hasStartedPlaying: false,
+    boardGenerated: false,
+  };
+
+  it.each([[[4, 0]], [[0, -1]], [[1.5, 0]]])("rejects %j", (selectedCell) => {
+    expect(isPersistedSudokuSession({ ...sudoku, selectedCell })).toBe(false);
+    expect(isPersistedMinesweeperSession({ ...minesweeper, selectedCell })).toBe(false);
+  });
+
+  it("accepts a cell inside the grid", () => {
+    expect(isPersistedSudokuSession({ ...sudoku, selectedCell: [3, 3] })).toBe(true);
+    expect(isPersistedMinesweeperSession({ ...minesweeper, selectedCell: [0, 0] })).toBe(true);
   });
 });
 

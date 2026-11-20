@@ -23,13 +23,6 @@ export interface CellData {
 
 export type Board = CellData[][];
 
-export interface GameResult {
-  board: Board;
-  status: "playing" | "won" | "lost";
-  /** Position of the mine the player clicked (only set on loss) */
-  triggeredMine: [number, number] | null;
-}
-
 export interface DifficultyPreset {
   rows: number;
   cols: number;
@@ -46,24 +39,24 @@ export const DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
     rows: 9,
     cols: 9,
     mines: 10,
-    label: "9×9",
-    description: "Getting started",
-    time: "~30s",
+    label: "Easy",
+    description: "9×9",
+    time: "<1 min",
   },
   intermediate: {
     rows: 16,
     cols: 16,
     mines: 40,
-    label: "16×16",
-    description: "A bit tricky",
+    label: "Medium",
+    description: "16×16",
     time: "~2 min",
   },
   expert: {
     rows: 16,
     cols: 30,
     mines: 99,
-    label: "30×16",
-    description: "Think hard",
+    label: "Hard",
+    description: "30×16",
     time: "~5 min",
   },
 };
@@ -73,24 +66,24 @@ export const MOBILE_DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
     rows: 9,
     cols: 9,
     mines: 10,
-    label: "9×9",
-    description: "Getting started",
-    time: "~30s",
+    label: "Easy",
+    description: "9×9",
+    time: "<1 min",
   },
   intermediate: {
     rows: 12,
     cols: 12,
     mines: 20,
-    label: "12×12",
-    description: "A bit tricky",
+    label: "Medium",
+    description: "12×12",
     time: "~1 min",
   },
   expert: {
     rows: 16,
     cols: 10,
     mines: 30,
-    label: "10×16",
-    description: "Think hard",
+    label: "Hard",
+    description: "10×16",
     time: "~3 min",
   },
 };
@@ -110,11 +103,6 @@ export function getCurrentPresetMode(
   const mobile = MOBILE_DIFFICULTY_PRESETS[difficulty];
   if (mobile.rows === rows && mobile.cols === cols && mobile.mines === mineCount) {
     return "mobile";
-  }
-
-  const desktop = DIFFICULTY_PRESETS[difficulty];
-  if (desktop.rows === rows && desktop.cols === cols && desktop.mines === mineCount) {
-    return "desktop";
   }
 
   return "desktop";
@@ -245,8 +233,8 @@ export function revealCell(board: Board, row: number, col: number): Board {
   const visited = new Set<string>();
   visited.add(`${row},${col}`);
 
-  while (queue.length > 0) {
-    const [r, c] = queue.shift()!;
+  for (let head = 0; head < queue.length; head++) {
+    const [r, c] = queue[head];
     const cell = newBoard[r][c];
 
     if (cell.state !== "hidden") continue;

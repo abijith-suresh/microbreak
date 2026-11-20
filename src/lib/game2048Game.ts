@@ -19,6 +19,7 @@ import {
   isPersisted2048Session,
   type Persisted2048Session,
 } from "./game2048Session";
+import { shouldIgnoreGameKey } from "./keyboard";
 import {
   loadStoredJSON,
   loadStoredNumber,
@@ -59,28 +60,10 @@ export function create2048Game() {
   });
 
   // ── Internal mutable state ──────────────────────────────────────────────
-  let timerRunning = false;
   let popupTimer: ReturnType<typeof setTimeout> | null = null;
   let popupId = 0;
   let hasWonOnce = false;
   let hasStartedPlaying = false;
-
-  // ── Timer ───────────────────────────────────────────────────────────────
-
-  function startTimer() {
-    // Don't restart if already running — prevents the interval from being
-    // recreated on every move, which would reset the 1-second cadence.
-    if (timerRunning) return;
-    timer.start();
-    timerRunning = true;
-  }
-
-  function stopTimer() {
-    if (timerRunning) {
-      timer.stop();
-      timerRunning = false;
-    }
-  }
 
   // ── Score popup ─────────────────────────────────────────────────────────
 
@@ -138,14 +121,14 @@ export function create2048Game() {
     });
 
     if (hasStartedPlaying && !session.gameOver && document.visibilityState === "visible") {
-      startTimer();
+      timer.start();
     }
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────
 
   function resetState() {
-    stopTimer();
+    timer.stop();
     if (popupTimer) {
       clearTimeout(popupTimer);
       popupTimer = null;
@@ -201,7 +184,7 @@ export function create2048Game() {
 
   function handleMove(dir: Direction) {
     if (phase() !== "playing") return;
-    if (gameOver()) return;
+    if (gameOver() || hasShownWin()) return;
 
     const result = moveWithTiles(tiles, dir);
     if (!result.moved) return;
@@ -210,7 +193,7 @@ export function create2048Game() {
     if (!hasStartedPlaying) {
       hasStartedPlaying = true;
     }
-    startTimer();
+    timer.start();
 
     // Build a lookup of the new tile states by ID
     const resultMap = new Map(result.tiles.map((t) => [t.id, t]));
@@ -269,7 +252,7 @@ export function create2048Game() {
 
     // Check loss
     if (!canMove(result.grid)) {
-      stopTimer();
+      timer.stop();
       setGameOver(true);
     }
   }
@@ -281,6 +264,7 @@ export function create2048Game() {
   // ── Keyboard handling ───────────────────────────────────────────────────
 
   function handleKeydown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     const dirMap: Record<string, Direction> = {
       ArrowLeft: "left",
       ArrowRight: "right",
@@ -298,9 +282,9 @@ export function create2048Game() {
 
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
-      stopTimer();
+      timer.stop();
     } else if (phase() === "playing" && hasStartedPlaying && !gameOver()) {
-      startTimer();
+      timer.start();
     }
   }
 
@@ -322,8 +306,7 @@ export function create2048Game() {
     if (typeof window === "undefined") return;
     document.removeEventListener("keydown", handleKeydown);
     document.removeEventListener("visibilitychange", handleVisibility);
-    timer.cleanup();
-    timerRunning = false;
+    timer.stop();
     if (popupTimer) clearTimeout(popupTimer);
   });
 

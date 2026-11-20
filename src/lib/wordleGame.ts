@@ -1,20 +1,20 @@
 /**
  * createWordleGame — SolidJS composable for all Wordle game state.
  *
- * Mirrors the sudokuGame.ts / minesweeperGame.ts architecture:
- * encapsulates signals, derived values, actions, keyboard listeners,
+ * Encapsulates signals, derived values, actions, keyboard listeners,
  * timer management, and lazy word-list loading so WordleApp.tsx can be
  * a pure layout shell.
  */
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createElapsedTimer } from "./elapsedTimer";
+import { shouldIgnoreGameKey } from "./keyboard";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import {
   computeGuess,
   type GuessResult,
-  getMaxGuesses,
+  getGameResult,
   isWordValid,
   type LetterState,
   mergeKeyboardState,
@@ -60,26 +60,11 @@ export function createWordleGame() {
 
   // ── Internal mutable state ───────────────────────────────────────────────
   let wordList: WordList | null = null;
-  let timerRunning = false;
   let shakeTimer: ReturnType<typeof setTimeout> | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
   let revealTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedPlaying = false;
   let startRequestId = 0;
-
-  // ── Timer ─────────────────────────────────────────────────────────────────
-  function startTimer() {
-    if (timerRunning) return;
-    timer.start();
-    timerRunning = true;
-  }
-
-  function stopTimer() {
-    if (timerRunning) {
-      timer.stop();
-      timerRunning = false;
-    }
-  }
 
   // ── Toast ─────────────────────────────────────────────────────────────────
   function showToast(message: string, duration = 1500) {
@@ -93,7 +78,7 @@ export function createWordleGame() {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function resetProgress() {
-    stopTimer();
+    timer.stop();
     if (shakeTimer) {
       clearTimeout(shakeTimer);
       shakeTimer = null;
@@ -139,7 +124,6 @@ export function createWordleGame() {
       phase() !== "playing" ||
       loading() ||
       gameResult() !== null ||
-      revealRow() >= 0 ||
       !wordList ||
       answer().length !== variant()
     ) {
@@ -147,15 +131,19 @@ export function createWordleGame() {
       return;
     }
 
+    // A guess mid-flip is already decided, so save it as committed.
+    const pending = pendingReveal();
+    const committed = pending ? [...guesses(), pending] : guesses();
+
     const session: PersistedWordleSession = {
       phase: "playing",
       variant: variant(),
       answer: answer(),
-      guesses: guesses().map((guess) => ({
+      guesses: committed.map((guess) => ({
         word: guess.word,
         states: [...guess.states],
       })),
-      currentInput: currentInput(),
+      currentInput: pending ? "" : currentInput(),
       timerSeconds: timerSeconds(),
       hasStartedPlaying,
     };
@@ -172,6 +160,7 @@ export function createWordleGame() {
       const loadedWordList = await loadWordList(session.variant);
       wordList = loadedWordList;
       hasStartedPlaying = session.hasStartedPlaying;
+      const result = getGameResult(session.guesses, session.variant);
 
       batch(() => {
         setPhase("playing");
@@ -182,7 +171,7 @@ export function createWordleGame() {
         );
         setCurrentInput(session.currentInput);
         setKeyboardState(buildKeyboardFromGuesses(session.guesses));
-        setGameResult(null);
+        setGameResult(result);
         setShakeRow(false);
         setRevealRow(-1);
         setPendingReveal(null);
@@ -190,8 +179,8 @@ export function createWordleGame() {
         setToastMessage("");
       });
 
-      if (hasStartedPlaying && document.visibilityState === "visible") {
-        startTimer();
+      if (!result && hasStartedPlaying && document.visibilityState === "visible") {
+        timer.start();
       }
     } finally {
       setLoading(false);
@@ -300,7 +289,7 @@ export function createWordleGame() {
     // Start timer on first valid guess
     if (!hasStartedPlaying) {
       hasStartedPlaying = true;
-      startTimer();
+      timer.start();
     }
 
     // Set the pending reveal — tile components will delay color changes
@@ -316,8 +305,7 @@ export function createWordleGame() {
     revealTimer = setTimeout(() => {
       const newGuesses = [...guesses(), result];
       const newKeyboard = mergeKeyboardState(keyboardState(), result);
-      const didWin = states.every((s) => s === "correct");
-      const didLose = !didWin && newGuesses.length >= getMaxGuesses(v);
+      const outcome = getGameResult(newGuesses, v);
 
       batch(() => {
         setGuesses(newGuesses);
@@ -326,9 +314,9 @@ export function createWordleGame() {
         setRevealRow(-1);
         setPendingReveal(null);
 
-        if (didWin || didLose) {
-          stopTimer();
-          setGameResult(didWin ? "won" : "lost");
+        if (outcome) {
+          timer.stop();
+          setGameResult(outcome);
         }
       });
 
@@ -338,6 +326,7 @@ export function createWordleGame() {
 
   // ── Event listeners ───────────────────────────────────────────────────────
   function handleKeydown(e: KeyboardEvent) {
+    if (shouldIgnoreGameKey(e)) return;
     if (phase() !== "playing") return;
     if (gameResult() !== null) return;
 
@@ -355,9 +344,9 @@ export function createWordleGame() {
 
   function handleVisibility() {
     if (document.visibilityState === "hidden") {
-      stopTimer();
+      timer.stop();
     } else if (hasStartedPlaying && !gameResult()) {
-      startTimer();
+      timer.start();
     }
   }
 
@@ -376,8 +365,7 @@ export function createWordleGame() {
     if (typeof window === "undefined") return;
     document.removeEventListener("keydown", handleKeydown);
     document.removeEventListener("visibilitychange", handleVisibility);
-    timer.cleanup();
-    timerRunning = false;
+    timer.stop();
     if (shakeTimer) clearTimeout(shakeTimer);
     if (toastTimer) clearTimeout(toastTimer);
     if (revealTimer) clearTimeout(revealTimer);

@@ -50,7 +50,7 @@ export default function SudokuSetup(props: Props) {
   });
 
   // ── Exit animation ─────────────────────────────────────────────────────────
-  // When the user taps "Start Game", play the exit animation for 280 ms first,
+  // When the user taps "Start", play the exit animation for 280 ms first,
   // then hand off to the parent. This creates a smooth crossfade-like feel:
   // the setup screen is already nearly gone when the board fades in.
   const [isExiting, setIsExiting] = createSignal(false);
@@ -95,7 +95,7 @@ export default function SudokuSetup(props: Props) {
         {/* Header */}
         <div class="text-center space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both">
           <h1 class="font-display text-5xl md:text-6xl text-fg italic tracking-tight">Sudoku</h1>
-          <p class="text-sm text-fg-tertiary tracking-wide">Choose your challenge</p>
+          <p class="text-sm text-fg-tertiary tracking-wide">Fill the grid</p>
           <div class="mx-auto mt-3 h-px w-12 bg-accent opacity-40" />
         </div>
 
@@ -191,7 +191,7 @@ export default function SudokuSetup(props: Props) {
             class="px-12 py-3.5 font-semibold text-base shadow-lg shadow-shadow"
             onClick={handleStart}
           >
-            Start Game
+            Start
           </Button>
         </div>
       </div>

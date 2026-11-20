@@ -13,8 +13,6 @@ interface ButtonVariantsProps {
 
 // ── buttonVariants ──────────────────────────────────────────
 // Standalone function so any element can use the same styling.
-// Follows the shadcn/ui pattern of separating variant definition
-// from the component shell.
 
 export function buttonVariants({
   variant = "primary",

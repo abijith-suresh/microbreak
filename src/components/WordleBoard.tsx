@@ -45,11 +45,12 @@ export default function WordleBoard(props: Props) {
     const canGuessMore = props.guesses.length < maxGuesses();
     if (isPlaying() && canGuessMore) {
       const currentIdx = props.guesses.length;
-      const isRevealingCurrent = props.revealRow === currentIdx && props.pendingReveal !== null;
+      const reveal = props.revealRow === currentIdx ? props.pendingReveal : null;
+      const isRevealingCurrent = reveal !== null;
 
       result.push({
-        letters: isRevealingCurrent ? props.pendingReveal!.word : (props.currentInput ?? ""),
-        guessResult: isRevealingCurrent ? props.pendingReveal! : undefined,
+        letters: isRevealingCurrent ? reveal.word : (props.currentInput ?? ""),
+        guessResult: isRevealingCurrent ? reveal : undefined,
         isCurrent: !isRevealingCurrent,
         isEmpty: false,
         isRevealing: isRevealingCurrent,
