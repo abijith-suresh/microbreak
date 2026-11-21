@@ -1,4 +1,5 @@
-import { type JSX, onMount } from "solid-js";
+import { type JSX, onMount, Show } from "solid-js";
+import { formatDuration } from "@/lib/elapsedTimer";
 import Button from "./Button";
 
 interface Props {
@@ -9,16 +10,15 @@ interface Props {
   heading?: string;
   onBackToGames: () => void;
   onPlayAgain: () => void;
+  /** The personal best for this game and setting, e.g. "1m 42s". Null before any win. */
+  best?: string | null;
+  /** True when this game set the best. */
+  isNewBest?: boolean;
   /** Optional game-specific content rendered above the time (e.g. Wordle answer reveal) */
   children?: JSX.Element;
 }
 
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  if (m === 0) return `${s}s`;
-  return `${m}m ${s.toString().padStart(2, "0")}s`;
-}
+const formatTime = formatDuration;
 
 function headingText(type: "won" | "lost", override?: string): string {
   if (override) return override;
@@ -27,17 +27,17 @@ function headingText(type: "won" | "lost", override?: string): string {
 
 function taglineText(type: "won" | "lost"): string {
   return type === "won"
-    ? "Nice break · Now back to building"
-    : "Shake it off · Now back to building";
+    ? "Nice break · Now back to your agents"
+    : "Shake it off · Now back to your agents";
 }
 
 export default function ResultScreen(props: Props) {
   let svgRef: SVGSVGElement | undefined;
-  let dialogRef!: HTMLDivElement;
+  let sectionRef!: HTMLElement;
   const isWon = () => props.type === "won";
 
   onMount(() => {
-    dialogRef.querySelector("button")?.focus();
+    sectionRef.querySelector("button")?.focus();
     if (svgRef && isWon()) {
       const circle = svgRef.querySelector(".result-checkmark-circle") as SVGElement;
       const check = svgRef.querySelector(".result-checkmark-check") as SVGElement;
@@ -57,17 +57,17 @@ export default function ResultScreen(props: Props) {
   const labelId = "result-screen-title";
 
   return (
-    <div
-      ref={dialogRef}
-      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
-      role="dialog"
-      aria-modal="true"
+    // Sits under the game's top bar, in place of the board, so "New game" and back stay in reach.
+    <section
+      ref={sectionRef}
+      class="flex flex-col items-center py-10 text-center animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
       aria-labelledby={labelId}
     >
       <div class="sr-only" aria-live="assertive">
         {isWon()
           ? `Solved in ${formatTime(props.solveTime)}, ${props.difficulty}`
           : `Game over after ${formatTime(props.solveTime)}, ${props.difficulty}`}
+        {props.isNewBest ? ". New personal best" : props.best ? `. Best: ${props.best}` : ""}
       </div>
 
       {/* Icon */}
@@ -123,12 +123,12 @@ export default function ResultScreen(props: Props) {
       </div>
 
       {/* Heading */}
-      <h1
+      <h2
         id={labelId}
         class="font-display text-5xl md:text-6xl text-fg italic tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300 fill-mode-both"
       >
         {headingText(props.type, props.heading)}
-      </h1>
+      </h2>
 
       {/* Game-specific content (e.g. Wordle answer reveal) */}
       {props.children && (
@@ -152,6 +152,20 @@ export default function ResultScreen(props: Props) {
         {props.difficulty}
       </p>
 
+      {/* Personal best */}
+      <Show when={props.isNewBest || props.best}>
+        <div class="mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-500 fill-mode-both">
+          <Show
+            when={props.isNewBest}
+            fallback={<p class="text-sm text-fg-tertiary tabular-nums">Best: {props.best}</p>}
+          >
+            <span class="inline-flex h-6 items-center rounded-full border border-accent-subtle bg-accent-light px-2.5 text-xs font-medium text-accent">
+              New personal best
+            </span>
+          </Show>
+        </div>
+      </Show>
+
       {/* Actions */}
       <div class="flex flex-col sm:flex-row items-center gap-3 mt-10 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
         <Button size="lg" onClick={() => props.onPlayAgain()}>
@@ -166,6 +180,6 @@ export default function ResultScreen(props: Props) {
       <p class="mt-10 text-xs text-fg-tertiary tracking-widest uppercase animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
         {taglineText(props.type)}
       </p>
-    </div>
+    </section>
   );
 }

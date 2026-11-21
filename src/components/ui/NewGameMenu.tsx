@@ -44,8 +44,11 @@ export default function NewGameMenu(props: Props) {
 
   function start() {
     const values = draft();
-    hide();
+    hide(false);
     props.onStart(values);
+    // Hand focus to the new board, so the next keys (a Wordle guess and its Enter) reach
+    // the game instead of reopening this menu.
+    document.querySelector<HTMLElement>("main")?.focus({ preventScroll: true });
   }
 
   createEffect(() => {
@@ -58,7 +61,7 @@ export default function NewGameMenu(props: Props) {
   });
 
   return (
-    <div class="relative" data-game-menu>
+    <div class="relative">
       <button
         ref={buttonRef}
         type="button"
@@ -87,6 +90,7 @@ export default function NewGameMenu(props: Props) {
           ref={panelRef}
           id={panelId}
           role="dialog"
+          data-game-menu
           aria-label="New game"
           class={[
             "fixed inset-x-0 bottom-0 z-50 flex flex-col gap-4.5 rounded-t-[20px] border border-border bg-surface px-5 pt-3 pb-7",

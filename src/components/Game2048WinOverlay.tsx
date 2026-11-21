@@ -86,7 +86,7 @@ export default function Game2048WinOverlay(props: Props) {
 
       {/* Tagline */}
       <p class="mt-10 text-xs text-fg-tertiary tracking-widest uppercase animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700 fill-mode-both">
-        Nice break · Now back to building
+        Nice break · Now back to your agents
       </p>
     </div>
   );

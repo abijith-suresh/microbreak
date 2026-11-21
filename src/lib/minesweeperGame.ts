@@ -6,8 +6,10 @@
  */
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { minesweeperVariant, recordBest } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import { loadMinesweeperDifficulty, saveMinesweeperDifficulty } from "./gamePreferences";
+import { loadSave, type SaveStatus } from "./gameSave";
 import {
   type Board,
   checkWin,
@@ -27,7 +29,7 @@ import {
   isPersistedMinesweeperSession,
   type PersistedMinesweeperSession,
 } from "./minesweeperSession";
-import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
+import { removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 
 /** "idle" until the page mounts and resumes or starts a game. */
@@ -64,6 +66,8 @@ export function createMinesweeperGame() {
   const [completing, setCompleting] = createSignal(false);
   /** The cell that triggered the end of the game (last reveal for win, mine for loss) */
   const [completionOrigin, setCompletionOrigin] = createSignal<[number, number] | null>(null);
+  /** True once a win beat the stored personal best. */
+  const [newBest, setNewBest] = createSignal(false);
 
   // ── Internal mutable state ───────────────────────────────────────────────
   const timer = createElapsedTimer({
@@ -73,6 +77,8 @@ export function createMinesweeperGame() {
   let completionTimer: ReturnType<typeof setTimeout> | null = null;
   let hasStartedPlaying = false;
   let boardGenerated = false;
+  /** The result while the end-of-game animation plays, before gameResult is set. */
+  let pendingResult: "won" | "lost" | null = null;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function resetProgress() {
@@ -83,6 +89,7 @@ export function createMinesweeperGame() {
     }
     hasStartedPlaying = false;
     boardGenerated = false;
+    pendingResult = null;
     batch(() => {
       setSelectedCell(null);
       setTimerSeconds(0);
@@ -92,24 +99,22 @@ export function createMinesweeperGame() {
       setWrongFlags([]);
       setCompleting(false);
       setCompletionOrigin(null);
+      setNewBest(false);
     });
   }
 
   function persistSession() {
-    if (
-      phase() !== "playing" ||
-      gameResult() !== null ||
-      completing() ||
-      board().length !== rows() ||
-      rows() === 0 ||
-      cols() === 0
-    ) {
+    if (phase() !== "playing" || board().length !== rows() || rows() === 0 || cols() === 0) {
       removeStoredValue(STORAGE_KEYS.minesweeperSession);
       return;
     }
 
+    // A finished board stays saved as won or lost until the next game starts.
+    const status: SaveStatus = gameResult() ?? (completing() ? pendingResult : null) ?? "playing";
     const session: PersistedMinesweeperSession = {
-      phase: "playing",
+      status,
+      newBest: newBest(),
+      triggeredMine: triggeredMine(),
       difficulty: difficulty(),
       board: board().map((row) => row.map((cell) => ({ ...cell }))),
       rows: rows(),
@@ -126,7 +131,7 @@ export function createMinesweeperGame() {
   }
 
   function restoreSession(): boolean {
-    const session = loadStoredJSON(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
+    const session = loadSave(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
     if (!session) return false;
 
     hasStartedPlaying = session.hasStartedPlaying;
@@ -142,14 +147,19 @@ export function createMinesweeperGame() {
       setSelectedCell(session.selectedCell);
       setTimerSeconds(session.timerSeconds);
       setDigMode(session.digMode);
-      setGameResult(null);
-      setTriggeredMine(null);
-      setWrongFlags([]);
+      setGameResult(session.status === "playing" ? null : session.status);
+      setTriggeredMine(session.triggeredMine ?? null);
+      setWrongFlags(session.status === "lost" ? getWrongFlags(session.board) : []);
       setCompleting(false);
       setCompletionOrigin(null);
+      setNewBest(session.newBest);
     });
 
-    if (hasStartedPlaying && document.visibilityState === "visible") {
+    if (
+      session.status === "playing" &&
+      hasStartedPlaying &&
+      document.visibilityState === "visible"
+    ) {
       timer.start();
     }
     return true;
@@ -171,6 +181,11 @@ export function createMinesweeperGame() {
     originCol: number,
     delay = 800
   ) {
+    pendingResult = result;
+    if (result === "won") {
+      const variant = minesweeperVariant(difficulty(), cols(), rows());
+      setNewBest(recordBest("minesweeper", variant, { seconds: timerSeconds() }).isNew);
+    }
     batch(() => {
       setCompletionOrigin([originRow, originCol]);
       setCompleting(true);
@@ -351,6 +366,7 @@ export function createMinesweeperGame() {
     wrongFlags,
     completing,
     completionOrigin,
+    newBest,
     // Derived
     mineCounter,
     // Actions

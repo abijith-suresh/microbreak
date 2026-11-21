@@ -1,5 +1,6 @@
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createStore, produce, reconcile } from "solid-js/store";
+import { GAME_2048_VARIANT, getBest, recordBest } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import {
   canMove,
@@ -20,25 +21,13 @@ import {
   type Persisted2048Session,
 } from "./game2048Session";
 import { shouldIgnoreGameKey } from "./keyboard";
-import {
-  loadStoredJSON,
-  loadStoredNumber,
-  removeStoredValue,
-  saveStoredJSON,
-  saveStoredNumber,
-} from "./storage";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 
 export type Phase = "setup" | "playing";
 
-// ── Best score persistence ────────────────────────────────────────────────────
-
 function loadBestScore(): number {
-  return loadStoredNumber(STORAGE_KEYS.game2048Best, 0);
-}
-
-function saveBestScore(score: number) {
-  saveStoredNumber(STORAGE_KEYS.game2048Best, score);
+  return getBest("2048", GAME_2048_VARIANT)?.score ?? 0;
 }
 
 export function create2048Game() {
@@ -48,6 +37,8 @@ export function create2048Game() {
   const [tiles, setTiles] = createStore<Tile[]>([]);
   const [score, setScore] = createSignal(0);
   const [bestScore, setBestScore] = createSignal(loadBestScore());
+  /** The best before this game started; beating it makes the game a new personal best. */
+  const [bestBeforeGame, setBestBeforeGame] = createSignal(bestScore());
   const [hasShownWin, setHasShownWin] = createSignal(false);
   const [gameOver, setGameOver] = createSignal(false);
   const [timerSeconds, setTimerSeconds] = createSignal(0);
@@ -149,6 +140,7 @@ export function create2048Game() {
   // ── Public actions ──────────────────────────────────────────────────────
 
   function startGame() {
+    setBestBeforeGame(bestScore());
     resetTileIdCounter();
     resetState();
     setPhase("playing");
@@ -235,7 +227,7 @@ export function create2048Game() {
       showScorePopup(result.score);
       if (newScore > bestScore()) {
         setBestScore(newScore);
-        saveBestScore(newScore);
+        recordBest("2048", GAME_2048_VARIANT, { score: newScore });
       }
     }
 
@@ -311,6 +303,7 @@ export function create2048Game() {
     tiles,
     score,
     bestScore,
+    bestBeforeGame,
     hasShownWin,
     gameOver,
     timerSeconds,

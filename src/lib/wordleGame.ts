@@ -7,8 +7,10 @@
  */
 
 import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { recordBest, wordleVariant } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import { loadWordleVariant, saveWordleVariant } from "./gamePreferences";
+import { loadSave } from "./gameSave";
 import { shouldIgnoreGameKey } from "./keyboard";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
@@ -54,6 +56,8 @@ export function createWordleGame() {
   const [timerSeconds, setTimerSeconds] = createSignal(0);
   const [toastMessage, setToastMessage] = createSignal("");
   const [persistenceReady, setPersistenceReady] = createSignal(false);
+  /** True once a win beat the stored personal best. */
+  const [newBest, setNewBest] = createSignal(false);
 
   const timer = createElapsedTimer({
     getValue: timerSeconds,
@@ -104,6 +108,7 @@ export function createWordleGame() {
       setPendingReveal(null);
       timer.reset();
       setToastMessage("");
+      setNewBest(false);
     });
   }
 
@@ -122,13 +127,7 @@ export function createWordleGame() {
   }
 
   function persistSession() {
-    if (
-      phase() !== "playing" ||
-      loading() ||
-      gameResult() !== null ||
-      !wordList ||
-      answer().length !== variant()
-    ) {
+    if (phase() !== "playing" || loading() || !wordList || answer().length !== variant()) {
       removeStoredValue(STORAGE_KEYS.wordleSession);
       return;
     }
@@ -137,8 +136,10 @@ export function createWordleGame() {
     const pending = pendingReveal();
     const committed = pending ? [...guesses(), pending] : guesses();
 
+    // A finished word stays saved as won or lost until the next game starts.
     const session: PersistedWordleSession = {
-      phase: "playing",
+      status: getGameResult(committed, variant()) ?? "playing",
+      newBest: newBest(),
       variant: variant(),
       answer: answer(),
       guesses: committed.map((guess) => ({
@@ -154,7 +155,7 @@ export function createWordleGame() {
   }
 
   async function restoreSession(): Promise<boolean> {
-    const session = loadStoredJSON(STORAGE_KEYS.wordleSession, isPersistedWordleSession);
+    const session = loadSave(STORAGE_KEYS.wordleSession, isPersistedWordleSession);
     if (!session) return false;
 
     setLoading(true);
@@ -174,6 +175,7 @@ export function createWordleGame() {
         setCurrentInput(session.currentInput);
         setKeyboardState(buildKeyboardFromGuesses(session.guesses));
         setGameResult(result);
+        setNewBest(session.newBest);
         setShakeRow(false);
         setRevealRow(-1);
         setPendingReveal(null);
@@ -291,6 +293,15 @@ export function createWordleGame() {
       timer.start();
     }
 
+    // A guess that ends the game stops the clock now, and a win counts towards the best now,
+    // so a reload during the flip keeps both.
+    const finalResult = getGameResult([...guesses(), result], v);
+    if (finalResult) timer.stop();
+    if (finalResult === "won") {
+      const best = { guesses: guesses().length + 1, seconds: timerSeconds() };
+      setNewBest(recordBest("wordle", wordleVariant(v), best).isNew);
+    }
+
     // Set the pending reveal — tile components will delay color changes
     // to the midpoint of their flip animation
     const rowIndex = guesses().length;
@@ -387,6 +398,7 @@ export function createWordleGame() {
     loading,
     timerSeconds,
     toastMessage,
+    newBest,
     // Actions
     startGame,
     playAgain,

@@ -105,6 +105,18 @@ export default function Game2048App() {
             <p class="mt-3 text-2xl font-light text-fg-secondary tabular-nums">
               {formatNumber(game.score())} points
             </p>
+            <Show
+              when={game.score() > game.bestBeforeGame()}
+              fallback={
+                <p class="mt-3 text-sm text-fg-tertiary tabular-nums">
+                  Best: {formatNumber(game.bestScore())}
+                </p>
+              }
+            >
+              <span class="mt-3 inline-flex h-6 items-center rounded-full border border-accent-subtle bg-accent-light px-2.5 text-xs font-medium text-accent">
+                New personal best
+              </span>
+            </Show>
             <div class="flex items-center gap-3 mt-8">
               <Button size="lg" onClick={game.playAgain}>
                 Play again

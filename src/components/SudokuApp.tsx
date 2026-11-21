@@ -1,5 +1,6 @@
 import type { JSX } from "solid-js";
 import { Show } from "solid-js";
+import { describeBest, getBest, sudokuVariant } from "@/lib/bests";
 import { formatTimer } from "@/lib/elapsedTimer";
 import { type Difficulty, type GridSize, getBoxDims } from "@/lib/sudoku";
 import { createSudokuGame } from "@/lib/sudokuGame";
@@ -124,81 +125,86 @@ export default function SudokuApp() {
     window.location.href = "/";
   }
 
-  return (
-    <>
-      {/* ── Result Overlay ──────────────────────────────────────── */}
-      <Show when={game.phase() === "playing" && game.completed()}>
-        <ResultScreen
-          type="won"
-          solveTime={game.timerSeconds()}
-          difficulty={difficultyString(game.gridSize(), game.difficulty())}
-          onBackToGames={handleBackToGames}
-          onPlayAgain={game.playAgain}
-        />
-      </Show>
+  const bestText = () => {
+    const best = getBest("sudoku", sudokuVariant(game.gridSize(), game.difficulty()));
+    return best ? describeBest("sudoku", best) : null;
+  };
 
-      <Show when={!game.completed()}>
-        <GameScreen
-          title="Sudoku"
-          meta={difficultyString(game.gridSize(), game.difficulty())}
-          timer={formatTimer(game.timerSeconds())}
-          menu={
-            <NewGameMenu
-              groups={[
-                { id: "size", label: "Size", options: SIZE_OPTIONS, value: game.gridSize() },
-                {
-                  id: "difficulty",
-                  label: "Difficulty",
-                  options: DIFFICULTY_OPTIONS,
-                  value: game.difficulty(),
-                },
-              ]}
-              note="Replaces the board in progress."
-              onStart={(values) =>
-                game.startGame(values.size as GridSize, values.difficulty as Difficulty)
-              }
-            />
+  return (
+    <GameScreen
+      title="Sudoku"
+      meta={difficultyString(game.gridSize(), game.difficulty())}
+      timer={formatTimer(game.timerSeconds())}
+      menu={
+        <NewGameMenu
+          groups={[
+            { id: "size", label: "Size", options: SIZE_OPTIONS, value: game.gridSize() },
+            {
+              id: "difficulty",
+              label: "Difficulty",
+              options: DIFFICULTY_OPTIONS,
+              value: game.difficulty(),
+            },
+          ]}
+          note="Replaces the board in progress."
+          onStart={(values) =>
+            game.startGame(values.size as GridSize, values.difficulty as Difficulty)
           }
-        >
-          {/*
+        />
+      }
+    >
+      <Show
+        when={!game.completed()}
+        fallback={
+          <ResultScreen
+            type="won"
+            solveTime={game.timerSeconds()}
+            difficulty={difficultyString(game.gridSize(), game.difficulty())}
+            best={bestText()}
+            isNewBest={game.newBest()}
+            onBackToGames={handleBackToGames}
+            onPlayAgain={game.playAgain}
+          />
+        }
+      >
+        {/*
             Individual cells cascade in centre-outward via the `cellReveal` keyframe
             inside SudokuBoard, giving the puzzle a "materialising" entrance.
           */}
-          <Show
-            when={
-              game.puzzle().length === game.gridSize() &&
-              game.solution().length === game.gridSize() &&
-              game.userBoard().length === game.gridSize()
-            }
-            fallback={<SkeletonBoard size={game.gridSize()} />}
-          >
-            <SudokuBoard
-              puzzle={game.puzzle()}
-              solution={game.solution()}
-              size={game.gridSize()}
-              selectedCell={game.selectedCell()}
-              onSelectCell={game.selectCell}
-              onFillCell={game.fillCell}
-              userBoard={game.userBoard()}
-              conflictedCells={game.conflictedCells()}
-              completing={game.completing()}
-              completionOrigin={game.completionOrigin()}
-              completingGroups={game.completingGroups()}
-            />
+        <Show
+          when={
+            game.puzzle().length === game.gridSize() &&
+            game.solution().length === game.gridSize() &&
+            game.userBoard().length === game.gridSize()
+          }
+          fallback={<SkeletonBoard size={game.gridSize()} />}
+        >
+          <SudokuBoard
+            puzzle={game.puzzle()}
+            solution={game.solution()}
+            size={game.gridSize()}
+            selectedCell={game.selectedCell()}
+            onSelectCell={game.selectCell}
+            onFillCell={game.fillCell}
+            userBoard={game.userBoard()}
+            conflictedCells={game.conflictedCells()}
+            completing={game.completing()}
+            completionOrigin={game.completionOrigin()}
+            completingGroups={game.completingGroups()}
+          />
 
-            {/* Number pad fades in slightly after the board so cells have
+          {/* Number pad fades in slightly after the board so cells have
                 a head-start on their cascade before the pad appears */}
-            <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
-              <NumberPad
-                size={game.gridSize()}
-                onNumber={game.handleKeyboardNumber}
-                onErase={game.handleKeyboardErase}
-                placedCounts={game.numberPlacedCounts}
-              />
-            </div>
-          </Show>
-        </GameScreen>
+          <div class="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
+            <NumberPad
+              size={game.gridSize()}
+              onNumber={game.handleKeyboardNumber}
+              onErase={game.handleKeyboardErase}
+              placedCounts={game.numberPlacedCounts}
+            />
+          </div>
+        </Show>
       </Show>
-    </>
+    </GameScreen>
   );
 }

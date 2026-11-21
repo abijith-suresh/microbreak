@@ -6,9 +6,11 @@
  */
 
 import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { recordBest, sudokuVariant } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import { loadSudokuPreferences, saveSudokuPreferences } from "./gamePreferences";
-import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
+import { loadSave } from "./gameSave";
+import { removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import {
   type Board,
@@ -44,6 +46,8 @@ export function createSudokuGame() {
   const [completionOrigin, setCompletionOrigin] = createSignal<[number, number] | null>(null);
   const [conflictedCells, setConflictedCells] = createSignal<Set<string>>(new Set<string>());
   const [persistenceReady, setPersistenceReady] = createSignal(false);
+  /** True once a win beat the stored personal best. */
+  const [newBest, setNewBest] = createSignal(false);
 
   /** Groups (row/col/box) currently playing the sweep animation */
   const [completingGroups, setCompletingGroups] = createSignal<CompletingGroup[]>([]);
@@ -105,6 +109,7 @@ export function createSudokuGame() {
       setCompletionOrigin(null);
       setConflictedCells(new Set<string>());
       setCompletingGroups([]);
+      setNewBest(false);
     });
   }
 
@@ -136,8 +141,6 @@ export function createSudokuGame() {
   function persistSession() {
     if (
       phase() !== "playing" ||
-      completed() ||
-      completing() ||
       puzzle().length !== gridSize() ||
       solution().length !== gridSize() ||
       userBoard().length !== gridSize()
@@ -146,8 +149,10 @@ export function createSudokuGame() {
       return;
     }
 
+    // A solved board stays saved as won until the next game starts.
     const session: PersistedSudokuSession = {
-      phase: "playing",
+      status: completed() || completing() ? "won" : "playing",
+      newBest: newBest(),
       gridSize: gridSize(),
       difficulty: difficulty(),
       puzzle: puzzle().map((row) => [...row]),
@@ -162,7 +167,7 @@ export function createSudokuGame() {
   }
 
   function restoreSession(): boolean {
-    const session = loadStoredJSON(STORAGE_KEYS.sudokuSession, isPersistedSudokuSession);
+    const session = loadSave(STORAGE_KEYS.sudokuSession, isPersistedSudokuSession);
     if (!session) return false;
 
     hasStartedFilling = session.hasStartedFilling;
@@ -178,13 +183,18 @@ export function createSudokuGame() {
       setSelectedCell(session.selectedCell);
       setTimerSeconds(session.timerSeconds);
       setConflictedCells(getConflictingCells(restoredUserBoard));
-      setCompleted(false);
+      setCompleted(session.status !== "playing");
+      setNewBest(session.newBest);
       setCompleting(false);
       setCompletionOrigin(null);
       setCompletingGroups([]);
     });
 
-    if (hasStartedFilling && document.visibilityState === "visible") {
+    if (
+      session.status === "playing" &&
+      hasStartedFilling &&
+      document.visibilityState === "visible"
+    ) {
       timer.start();
     }
     return true;
@@ -247,6 +257,10 @@ export function createSudokuGame() {
       }
       setCompletingGroups([]);
       timer.stop();
+      setNewBest(
+        recordBest("sudoku", sudokuVariant(gridSize(), difficulty()), { seconds: timerSeconds() })
+          .isNew
+      );
       setCompletionOrigin([row, col]);
       setCompleting(true);
       completionTimer = setTimeout(() => {
@@ -326,6 +340,7 @@ export function createSudokuGame() {
     completionOrigin,
     conflictedCells,
     completingGroups,
+    newBest,
     // Derived
     numberPlacedCounts,
     // Actions

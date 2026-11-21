@@ -117,7 +117,8 @@ describe("session validators", () => {
 
   it("accepts a valid sudoku session", () => {
     const session = {
-      phase: "playing",
+      status: "playing",
+      newBest: false,
       gridSize: 4,
       difficulty: "easy",
       puzzle: [
@@ -148,7 +149,8 @@ describe("session validators", () => {
 
   it("accepts a valid minesweeper session", () => {
     const session = {
-      phase: "playing",
+      status: "playing",
+      newBest: false,
       difficulty: "beginner",
       board: [
         [
@@ -176,7 +178,8 @@ describe("session validators", () => {
 
 describe("saved selectedCell", () => {
   const sudoku = {
-    phase: "playing",
+    status: "playing",
+    newBest: false,
     gridSize: 4,
     difficulty: "easy",
     puzzle: Array.from({ length: 4 }, () => [null, null, null, null]),
@@ -187,7 +190,8 @@ describe("saved selectedCell", () => {
     hasStartedFilling: false,
   };
   const minesweeper = {
-    phase: "playing",
+    status: "playing",
+    newBest: false,
     difficulty: "beginner",
     board: [[{ state: "hidden", value: 0, isMine: false }]],
     rows: 1,
@@ -214,7 +218,8 @@ describe("saved selectedCell", () => {
 describe("wordle persistence helpers", () => {
   it("accepts a valid in-progress wordle session", () => {
     const session = {
-      phase: "playing",
+      status: "playing",
+      newBest: false,
       variant: 5,
       answer: "crane",
       guesses: [

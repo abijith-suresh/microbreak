@@ -60,7 +60,8 @@ export default function GameScreen(props: Props) {
         </div>
       </header>
 
-      <main class="flex flex-1 flex-col">
+      {/* tabIndex -1: the new-game menu moves focus here when a game starts. */}
+      <main tabIndex={-1} class="flex flex-1 flex-col outline-none">
         <div
           class={`${props.contentClass ?? DEFAULT_CONTENT_CLASS} animate-in fade-in duration-300`}
         >
