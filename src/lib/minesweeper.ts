@@ -90,6 +90,13 @@ export const MOBILE_DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
 
 export type PresetMode = "desktop" | "mobile";
 
+/** Narrow screens get the taller mobile boards. */
+export function prefersMobilePresets(): boolean {
+  return (
+    typeof window !== "undefined" && window.matchMedia?.("(max-width: 480px)").matches === true
+  );
+}
+
 export function getDifficultyPreset(difficulty: Difficulty, isMobile: boolean): DifficultyPreset {
   return isMobile ? MOBILE_DIFFICULTY_PRESETS[difficulty] : DIFFICULTY_PRESETS[difficulty];
 }

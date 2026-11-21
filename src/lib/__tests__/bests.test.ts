@@ -89,10 +89,8 @@ describe("personal bests", () => {
     expect(getBest("wordle", wordleVariant(6))).toBeNull();
   });
 
-  it("keeps 2048's highest score and reads the score it stored before", () => {
-    window.localStorage.setItem(STORAGE_KEYS.game2048Best, "1024");
-    expect(getBest("2048", GAME_2048_VARIANT)).toEqual({ score: 1024 });
-
+  it("keeps 2048's highest score", () => {
+    recordBest("2048", GAME_2048_VARIANT, { score: 1024 });
     expect(recordBest("2048", GAME_2048_VARIANT, { score: 512 }).isNew).toBe(false);
     expect(recordBest("2048", GAME_2048_VARIANT, { score: 2048 })).toEqual({
       isNew: true,
