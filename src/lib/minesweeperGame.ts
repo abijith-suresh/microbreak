@@ -9,7 +9,7 @@ import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js"
 import { minesweeperVariant, recordBest } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import { loadMinesweeperDifficulty, saveMinesweeperDifficulty } from "./gamePreferences";
-import { loadSave, type SaveStatus } from "./gameSave";
+import type { SaveStatus } from "./gameSave";
 import {
   type Board,
   checkWin,
@@ -29,7 +29,7 @@ import {
   isPersistedMinesweeperSession,
   type PersistedMinesweeperSession,
 } from "./minesweeperSession";
-import { removeStoredValue, saveStoredJSON } from "./storage";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 
 /** "idle" until the page mounts and resumes or starts a game. */
@@ -131,7 +131,7 @@ export function createMinesweeperGame() {
   }
 
   function restoreSession(): boolean {
-    const session = loadSave(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
+    const session = loadStoredJSON(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
     if (!session) return false;
 
     hasStartedPlaying = session.hasStartedPlaying;

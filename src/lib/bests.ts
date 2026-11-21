@@ -11,7 +11,7 @@
 
 import { formatDuration } from "./elapsedTimer";
 import type { Difficulty as MinesweeperDifficulty } from "./minesweeper";
-import { isRecord, loadStoredJSON, loadStoredNumber, saveStoredJSON } from "./storage";
+import { isRecord, loadStoredJSON, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import type { GridSize, Difficulty as SudokuDifficulty } from "./sudoku";
 import type { Variant } from "./wordle";
@@ -114,12 +114,7 @@ function readBests(): StoredBests {
 }
 
 export function getBest<G extends BestGame>(game: G, variant: string): BestByGame[G] | null {
-  const best = readBests().games[game][variant] ?? null;
-  if (best || game !== "2048") return best;
-
-  // 2048 kept its best score under its own key before this store existed.
-  const legacy = loadStoredNumber(STORAGE_KEYS.game2048Best, 0);
-  return legacy > 0 ? ({ score: legacy } as BestByGame[G]) : null;
+  return readBests().games[game][variant] ?? null;
 }
 
 /** Stores the result if it beats the current best, and says whether it did. */

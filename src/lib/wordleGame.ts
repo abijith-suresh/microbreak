@@ -10,7 +10,6 @@ import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js"
 import { recordBest, wordleVariant } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import { loadWordleVariant, saveWordleVariant } from "./gamePreferences";
-import { loadSave } from "./gameSave";
 import { shouldIgnoreGameKey } from "./keyboard";
 import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
@@ -155,7 +154,7 @@ export function createWordleGame() {
   }
 
   async function restoreSession(): Promise<boolean> {
-    const session = loadSave(STORAGE_KEYS.wordleSession, isPersistedWordleSession);
+    const session = loadStoredJSON(STORAGE_KEYS.wordleSession, isPersistedWordleSession);
     if (!session) return false;
 
     setLoading(true);
