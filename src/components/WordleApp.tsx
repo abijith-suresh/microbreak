@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import { describeBest, getBest, wordleVariant } from "@/lib/bests";
 import { formatTimer } from "@/lib/elapsedTimer";
 import type { Variant } from "@/lib/wordle";
 import { createWordleGame } from "@/lib/wordleGame";
@@ -20,6 +21,18 @@ export default function WordleApp() {
   function handleBackToGames() {
     window.location.href = "/";
   }
+
+  const resultDetail = () => {
+    const guesses = game.guesses().length;
+    return game.gameResult() === "won"
+      ? `${variantLabel(game.variant())} · ${guesses} ${guesses === 1 ? "guess" : "guesses"}`
+      : variantLabel(game.variant());
+  };
+
+  const bestText = () => {
+    const best = getBest("wordle", wordleVariant(game.variant()));
+    return best ? describeBest("wordle", best) : null;
+  };
 
   return (
     <>
@@ -54,15 +67,51 @@ export default function WordleApp() {
           </Show>
         }
       >
-        <WordleBoard
-          variant={game.variant()}
-          guesses={game.guesses()}
-          currentInput={game.currentInput()}
-          revealRow={game.revealRow()}
-          shakeRow={game.shakeRow()}
-          gameResult={game.gameResult()}
-          pendingReveal={game.pendingReveal()}
-        />
+        <Show
+          when={game.gameResult()}
+          fallback={
+            <WordleBoard
+              variant={game.variant()}
+              guesses={game.guesses()}
+              currentInput={game.currentInput()}
+              revealRow={game.revealRow()}
+              shakeRow={game.shakeRow()}
+              gameResult={game.gameResult()}
+              pendingReveal={game.pendingReveal()}
+            />
+          }
+        >
+          {(result) => (
+            <ResultScreen
+              type={result()}
+              solveTime={game.timerSeconds()}
+              difficulty={resultDetail()}
+              best={bestText()}
+              isNewBest={game.newBest()}
+              onBackToGames={handleBackToGames}
+              onPlayAgain={game.playAgain}
+            >
+              <Show when={game.gameResult() === "lost"}>
+                <div class="mt-4 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both">
+                  {game
+                    .answer()
+                    .split("")
+                    .map((letter) => (
+                      <div
+                        class="flex items-center justify-center size-10 rounded-md text-lg font-bold uppercase"
+                        style={{
+                          "background-color": "var(--color-wl-correct)",
+                          color: "var(--color-wl-correct-text)",
+                        }}
+                      >
+                        {letter}
+                      </div>
+                    ))}
+                </div>
+              </Show>
+            </ResultScreen>
+          )}
+        </Show>
       </GameScreen>
 
       {/* ── Toast overlay ───────────────────────────────────────── */}
@@ -76,38 +125,6 @@ export default function WordleApp() {
             {game.toastMessage()}
           </div>
         </div>
-      </Show>
-
-      {/* ── Result overlay ──────────────────────────────────────── */}
-      <Show when={game.gameResult()}>
-        {(result) => (
-          <ResultScreen
-            type={result()}
-            solveTime={game.timerSeconds()}
-            difficulty={variantLabel(game.variant())}
-            onBackToGames={handleBackToGames}
-            onPlayAgain={game.playAgain}
-          >
-            <Show when={game.gameResult() === "lost"}>
-              <div class="mt-4 flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-500 fill-mode-both">
-                {game
-                  .answer()
-                  .split("")
-                  .map((letter) => (
-                    <div
-                      class="flex items-center justify-center size-10 rounded-md text-lg font-bold uppercase"
-                      style={{
-                        "background-color": "var(--color-wl-correct)",
-                        color: "var(--color-wl-correct-text)",
-                      }}
-                    >
-                      {letter}
-                    </div>
-                  ))}
-              </div>
-            </Show>
-          </ResultScreen>
-        )}
       </Show>
     </>
   );

@@ -1,18 +1,19 @@
+import { isSaveHeader, type SaveHeader } from "./gameSave";
 import type { Board, CellData, Difficulty } from "./minesweeper";
 import { isCellInGrid, isRecord } from "./storage";
 
-export interface PersistedMinesweeperSession {
-  phase: "playing";
+export interface PersistedMinesweeperSession extends SaveHeader {
   difficulty: Difficulty;
   board: Board;
   rows: number;
   cols: number;
   mineCount: number;
-  timerSeconds: number;
   selectedCell: [number, number] | null;
   digMode: boolean;
   hasStartedPlaying: boolean;
   boardGenerated: boolean;
+  /** The mine that ended a lost game. Missing from saves written before finished games were kept. */
+  triggeredMine?: [number, number] | null;
 }
 
 function isCellState(value: unknown): value is CellData["state"] {
@@ -40,7 +41,7 @@ export function isPersistedMinesweeperSession(
   value: unknown
 ): value is PersistedMinesweeperSession {
   if (!isRecord(value)) return false;
-  if (value.phase !== "playing") return false;
+  if (!isSaveHeader(value)) return false;
   if (
     value.difficulty !== "beginner" &&
     value.difficulty !== "intermediate" &&
@@ -58,10 +59,12 @@ export function isPersistedMinesweeperSession(
 
   return (
     isBoard(value.board, value.rows, value.cols) &&
-    typeof value.timerSeconds === "number" &&
     (value.selectedCell === null || isCellInGrid(value.selectedCell, value.rows, value.cols)) &&
     typeof value.digMode === "boolean" &&
     typeof value.hasStartedPlaying === "boolean" &&
-    typeof value.boardGenerated === "boolean"
+    typeof value.boardGenerated === "boolean" &&
+    (value.triggeredMine === undefined ||
+      value.triggeredMine === null ||
+      isCellInGrid(value.triggeredMine, value.rows, value.cols))
   );
 }

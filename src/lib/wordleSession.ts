@@ -1,13 +1,12 @@
+import { isSaveHeader, type SaveHeader } from "./gameSave";
 import { isRecord } from "./storage";
 import type { GuessResult, LetterState, Variant } from "./wordle";
 
-export interface PersistedWordleSession {
-  phase: "playing";
+export interface PersistedWordleSession extends SaveHeader {
   variant: Variant;
   answer: string;
   guesses: GuessResult[];
   currentInput: string;
-  timerSeconds: number;
   hasStartedPlaying: boolean;
 }
 
@@ -28,7 +27,7 @@ function isGuessResult(value: unknown, variant: Variant): value is GuessResult {
 
 export function isPersistedWordleSession(value: unknown): value is PersistedWordleSession {
   if (!isRecord(value)) return false;
-  if (value.phase !== "playing") return false;
+  if (!isSaveHeader(value)) return false;
   if (value.variant !== 4 && value.variant !== 5 && value.variant !== 6) return false;
 
   const variant = value.variant;
@@ -40,7 +39,6 @@ export function isPersistedWordleSession(value: unknown): value is PersistedWord
     value.guesses.every((guess) => isGuessResult(guess, variant)) &&
     typeof value.currentInput === "string" &&
     value.currentInput.length <= variant &&
-    typeof value.timerSeconds === "number" &&
     typeof value.hasStartedPlaying === "boolean"
   );
 }
