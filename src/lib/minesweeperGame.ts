@@ -21,6 +21,7 @@ import {
   getDifficultyPreset,
   getWrongFlags,
   isMine,
+  prefersMobilePresets,
   revealAllMines,
   revealCell,
   toggleFlag,
@@ -34,13 +35,6 @@ import { STORAGE_KEYS } from "./storageKeys";
 
 /** "idle" until the page mounts and resumes or starts a game. */
 export type Phase = "idle" | "playing";
-
-/** Narrow screens get the taller mobile boards (same widths the setup screen used). */
-function prefersMobilePresets(): boolean {
-  return (
-    typeof window !== "undefined" && window.matchMedia?.("(max-width: 480px)").matches === true
-  );
-}
 
 export type { Difficulty };
 
