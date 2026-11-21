@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.16](https://github.com/abijith-suresh/microbreak/compare/v0.0.15...v0.0.16) (2026-11-21)
+
+
+### Features
+
+* brand favicon and social image in the site palette ([#187](https://github.com/abijith-suresh/microbreak/issues/187)) ([6ba65ef](https://github.com/abijith-suresh/microbreak/commit/6ba65ef009c1919b69eb3dd7a1e268832440f428))
+* **games:** keep finished games and show personal bests ([#203](https://github.com/abijith-suresh/microbreak/issues/203)) ([7d04ff8](https://github.com/abijith-suresh/microbreak/commit/7d04ff8a2f8e64fff6d478ba73f2d78003912073))
+* **games:** open straight onto the board under one shared top bar ([#202](https://github.com/abijith-suresh/microbreak/issues/202)) ([2b08e7b](https://github.com/abijith-suresh/microbreak/commit/2b08e7b4932e60148b4beb8e4bf2914d436afafb))
+* hide 2048 behind an enabled flag ([#198](https://github.com/abijith-suresh/microbreak/issues/198)) ([f182dd0](https://github.com/abijith-suresh/microbreak/commit/f182dd0eaa289dcfd1ef5efb474192a1f1fe488d))
+* rewrite about and 404 for agent wait time ([#190](https://github.com/abijith-suresh/microbreak/issues/190)) ([ff8224d](https://github.com/abijith-suresh/microbreak/commit/ff8224dc5e7b5c2bbe218efd23d47188fd534d54))
+
+
+### Bug Fixes
+
+* accessibility and phone fit on game screens ([#193](https://github.com/abijith-suresh/microbreak/issues/193)) ([5f698f3](https://github.com/abijith-suresh/microbreak/commit/5f698f33a150210fd26fb4d1b88dbaadc2227d72))
+* consistent wording across game screens ([#191](https://github.com/abijith-suresh/microbreak/issues/191)) ([fda9335](https://github.com/abijith-suresh/microbreak/commit/fda933525f7e475a96439eaae44f2e87e7fbcda1))
+* gameplay input and persistence bugs ([#189](https://github.com/abijith-suresh/microbreak/issues/189)) ([b0d106d](https://github.com/abijith-suresh/microbreak/commit/b0d106d0536b7536de2b7db9d3cfbaf7e4fc3511))
+* **layout:** line up page header, content and footer edges ([#201](https://github.com/abijith-suresh/microbreak/issues/201)) ([58370a2](https://github.com/abijith-suresh/microbreak/commit/58370a24943039c9dbee71550c9d437ba7347271))
+* make per-cell animation staggers play ([#192](https://github.com/abijith-suresh/microbreak/issues/192)) ([aa97f49](https://github.com/abijith-suresh/microbreak/commit/aa97f49916455140de866ed1743e24cf4b0f2043))
+
 ## [0.0.15](https://github.com/abijith-suresh/microbreak/compare/v0.0.14...v0.0.15) (2026-09-15)
 
 
