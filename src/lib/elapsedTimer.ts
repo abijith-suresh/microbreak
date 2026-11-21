@@ -37,6 +37,14 @@ export function createElapsedTimer(options: ElapsedTimerOptions) {
   };
 }
 
+/** A finished time for people to read: "42s" or "1m 05s". */
+export function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  if (m === 0) return `${s}s`;
+  return `${m}m ${s.toString().padStart(2, "0")}s`;
+}
+
 export function formatTimer(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
