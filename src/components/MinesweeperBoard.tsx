@@ -111,13 +111,27 @@ export default function MinesweeperBoard(props: Props) {
     return borders.join(" ");
   }
 
-  function cellSize(): string {
+  /**
+   * Cells keep their usual size but shrink when the board would be wider than the screen:
+   * never wider than (viewport − gutters and border) / columns. Set on the board as --cell
+   * (phones) and --cell-md (from md, where the gutters are wider).
+   */
+  function cellVars(): Record<string, string> {
     const r = rows();
     const c = cols();
-    if (r <= 9 && c <= 9) return "w-9 h-9 md:w-11 md:h-11";
-    if (r <= 16 && c <= 16) return "w-7 h-7 md:w-9 md:h-9";
-    return "w-6 h-6 md:w-7 md:h-7";
+    const [base, md] =
+      r <= 9 && c <= 9
+        ? ["2.25rem", "2.75rem"]
+        : r <= 16 && c <= 16
+          ? ["1.75rem", "2.25rem"]
+          : ["1.5rem", "1.75rem"];
+    return {
+      "--cell": `min(${base}, calc((100vw - 1.75rem) / ${c}))`,
+      "--cell-md": `min(${md}, calc((100vw - 2.75rem) / ${c}))`,
+    };
   }
+
+  const cellSize = () => "size-(--cell) md:size-(--cell-md)";
 
   function fontSize(): string {
     const r = rows();
@@ -143,7 +157,7 @@ export default function MinesweeperBoard(props: Props) {
       ref={boardRef}
       data-game-keys
       class="inline-grid rounded-sm overflow-hidden border-2 border-border-strong shadow-md shadow-shadow"
-      style={{ "grid-template-columns": `repeat(${cols()}, auto)` }}
+      style={{ "grid-template-columns": `repeat(${cols()}, auto)`, ...cellVars() }}
     >
       <For each={cellIndices()}>
         {(idx) => {

@@ -55,7 +55,8 @@ export default function WordleKeyboard(props: Props) {
                     style={{
                       "background-color": s()?.bg ?? "var(--color-surface)",
                       color: s()?.text ?? "var(--color-wl-key-text)",
-                      "min-width": isSpecial ? "52px" : "28px",
+                      // Keys share the row, so ten letters fit a 320px phone.
+                      "min-width": "0",
                       height: "48px",
                       flex: isSpecial ? "1.5" : "1",
                       "font-size": isSpecial ? "0.65rem" : "0.8rem",

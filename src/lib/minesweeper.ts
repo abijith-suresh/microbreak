@@ -90,10 +90,13 @@ export const MOBILE_DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
 
 export type PresetMode = "desktop" | "mobile";
 
-/** Narrow screens get the taller mobile boards. */
+/**
+ * Screens below the md breakpoint get the taller mobile boards; the 30-column desktop Hard
+ * board only fits with usable cells from md up.
+ */
 export function prefersMobilePresets(): boolean {
   return (
-    typeof window !== "undefined" && window.matchMedia?.("(max-width: 480px)").matches === true
+    typeof window !== "undefined" && window.matchMedia?.("(max-width: 767px)").matches === true
   );
 }
 

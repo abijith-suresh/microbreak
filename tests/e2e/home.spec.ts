@@ -37,17 +37,17 @@ test("cards never show your own game", async ({ page }) => {
 
 test("hovering a card plays its board and leaving puts it back", async ({ page }) => {
   await page.goto("/");
-  const resting = await board(page, "Sudoku").innerText();
+  const resting = await board(page, "Sudoku").textContent();
 
   await card(page, "Sudoku").hover();
   await expect(card(page, "Sudoku")).toHaveAttribute("data-animating", "true");
-  await expect.poll(() => board(page, "Sudoku").innerText()).not.toBe(resting);
+  await expect.poll(() => board(page, "Sudoku").textContent()).not.toBe(resting);
 
   // Only the hovered card plays.
   await card(page, "Wordle").hover();
   await expect(card(page, "Wordle")).toHaveAttribute("data-animating", "true");
   await expect(card(page, "Sudoku")).toHaveAttribute("data-animating", "false");
-  await expect.poll(() => board(page, "Sudoku").innerText()).toBe(resting);
+  await expect.poll(() => board(page, "Sudoku").textContent()).toBe(resting);
 
   await page.mouse.move(0, 0);
   await expect(card(page, "Wordle")).toHaveAttribute("data-animating", "false");
@@ -64,12 +64,12 @@ test("keyboard focus plays a card's board too", async ({ page }) => {
 test("with reduced motion the boards stay still", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  const resting = await board(page, "Sudoku").innerText();
+  const resting = await board(page, "Sudoku").textContent();
 
   await card(page, "Sudoku").hover();
   await page.waitForTimeout(800);
   await expect(card(page, "Sudoku")).toHaveAttribute("data-animating", "false");
-  expect(await board(page, "Sudoku").innerText()).toBe(resting);
+  expect(await board(page, "Sudoku").textContent()).toBe(resting);
 });
 
 test("on touch screens the boards stay still", async ({ browser, browserName }) => {

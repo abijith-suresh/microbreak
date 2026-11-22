@@ -6,6 +6,7 @@ import {
   type CompletingGroup,
   type GridSize,
   getBoxDims,
+  sudokuCellSize,
 } from "@/lib/sudoku";
 import SudokuCell, { type CellHighlight } from "./SudokuCell";
 
@@ -187,11 +188,7 @@ export default function SudokuBoard(props: Props) {
     return "text-lg md:text-xl";
   }
 
-  function cellSize(): string {
-    if (size() === 4) return "w-16 h-16 md:w-20 md:h-20";
-    if (size() === 6) return "w-13 h-13 md:w-16 md:h-16";
-    return "w-9 h-9 md:w-12 md:h-12";
-  }
+  const cellSize = () => sudokuCellSize(size());
 
   // ── Flat cell index list ───────────────────────────────────────────────────
   /**

@@ -2,7 +2,7 @@ import type { JSX } from "solid-js";
 import { Show } from "solid-js";
 import { describeBest, getBest, sudokuVariant } from "@/lib/bests";
 import { formatTimer } from "@/lib/elapsedTimer";
-import { type Difficulty, type GridSize, getBoxDims } from "@/lib/sudoku";
+import { type Difficulty, type GridSize, getBoxDims, sudokuCellSize } from "@/lib/sudoku";
 import { createSudokuGame } from "@/lib/sudokuGame";
 import GameScreen from "./GameScreen";
 import NumberPad from "./NumberPad";
@@ -42,9 +42,7 @@ function difficultyString(size: number, diff: string): string {
  */
 function SkeletonBoard(props: { size: GridSize }) {
   const cellSizeClass = () => {
-    if (props.size === 4) return "w-16 h-16 md:w-20 md:h-20";
-    if (props.size === 6) return "w-13 h-13 md:w-16 md:h-16";
-    return "w-9 h-9 md:w-12 md:h-12";
+    return sudokuCellSize(props.size);
   };
 
   const numBtnClass = () => {

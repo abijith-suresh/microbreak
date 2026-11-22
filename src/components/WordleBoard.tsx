@@ -88,7 +88,13 @@ export default function WordleBoard(props: Props) {
   };
 
   return (
-    <div class="flex flex-col items-center gap-1.5 sm:gap-2">
+    <div
+      class="flex flex-col items-center gap-1.5 sm:gap-2"
+      // Tiles keep their usual size but shrink when a row would be wider than a narrow phone.
+      style={{
+        "--tile": `min(3.25rem, calc((100vw - 1.5rem - ${props.variant - 1} * 0.375rem) / ${props.variant}))`,
+      }}
+    >
       <p class="sr-only" aria-live="polite">
         {lastGuess()}
       </p>

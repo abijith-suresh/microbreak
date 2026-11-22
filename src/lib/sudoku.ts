@@ -418,3 +418,13 @@ export function getJustCompletedGroups(
 
   return result;
 }
+
+/**
+ * A Sudoku cell's size classes. Cells keep their usual size but shrink on narrow phones so the
+ * whole board fits: never wider than (viewport − gutters and borders) / cells per row.
+ */
+export function sudokuCellSize(size: GridSize): string {
+  if (size === 4) return "size-[min(4rem,calc((100vw_-_1.5rem)/4))] md:size-20";
+  if (size === 6) return "size-[min(3.25rem,calc((100vw_-_1.5rem)/6))] md:size-16";
+  return "size-[min(2.25rem,calc((100vw_-_1.5rem)/9))] md:size-12";
+}
