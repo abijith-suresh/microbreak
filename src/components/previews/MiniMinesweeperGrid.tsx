@@ -1,5 +1,9 @@
 import { createEffect, createSignal, For, onCleanup } from "solid-js";
-import { STATIC_MINESWEEPER_CELLS } from "@/data/previewGrids";
+import {
+  MINESWEEPER_PREVIEW_MINES,
+  previewMineCount,
+  STATIC_MINESWEEPER_CELLS,
+} from "@/data/previewGrids";
 import { Flag } from "@/lib/icons";
 import { PreviewFrame } from "./PreviewFrame";
 
@@ -7,14 +11,15 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
   const [cells, setCells] =
     createSignal<("hidden" | "revealed" | "flagged")[]>(STATIC_MINESWEEPER_CELLS);
 
-  // Clears more of the resting board, then starts over from it. Stopping puts it back.
+  // Clears the rest of the resting board (flagging mines, opening the others), then starts over
+  // from it. Stopping puts it back.
   createEffect(() => {
     if (!props.animated) {
       setCells(STATIC_MINESWEEPER_CELLS);
       return;
     }
 
-    const batchSize = 3;
+    const batchSize = 2;
     const interval = setInterval(() => {
       setCells((prev) => {
         const next = [...prev];
@@ -23,12 +28,11 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
           return acc;
         }, []);
 
-        if (hiddenIndices.length <= 5) return STATIC_MINESWEEPER_CELLS;
+        if (hiddenIndices.length === 0) return STATIC_MINESWEEPER_CELLS;
 
-        for (let b = 0; b < batchSize && hiddenIndices.length - b > 5; b++) {
-          const idx = Math.floor(Math.random() * (hiddenIndices.length - b));
-          const pick = hiddenIndices.splice(idx, 1)[0];
-          next[pick] = Math.random() < 0.8 ? "revealed" : "flagged";
+        for (let b = 0; b < batchSize && hiddenIndices.length > 0; b++) {
+          const pick = hiddenIndices.splice(Math.floor(Math.random() * hiddenIndices.length), 1)[0];
+          next[pick] = MINESWEEPER_PREVIEW_MINES.has(pick) ? "flagged" : "revealed";
         }
 
         return next;
@@ -42,18 +46,26 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
     <PreviewFrame>
       <div class="grid grid-cols-8 gap-px overflow-hidden rounded-md border border-border-strong bg-border-strong">
         <For each={cells()}>
-          {(cell) => (
-            <div
-              class="flex aspect-square items-center justify-center"
-              style={{
-                "background-color": cell === "revealed" ? "var(--color-bg)" : "var(--color-border)",
-              }}
-            >
-              {cell === "flagged" ? (
-                <Flag strokeWidth={2.5} stroke="var(--color-accent)" class="size-[62%]" />
-              ) : null}
-            </div>
-          )}
+          {(cell, i) => {
+            const count = previewMineCount(i());
+            return (
+              <div
+                class="flex aspect-square items-center justify-center font-bold leading-none"
+                style={{
+                  "background-color":
+                    cell === "revealed" ? "var(--color-bg)" : "var(--color-border)",
+                  color: `var(--color-ms-${count})`,
+                  "font-size": "calc(var(--frame) / 8 * 0.5)",
+                }}
+              >
+                {cell === "flagged" ? (
+                  <Flag strokeWidth={2.5} stroke="var(--color-accent)" class="size-[62%]" />
+                ) : cell === "revealed" && count > 0 ? (
+                  count
+                ) : null}
+              </div>
+            );
+          }}
         </For>
       </div>
     </PreviewFrame>
