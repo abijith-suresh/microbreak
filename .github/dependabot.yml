@@ -1,7 +1,6 @@
 version: 2
 
 updates:
-  # npm projects: set package-ecosystem to "npm".
   - package-ecosystem: "bun"
     directory: "/"
     schedule:

@@ -1,139 +1,54 @@
-# CONTRIBUTING
+# Contributing
 
-## Prerequisites
+These notes apply to people and coding agents alike.
 
-- **Node.js 24** (exact version in `mise.toml`)
-- **Bun** (exact version in `mise.toml`)
+## Setup
 
-Install dependencies:
+You need Bun and Node 24. `mise.toml` pins both versions.
 
 ```bash
 bun install
-```
-
-## Development
-
-Start the dev server:
-
-```bash
 bun run dev
 ```
 
-Available scripts:
+`bun install` also sets up the Git hooks. They lint staged files, check commit messages, and run
+`bun run verify` before every push.
 
-| Command                  | Description                                     |
-| ------------------------ | ----------------------------------------------- |
-| `bun run dev`            | Start Astro dev server                          |
-| `bun run build`          | Production build to `dist/`                     |
-| `bun run preview`        | Preview production build locally                |
-| `bun run type-check`     | Run `astro sync && astro check && tsc --noEmit` |
-| `bun run lint`           | Run Biome                                       |
-| `bun run lint:fix`       | Auto-fix lint issues                            |
-| `bun run format`         | Run Biome format (write)                        |
-| `bun run format:check`   | Check formatting                                |
-| `bun run test`           | Run Vitest once                                 |
-| `bun run test:e2e`       | Run Playwright tests against an existing build  |
-| `bun run test:e2e:build` | Build, then run Playwright tests                |
-| `bun run test:watch`     | Run Vitest in watch mode                        |
-| `bun run verify`         | Run full quality gate                           |
-
-## Quality Gate
-
-Before pushing, run:
+## Checks
 
 ```bash
 bun run verify
 ```
 
-That is the agreement: a green `verify` plus focused tests for the logic you
-touched. CI owns the full suite.
+This runs type-check, lint, format check, unit tests, and a production build. Run it before you
+push.
 
-Browser tests run separately and need Playwright browsers installed once:
+If you change anything in the UI, also run the browser tests. Install the browsers once:
 
 ```bash
 bunx playwright install --with-deps chromium firefox webkit
 bun run test:e2e:build
 ```
 
-`test:e2e:build` builds the site, then runs the suite in `tests/e2e/` against
-Playwright's own preview server. `test:e2e` runs the same suite against the
-existing `dist/` build. CI runs `bun run build` followed by `bun run test:e2e`
-through the shared workflow, with chromium, firefox, and webkit.
+CI runs `verify` and the browser tests in Chromium, Firefox, and WebKit on every pull request.
 
-Git hooks are managed by Husky:
+## Making a change
 
-- **pre-commit**: lint-staged runs Biome on staged files
-- **commit-msg**: validates Conventional Commits format
-- **pre-push**: runs the full verify script
+- Work on a branch and open a pull request. Nobody pushes to `main`.
+- Keep each pull request to one concern. Leave unrelated refactors and formatting out.
+- Use [Conventional Commits](https://www.conventionalcommits.org/) for commits and the pull
+  request title. `commitlint.config.ts` has the rules.
+- Pull requests are squash merged, so the title becomes the commit on `main`.
+- Never edit `CHANGELOG.md`. release-please cuts releases from commit messages.
 
-## Pull Requests
+## Product rules
 
-- Branch, open one pull request, squash merge. Never push directly to `main`.
-- Keep a pull request scoped to one concern; leave unrelated refactors and
-  formatting fixes out.
-- Run `bun run test:e2e:build` when you change UI flows.
-- Never hand-edit `CHANGELOG.md`; it is release-please output.
-- New games follow the same layered shape as the existing ones — see
-  [Adding a New Game](#adding-a-new-game).
+Read [AGENTS.md § The Project](AGENTS.md#the-project) before you propose a feature. A change
+that needs accounts, a backend, tracking, or streaks will be turned down.
 
-## Commit Convention
+## Adding a game
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-type(optional-scope): subject
-```
-
-The allowed types and the enforced subject rules (maximum length, trailing
-period) live in `commitlint.config.ts`. Update the config there rather than
-restating the list in prose.
-
-Releases are automated via release-please based on commit messages. Before v1.0.0:
-
-- `feat` commits bump the minor version
-- `fix` commits bump the patch version
-
-## Adding a New Game
-
-Each game follows a consistent architecture. To add a new game:
-
-1. **Engine** — Create `src/lib/<game>.ts` with pure logic (generation,
-   validation, move handling, win/loss). No framework code.
-2. **Tests** — Add `src/lib/__tests__/<game>.test.ts` with Vitest unit tests
-   covering the engine.
-3. **Session validator** — Create `src/lib/<game>Session.ts` with a type
-   predicate for localStorage validation.
-4. **Composable** — Create `src/lib/<game>Game.ts` using SolidJS signals and
-   createEffect for reactive state + persistence. Follow the pattern of
-   existing composables (`sudokuGame.ts`, `minesweeperGame.ts`, etc.).
-5. **App component** — Create `src/components/<Game>App.tsx` composing Setup,
-   Board/UI, and ResultScreen components.
-6. **Sub-components** — Create setup, board, cell/tile, and any game-specific
-   components in `src/components/`.
-7. **Storage keys** — Add session/preference keys to
-   `src/lib/storageKeys.ts`.
-8. **Page** — Create `src/pages/<game>.astro` with meta tags and `client:load`.
-9. **Catalog** — Add game entry to `src/data/games.ts`.
-10. **Home preview** — Add preview component in
-    `src/components/previews/` and configure in `src/data/previewGrids.ts`.
-
-## Code Style
-
-- TypeScript strict mode
-- No unused variables (underscore prefix allowed)
-- Prefer `const` over `let`
-- Console statements restricted to `warn` and `error`
-- Tailwind classes for styling; avoid inline styles
-- SolidJS: use `Show`/`For` for conditional/iterative rendering
-- No comments unless necessary for clarity
-
-## Testing
-
-Tests use Vitest. Engine logic must be tested. UI components are not currently
-tested.
-
-```bash
-bun run test
-```
-
-Test files live in `src/lib/__tests__/` alongside the code they test.
+Copy the shape of an existing game such as Minesweeper. Each game has a pure logic engine
+(`src/lib/<game>.ts`) with unit tests, a session validator, a SolidJS state module
+(`src/lib/<game>Game.ts`), components in `src/components/`, and a page in `src/pages/`. Then
+register it in `src/data/games.ts` and `src/lib/storageKeys.ts`.
