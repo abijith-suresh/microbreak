@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  calcudokuVariant,
   describeBest,
   GAME_2048_VARIANT,
   getBest,
@@ -46,6 +47,7 @@ describe("personal bests", () => {
         minesweeper: {},
         wordle: {},
         "2048": {},
+        calcudoku: {},
       },
     });
   });
@@ -97,6 +99,21 @@ describe("personal bests", () => {
       previous: { score: 1024 },
     });
     expect(getBest("2048", GAME_2048_VARIANT)).toEqual({ score: 2048 });
+  });
+
+  it("keeps Calcudoku's fastest win per size", () => {
+    expect(calcudokuVariant(5)).toBe("5x5");
+    recordBest("calcudoku", calcudokuVariant(5), { seconds: 200 });
+    expect(recordBest("calcudoku", calcudokuVariant(5), { seconds: 240 }).isNew).toBe(false);
+    expect(recordBest("calcudoku", calcudokuVariant(5), { seconds: 150 })).toEqual({
+      isNew: true,
+      previous: { seconds: 200 },
+    });
+    expect(recordBest("calcudoku", calcudokuVariant(4), { seconds: 90 }).isNew).toBe(true);
+    expect(getBest("calcudoku", calcudokuVariant(5))).toEqual({ seconds: 150 });
+    expect(getBest("calcudoku", calcudokuVariant(6))).toBeNull();
+    expect(stored().games.calcudoku).toEqual({ "5x5": { seconds: 150 }, "4x4": { seconds: 90 } });
+    expect(describeBest("calcudoku", { seconds: 150 })).toBe("2m 30s");
   });
 
   describe("corrupt data", () => {

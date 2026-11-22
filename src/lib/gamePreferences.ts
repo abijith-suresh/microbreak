@@ -4,6 +4,7 @@
  * setup screens wrote, so existing players keep their choice.
  */
 
+import type { Difficulty as CalcudokuDifficulty } from "./calcudoku";
 import type { Difficulty as MinesweeperDifficulty } from "./minesweeper";
 import {
   isRecord,
@@ -63,4 +64,14 @@ export function loadMinesweeperDifficulty(): MinesweeperDifficulty {
 
 export function saveMinesweeperDifficulty(difficulty: MinesweeperDifficulty) {
   saveStoredString(STORAGE_KEYS.minesweeperPreferences, difficulty);
+}
+
+const CALCUDOKU_DIFFICULTIES = ["easy", "medium", "hard"] as const;
+
+export function loadCalcudokuDifficulty(): CalcudokuDifficulty {
+  return loadStoredString(STORAGE_KEYS.calcudokuPreferences, CALCUDOKU_DIFFICULTIES, "medium");
+}
+
+export function saveCalcudokuDifficulty(difficulty: CalcudokuDifficulty) {
+  saveStoredString(STORAGE_KEYS.calcudokuPreferences, difficulty);
 }
