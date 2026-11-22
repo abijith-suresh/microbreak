@@ -28,6 +28,7 @@ test("sitemap lists the shown pages only", async ({ request }) => {
 
   const sitemap = await (await request.get("/sitemap-0.xml")).text();
   expect(sitemap).toContain(`<loc>${SITE}/sudoku/</loc>`);
+  expect(sitemap).toContain(`<loc>${SITE}/nonograms/</loc>`);
   expect(sitemap).not.toContain("/404");
   expect(sitemap).not.toContain("/2048");
 });

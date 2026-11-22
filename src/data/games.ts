@@ -18,12 +18,7 @@ export const games: Game[] = [
     line: "Fill the grid so every cage hits its target",
     enabled: false,
   },
-  {
-    name: "Nonograms",
-    href: "/nonograms",
-    line: "Fill the grid to match the clues",
-    enabled: false,
-  },
+  { name: "Nonograms", href: "/nonograms", line: "Reveal the picture from the clues" },
 ];
 
 /** The games shown on the site, in order. */

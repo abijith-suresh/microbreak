@@ -1,0 +1,11 @@
+---
+import NonogramsApp from "@/components/NonogramsApp";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Nonograms — Microbreak"
+  description="Picture logic puzzles: fill the grid so every row and column matches its clues."
+>
+  <NonogramsApp client:load />
+</BaseLayout>

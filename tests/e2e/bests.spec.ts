@@ -109,3 +109,50 @@ test("a solved Sudoku stays solved after a reload until a new game starts", asyn
   await expect(result(page)).toBeHidden();
   await expect(page.locator(".sudoku-cell")).toHaveCount(16);
 });
+
+test("a solved Nonogram stays solved after a reload and keeps the fastest time", async ({
+  page,
+}) => {
+  const SAVE = "microbreak-nonogram-session:v1";
+  const heart = ["01010", "11111", "11111", "01110", "00100"];
+  const marks = heart.map((row, r) =>
+    [...row].map((cell, c) => (cell === "1" && !(r === 4 && c === 2) ? "filled" : "empty"))
+  );
+  // Inject from the home page: opening /nonograms first would start a puzzle that can overwrite it.
+  await page.goto("/");
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), {
+    key: SAVE,
+    value: {
+      status: "playing",
+      newBest: false,
+      timerSeconds: 42,
+      size: 5,
+      solution: heart,
+      marks,
+      mode: "fill",
+      selectedCell: null,
+      hasStartedPlaying: true,
+    },
+  });
+  await page.goto("/nonograms");
+
+  await page.getByRole("button", { name: "Row 5, column 3, empty" }).click();
+
+  await expect(result(page)).toContainText("Solved");
+  await expect(result(page)).toContainText("5×5 · Easy");
+  await expect(result(page)).toContainText("New personal best");
+  await expect(result(page)).toContainText("Nice break · Now back to your agents");
+
+  await page.reload();
+  await expect(result(page)).toContainText("Solved");
+  expect(await save(page, SAVE)).toMatchObject({ status: "won", newBest: true });
+  expect((await save(page, BESTS)).games.nonograms["5x5"].seconds).toBeGreaterThanOrEqual(42);
+
+  await page.getByRole("button", { name: "New game" }).click();
+  await page
+    .getByRole("dialog", { name: "New game" })
+    .getByRole("button", { name: "Start new game" })
+    .click();
+  await expect(result(page)).toBeHidden();
+  await expect(page.locator("[data-cell]")).toHaveCount(25);
+});

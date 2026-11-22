@@ -4,6 +4,7 @@ const CARDS = [
   { name: "Sudoku", line: "Fill every row, column and box", href: "/sudoku" },
   { name: "Wordle", line: "Guess the hidden word", href: "/wordle" },
   { name: "Minesweeper", line: "Clear the board, dodge the mines", href: "/minesweeper" },
+  { name: "Nonograms", line: "Reveal the picture from the clues", href: "/nonograms" },
 ];
 
 const card = (page: Page, name: string) =>
@@ -13,12 +14,12 @@ const board = (page: Page, name: string) => card(page, name).locator("[aria-hidd
 test("each card names its game, says one line about it and links to it", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("main").getByRole("link")).toHaveCount(3);
+  await expect(page.getByRole("main").getByRole("link")).toHaveCount(4);
   for (const { name, line, href } of CARDS) {
     await expect(card(page, name)).toHaveAccessibleName(`${name} ${line}`);
     await expect(card(page, name)).toHaveAttribute("href", href);
   }
-  await expect(page.getByText(/Chess|Nonograms|2048/)).toHaveCount(0);
+  await expect(page.getByText(/Chess|2048/)).toHaveCount(0);
 });
 
 test("cards never show your own game", async ({ page }) => {
@@ -51,6 +52,19 @@ test("hovering a card plays its board and leaving puts it back", async ({ page }
 
   await page.mouse.move(0, 0);
   await expect(card(page, "Wordle")).toHaveAttribute("data-animating", "false");
+});
+
+test("the Nonograms card fills in its picture on hover and rests again after", async ({ page }) => {
+  await page.goto("/");
+  const filled = () => board(page, "Nonograms").locator("[data-mark='filled']").count();
+  const resting = await filled();
+
+  await card(page, "Nonograms").hover();
+  await expect(card(page, "Nonograms")).toHaveAttribute("data-animating", "true");
+  await expect.poll(filled).toBeGreaterThan(resting);
+
+  await page.mouse.move(0, 0);
+  await expect.poll(filled).toBe(resting);
 });
 
 test("keyboard focus plays a card's board too", async ({ page }) => {
@@ -109,6 +123,21 @@ test.describe("moving between home and a game", () => {
     await page.getByRole("link", { name: "Back to games" }).click();
     await expect(card(page, "Sudoku")).toBeVisible();
     expect(await revealed(page)).toBe(true);
+  });
+
+  test("a Nonograms card and its game share transition names", async ({ page }) => {
+    const names = () =>
+      page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>("[style*='view-transition-name']")]
+          .map((el) => el.style.getPropertyValue("view-transition-name"))
+          .filter((name) => name.endsWith("-nonograms"))
+          .sort()
+      );
+    await page.goto("/");
+    expect(await names()).toEqual(["board-nonograms", "title-nonograms"]);
+    await card(page, "Nonograms").click();
+    await expect(page.getByRole("heading", { level: 1, name: "Nonograms" })).toBeVisible();
+    expect(await names()).toEqual(["board-nonograms", "title-nonograms"]);
   });
 
   test("just navigates with reduced motion", async ({ page }) => {

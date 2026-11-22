@@ -1,6 +1,6 @@
 import { isSaveHeader, type SaveHeader } from "./gameSave";
 import { type CellMark, isNonogramSize, type Marks, type NonogramSize } from "./nonogram";
-import { isRecord } from "./storage";
+import { isCellInGrid, isRecord } from "./storage";
 
 /**
  * A saved Nonograms game. The clues are not stored: they come from the solution. A nonogram
@@ -12,6 +12,9 @@ export interface PersistedNonogramSession extends SaveHeader {
   /** The picture, one string per row: "1" filled, "0" empty. */
   solution: string[];
   marks: Marks;
+  /** What a tap or drag marks. */
+  mode: "fill" | "cross";
+  selectedCell: [number, number] | null;
   hasStartedPlaying: boolean;
 }
 
@@ -43,6 +46,8 @@ export function isPersistedNonogramSession(value: unknown): value is PersistedNo
   return (
     isSolutionRows(value.solution, value.size) &&
     isMarks(value.marks, value.size) &&
+    (value.mode === "fill" || value.mode === "cross") &&
+    (value.selectedCell === null || isCellInGrid(value.selectedCell, value.size, value.size)) &&
     typeof value.hasStartedPlaying === "boolean"
   );
 }
