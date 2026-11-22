@@ -5,10 +5,12 @@
  *   Minesweeper  fastest win per difficulty and board size
  *   Wordle       fewest guesses per word length; the faster win breaks a tie
  *   2048         highest score
+ *   Calcudoku    fastest win per size
  *
  * Only the best result is stored: no history, streaks or counts.
  */
 
+import type { GridSize as CalcudokuSize } from "./calcudoku";
 import { formatDuration } from "./elapsedTimer";
 import type { Difficulty as MinesweeperDifficulty } from "./minesweeper";
 import { isRecord, loadStoredJSON, saveStoredJSON } from "./storage";
@@ -32,6 +34,7 @@ interface BestByGame {
   minesweeper: TimeBest;
   wordle: GuessBest;
   "2048": ScoreBest;
+  calcudoku: TimeBest;
 }
 
 export type BestGame = keyof BestByGame;
@@ -68,6 +71,10 @@ export function wordleVariant(variant: Variant): string {
 
 export const GAME_2048_VARIANT = "classic";
 
+export function calcudokuVariant(size: CalcudokuSize): string {
+  return `${size}x${size}`;
+}
+
 // ── Rules ───────────────────────────────────────────────────────────────────
 
 const isCount = (value: unknown, min: number): value is number =>
@@ -79,6 +86,7 @@ const VALID: { [G in BestGame]: (value: unknown) => value is BestByGame[G] } = {
   wordle: (v): v is GuessBest =>
     isRecord(v) && Number.isInteger(v.guesses) && isCount(v.guesses, 1) && isCount(v.seconds, 0),
   "2048": (v): v is ScoreBest => isRecord(v) && isCount(v.score, 0),
+  calcudoku: (v): v is TimeBest => isRecord(v) && isCount(v.seconds, 0),
 };
 
 const BEATS: { [G in BestGame]: (next: BestByGame[G], best: BestByGame[G]) => boolean } = {
@@ -87,6 +95,7 @@ const BEATS: { [G in BestGame]: (next: BestByGame[G], best: BestByGame[G]) => bo
   wordle: (next, best) =>
     next.guesses < best.guesses || (next.guesses === best.guesses && next.seconds < best.seconds),
   "2048": (next, best) => next.score > best.score,
+  calcudoku: (next, best) => next.seconds < best.seconds,
 };
 
 const GAMES = Object.keys(VALID) as BestGame[];
@@ -94,7 +103,10 @@ const GAMES = Object.keys(VALID) as BestGame[];
 // ── Storage ─────────────────────────────────────────────────────────────────
 
 function emptyBests(): StoredBests {
-  return { version: 1, games: { sudoku: {}, minesweeper: {}, wordle: {}, "2048": {} } };
+  return {
+    version: 1,
+    games: { sudoku: {}, minesweeper: {}, wordle: {}, "2048": {}, calcudoku: {} },
+  };
 }
 
 /** Reads the store, keeping every valid entry and dropping anything else. */

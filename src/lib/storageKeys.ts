@@ -2,6 +2,8 @@ export const STORAGE_KEYS = {
   theme: "microbreak-theme",
   bests: "microbreak-bests:v1",
   game2048Session: "microbreak-2048-session:v1",
+  calcudokuPreferences: "microbreak-calcudoku-preferences:v1",
+  calcudokuSession: "microbreak-calcudoku-session:v1",
   sudokuPreferences: "microbreak-sudoku-preferences:v1",
   sudokuSession: "microbreak-sudoku-session:v1",
   minesweeperPreferences: "microbreak-minesweeper-preferences:v1",
