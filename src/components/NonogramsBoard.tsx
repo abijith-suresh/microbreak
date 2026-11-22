@@ -151,7 +151,7 @@ export default function NonogramsBoard(props: Props) {
   const isSelectedRow = (row: number) => props.selectedCell?.[0] === row;
   const isSelectedCol = (col: number) => props.selectedCell?.[1] === col;
 
-  /** Every fifth line is drawn darker, so long clues are easier to count out. */
+  /** Every fifth line is drawn thicker and darker, so long clues are easier to count out. */
   const blockEdge = (index: number) => (index + 1) % 5 === 0 && index < n() - 1;
 
   const clueClass = (done: boolean, selected: boolean) =>
@@ -250,8 +250,16 @@ export default function NonogramsBoard(props: Props) {
                             "nonogram-cell relative flex aspect-square w-full touch-none items-center justify-center border-r border-b border-border focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent",
                             col === 0 ? "border-l border-l-border-strong" : "",
                             row === 0 ? "border-t border-t-border-strong" : "",
-                            blockEdge(col) || col === n() - 1 ? "border-r-border-strong" : "",
-                            blockEdge(row) || row === n() - 1 ? "border-b-border-strong" : "",
+                            blockEdge(col)
+                              ? "border-r-2 border-r-fg-tertiary/60"
+                              : col === n() - 1
+                                ? "border-r-border-strong"
+                                : "",
+                            blockEdge(row)
+                              ? "border-b-2 border-b-fg-tertiary/60"
+                              : row === n() - 1
+                                ? "border-b-border-strong"
+                                : "",
                             mark() === "filled" ? "bg-fg" : "bg-surface hover:bg-surface-hover",
                             selected() ? "outline-2 -outline-offset-2 outline-accent" : "",
                           ]

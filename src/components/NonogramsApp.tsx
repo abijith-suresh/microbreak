@@ -37,68 +37,69 @@ export default function NonogramsApp() {
           onStart={(values) => game.startGame(values.size as NonogramSize)}
         />
       }
-      belowContent={
-        <Show when={game.gameResult() === null}>
-          <div class="flex flex-col items-center gap-2 pb-4">
-            <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
-              {MODES.map(({ value, label, icon }, i) => (
-                <button
-                  type="button"
-                  onClick={() => game.setMode(value)}
-                  aria-pressed={game.mode() === value}
-                  style={{ transition: "background-color 0.15s ease-out, color 0.15s ease-out" }}
-                  class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium ${
-                    i > 0 ? "border-l border-border" : ""
-                  } ${
-                    game.mode() === value
-                      ? "bg-accent text-white"
-                      : "bg-surface text-fg-tertiary hover:text-fg"
-                  }`}
-                >
-                  <svg
-                    aria-hidden="true"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill={value === "fill" ? "currentColor" : "none"}
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d={icon} />
-                  </svg>
-                  {label}
-                </button>
-              ))}
-            </div>
-            <p class="text-xs text-fg-tertiary tracking-wide text-center">
-              Drag to mark a whole line
-            </p>
-          </div>
-        </Show>
-      }
     >
       <Show
         when={game.gameResult()}
         fallback={
           <Show when={game.puzzle()}>
             {(puzzle) => (
-              <NonogramsBoard
-                size={puzzle().size}
-                rowClues={puzzle().rowClues}
-                colClues={puzzle().colClues}
-                marks={game.marks()}
-                satisfiedRows={game.satisfied().rows}
-                satisfiedCols={game.satisfied().cols}
-                selectedCell={game.selectedCell()}
-                isCompleting={game.completing()}
-                onSelectCell={game.selectCell}
-                onBeginStroke={game.beginStroke}
-                onExtendStroke={game.extendStroke}
-                onEndStroke={game.endStroke}
-                onMarkCell={game.markCell}
-              />
+              <>
+                <NonogramsBoard
+                  size={puzzle().size}
+                  rowClues={puzzle().rowClues}
+                  colClues={puzzle().colClues}
+                  marks={game.marks()}
+                  satisfiedRows={game.satisfied().rows}
+                  satisfiedCols={game.satisfied().cols}
+                  selectedCell={game.selectedCell()}
+                  isCompleting={game.completing()}
+                  onSelectCell={game.selectCell}
+                  onBeginStroke={game.beginStroke}
+                  onExtendStroke={game.extendStroke}
+                  onEndStroke={game.endStroke}
+                  onMarkCell={game.markCell}
+                />
+                {/* Under the board, like Sudoku's number pad. */}
+                <div class="flex flex-col items-center gap-2">
+                  <div class="flex rounded-lg border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200 fill-mode-both">
+                    {MODES.map(({ value, label, icon }, i) => (
+                      <button
+                        type="button"
+                        onClick={() => game.setMode(value)}
+                        aria-pressed={game.mode() === value}
+                        style={{
+                          transition: "background-color 0.15s ease-out, color 0.15s ease-out",
+                        }}
+                        class={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium ${
+                          i > 0 ? "border-l border-border" : ""
+                        } ${
+                          game.mode() === value
+                            ? "bg-accent text-white"
+                            : "bg-surface text-fg-tertiary hover:text-fg"
+                        }`}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill={value === "fill" ? "currentColor" : "none"}
+                          stroke="currentColor"
+                          stroke-width="2.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d={icon} />
+                        </svg>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <p class="text-xs text-fg-tertiary tracking-wide text-center">
+                    Drag to mark a whole line
+                  </p>
+                </div>
+              </>
             )}
           </Show>
         }
