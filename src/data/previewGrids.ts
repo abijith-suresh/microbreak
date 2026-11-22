@@ -22,6 +22,26 @@ export const SUDOKU_RESTING_CELLS = new Set(
   [...SUDOKU_RESTING_MASK].flatMap((ch, i) => (ch === "." ? [] : [i]))
 );
 
+/**
+ * Where the mines sit on the 8×8 Minesweeper preview: the flagged cells of the resting frame
+ * plus five still hidden. Opened cells show their real neighbour counts from this layout.
+ */
+export const MINESWEEPER_PREVIEW_MINES = new Set([3, 7, 14, 19, 28, 32, 42, 46, 55, 57]);
+
+/** How many of a cell's neighbours are mines, on the 8×8 preview. */
+export function previewMineCount(index: number): number {
+  const row = Math.floor(index / 8);
+  const col = index % 8;
+  let count = 0;
+  for (let r = row - 1; r <= row + 1; r++) {
+    for (let c = col - 1; c <= col + 1; c++) {
+      if (r < 0 || r > 7 || c < 0 || c > 7 || (r === row && c === col)) continue;
+      if (MINESWEEPER_PREVIEW_MINES.has(r * 8 + c)) count++;
+    }
+  }
+  return count;
+}
+
 export const STATIC_MINESWEEPER_CELLS: ("hidden" | "revealed" | "flagged")[] = [
   "revealed",
   "revealed",
