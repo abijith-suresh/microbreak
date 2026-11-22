@@ -17,6 +17,7 @@ test.describe("every game opens straight onto a board", () => {
   for (const [path, title, cell] of [
     ["/sudoku", "Sudoku", ".sudoku-cell"],
     ["/minesweeper", "Minesweeper", ".minesweeper-cell"],
+    ["/calcudoku", "Calcudoku", ".calcudoku-cell"],
   ] as const) {
     test(title, async ({ page }) => {
       await page.goto(path);
@@ -110,4 +111,43 @@ test("keys typed in the open menu don't reach the board", async ({ page }) => {
     () => JSON.parse(localStorage.getItem("microbreak-wordle-session:v1") ?? "{}").currentInput
   );
   expect(input).toBe("");
+});
+
+test("Calcudoku remembers its size and resumes values, notes and notes mode", async ({ page }) => {
+  const SAVE = "microbreak-calcudoku-session:v1";
+  const saved = () => page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null"), SAVE);
+
+  await page.goto("/calcudoku");
+  await expect(topBar(page)).toContainText("5×5 · Medium");
+  await startFromMenu(page, ["4×4"]);
+  await expect(topBar(page)).toContainText("4×4 · Easy");
+  await expect(page.locator(".calcudoku-cell")).toHaveCount(16);
+
+  // Pick an open cell, write a digit in one and notes in another.
+  await expect.poll(async () => (await saved())?.puzzle?.size).toBe(4);
+  const { values } = await saved();
+  const open = values.flatMap((row: (number | null)[], r: number) =>
+    row.flatMap((v, c) => (v === null ? [[r + 1, c + 1]] : []))
+  );
+  const cell = (n: number) =>
+    page.getByRole("gridcell", { name: new RegExp(`^Row ${open[n][0]}, column ${open[n][1]},`) });
+
+  await cell(0).click();
+  await page.getByRole("button", { name: "3", exact: true }).click();
+  await cell(1).click();
+  await page.getByRole("button", { name: "Notes" }).click();
+  await page.getByRole("button", { name: "Note 1" }).click();
+  await page.getByRole("button", { name: "Note 4" }).click();
+  await expect(cell(1)).toHaveAccessibleName(/, notes 1 and 4$/);
+
+  await page.reload();
+  await expect(topBar(page)).toContainText("4×4 · Easy");
+  await expect(cell(0)).toHaveAccessibleName(/, 3(,|$)/);
+  await expect(cell(1)).toHaveAccessibleName(/, notes 1 and 4$/);
+  await expect(page.getByRole("button", { name: "Notes" })).toHaveAttribute("aria-pressed", "true");
+
+  // With no game to resume, the next visit starts at the last size used.
+  await page.evaluate((key) => localStorage.removeItem(key), SAVE);
+  await page.reload();
+  await expect(topBar(page)).toContainText("4×4 · Easy");
 });

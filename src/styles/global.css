@@ -92,6 +92,8 @@
 
   /* Semantic */
   --color-error: var(--color-error);
+  /* Calcudoku cage outlines */
+  --color-cage: var(--color-text-secondary);
   --color-success: var(--color-success);
 
   /* Sudoku-specific highlights */
@@ -346,8 +348,16 @@ body {
   border-color: var(--color-border);
 }
 
+/* ─── Calcudoku Cell Base ─── */
+.calcudoku-cell {
+  font-family: var(--font-body);
+  user-select: none;
+  transition: background-color 0.15s ease-out;
+}
+
 .sudoku-cell:focus-visible,
-.minesweeper-cell:focus-visible {
+.minesweeper-cell:focus-visible,
+.calcudoku-cell:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: -2px;
 }

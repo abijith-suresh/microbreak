@@ -127,3 +127,45 @@ export const WORDLE_PREVIEW_COLORS: ("absent" | "correct" | "present")[][] = [
   ["absent", "present", "correct", "absent", "correct"],
   ["correct", "correct", "correct", "correct", "correct"],
 ];
+
+/**
+ * The Calcudoku preview: a 5×5 puzzle with one solution. CALCUDOKU_PREVIEW_CAGES names each
+ * cell's cage by letter, and CALCUDOKU_PREVIEW_CLUES gives each cage's clue.
+ */
+export const CALCUDOKU_PREVIEW_SOLUTION = [
+  3, 2, 1, 4, 5, 1, 3, 2, 5, 4, 4, 5, 3, 1, 2, 2, 4, 5, 3, 1, 5, 1, 4, 2, 3,
+];
+
+export const CALCUDOKU_PREVIEW_CAGES = ["CKDDD", "CEBBF", "GEIIF", "GAHIF", "JAHHF"].join("");
+
+export const CALCUDOKU_PREVIEW_CLUES: Record<string, string> = {
+  A: "3−",
+  B: "7+",
+  C: "3÷",
+  D: "20×",
+  E: "8+",
+  F: "10+",
+  G: "2÷",
+  H: "40×",
+  I: "9×",
+  J: "5",
+  K: "2",
+};
+
+/** At rest: givens and a few cages filled ("#"), the rest empty ("."). */
+export const CALCUDOKU_RESTING_CELLS = new Set(
+  [...["#####", "#.##.", "#....", "#....", "#...."].join("")].flatMap((ch, i) =>
+    ch === "#" ? [i] : []
+  )
+);
+
+/** Pencil notes on the resting board, by cell index. */
+export const CALCUDOKU_PREVIEW_NOTES: Record<number, number[]> = {
+  6: [3, 5],
+  11: [3, 5],
+  12: [1, 3],
+  16: [1, 4],
+};
+
+/** On hover the board fills these cells in turn (cages E, A and H), then starts over. */
+export const CALCUDOKU_FILL_ORDER = [6, 11, 16, 21, 17, 22, 23];

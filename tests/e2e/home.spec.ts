@@ -4,6 +4,7 @@ const CARDS = [
   { name: "Sudoku", line: "Fill every row, column and box", href: "/sudoku" },
   { name: "Wordle", line: "Guess the hidden word", href: "/wordle" },
   { name: "Minesweeper", line: "Clear the board, dodge the mines", href: "/minesweeper" },
+  { name: "Calcudoku", line: "Fill the grid so every cage adds up", href: "/calcudoku" },
 ];
 
 const card = (page: Page, name: string) =>
@@ -13,7 +14,7 @@ const board = (page: Page, name: string) => card(page, name).locator("[aria-hidd
 test("each card names its game, says one line about it and links to it", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("main").getByRole("link")).toHaveCount(3);
+  await expect(page.getByRole("main").getByRole("link")).toHaveCount(4);
   for (const { name, line, href } of CARDS) {
     await expect(card(page, name)).toHaveAccessibleName(`${name} ${line}`);
     await expect(card(page, name)).toHaveAttribute("href", href);
@@ -51,6 +52,19 @@ test("hovering a card plays its board and leaving puts it back", async ({ page }
 
   await page.mouse.move(0, 0);
   await expect(card(page, "Wordle")).toHaveAttribute("data-animating", "false");
+});
+
+test("hovering the Calcudoku card fills its cages, then leaving puts it back", async ({ page }) => {
+  await page.goto("/");
+  const resting = await board(page, "Calcudoku").textContent();
+
+  await card(page, "Calcudoku").hover();
+  await expect(card(page, "Calcudoku")).toHaveAttribute("data-animating", "true");
+  await expect.poll(() => board(page, "Calcudoku").textContent()).not.toBe(resting);
+
+  await page.mouse.move(0, 0);
+  await expect(card(page, "Calcudoku")).toHaveAttribute("data-animating", "false");
+  await expect.poll(() => board(page, "Calcudoku").textContent()).toBe(resting);
 });
 
 test("keyboard focus plays a card's board too", async ({ page }) => {
@@ -99,17 +113,19 @@ test.describe("moving between home and a game", () => {
   const revealed = (page: Page) =>
     page.evaluate(() => (window as unknown as { revealed?: boolean }).revealed);
 
-  test("morphs into the game and back", async ({ page }) => {
-    await page.addInitScript(recordReveal);
-    await page.goto("/");
-    await card(page, "Sudoku").click();
-    await expect(page.getByRole("heading", { level: 1, name: "Sudoku" })).toBeVisible();
-    expect(await revealed(page)).toBe(true);
+  for (const name of ["Sudoku", "Calcudoku"]) {
+    test(`morphs into ${name} and back`, async ({ page }) => {
+      await page.addInitScript(recordReveal);
+      await page.goto("/");
+      await card(page, name).click();
+      await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
+      expect(await revealed(page)).toBe(true);
 
-    await page.getByRole("link", { name: "Back to games" }).click();
-    await expect(card(page, "Sudoku")).toBeVisible();
-    expect(await revealed(page)).toBe(true);
-  });
+      await page.getByRole("link", { name: "Back to games" }).click();
+      await expect(card(page, name)).toBeVisible();
+      expect(await revealed(page)).toBe(true);
+    });
+  }
 
   test("just navigates with reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });

@@ -5,6 +5,7 @@ const SITE = "https://microbreak.vercel.app";
 for (const [path, canonical] of [
   ["/", `${SITE}/`],
   ["/sudoku", `${SITE}/sudoku/`],
+  ["/calcudoku", `${SITE}/calcudoku/`],
 ] as const) {
   test(`${path} has a canonical link`, async ({ page }) => {
     await page.goto(path);
@@ -28,6 +29,7 @@ test("sitemap lists the shown pages only", async ({ request }) => {
 
   const sitemap = await (await request.get("/sitemap-0.xml")).text();
   expect(sitemap).toContain(`<loc>${SITE}/sudoku/</loc>`);
+  expect(sitemap).toContain(`<loc>${SITE}/calcudoku/</loc>`);
   expect(sitemap).not.toContain("/404");
   expect(sitemap).not.toContain("/2048");
 });
