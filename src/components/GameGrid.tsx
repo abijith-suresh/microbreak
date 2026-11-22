@@ -41,6 +41,8 @@ export default function GameGrid() {
         {(game) => {
           const Preview = PREVIEWS[game.name];
           const animated = () => motion() && active() === game.name;
+          // Morphs into the game's board and title (see GameScreen).
+          const slug = game.name.toLowerCase();
           return (
             <li>
               <a
@@ -56,10 +58,20 @@ export default function GameGrid() {
                   aria-hidden="true"
                   class="flex aspect-square w-22 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-surface-hover [container-type:size] sm:aspect-[4/3] sm:w-full"
                 >
-                  <Preview animated={animated()} />
+                  <div
+                    style={{
+                      "view-transition-name": `board-${slug}`,
+                      "view-transition-class": "board",
+                    }}
+                  >
+                    <Preview animated={animated()} />
+                  </div>
                 </div>
                 <div class="flex min-w-0 flex-col gap-1 sm:gap-1.5 sm:px-1">
-                  <h2 class="font-display text-[24px] leading-none text-fg italic sm:text-[28px] lg:text-[32px]">
+                  <h2
+                    style={{ "view-transition-name": `title-${slug}` }}
+                    class="w-fit font-display text-[24px] leading-none text-fg italic sm:text-[28px] lg:text-[32px]"
+                  >
                     {game.name}
                   </h2>
                   <p class="text-[13px] leading-snug text-fg-secondary sm:text-sm">{game.line}</p>

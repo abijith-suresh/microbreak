@@ -83,3 +83,40 @@ test("on touch screens the boards stay still", async ({ browser, browserName }) 
   await expect(card(page, "Wordle")).toHaveAttribute("data-animating", "false");
   await context.close();
 });
+
+test.describe("moving between home and a game", () => {
+  test.skip(
+    ({ browserName }) => browserName !== "chromium",
+    "Needs cross-document view transitions"
+  );
+
+  const recordReveal = () =>
+    window.addEventListener("pagereveal", (e) => {
+      (window as unknown as { revealed: boolean }).revealed = Boolean(
+        (e as unknown as { viewTransition: unknown }).viewTransition
+      );
+    });
+  const revealed = (page: Page) =>
+    page.evaluate(() => (window as unknown as { revealed?: boolean }).revealed);
+
+  test("morphs into the game and back", async ({ page }) => {
+    await page.addInitScript(recordReveal);
+    await page.goto("/");
+    await card(page, "Sudoku").click();
+    await expect(page.getByRole("heading", { level: 1, name: "Sudoku" })).toBeVisible();
+    expect(await revealed(page)).toBe(true);
+
+    await page.getByRole("link", { name: "Back to games" }).click();
+    await expect(card(page, "Sudoku")).toBeVisible();
+    expect(await revealed(page)).toBe(true);
+  });
+
+  test("just navigates with reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.addInitScript(recordReveal);
+    await page.goto("/");
+    await card(page, "Wordle").click();
+    await expect(page.getByRole("heading", { level: 1, name: "Wordle" })).toBeVisible();
+    expect(await revealed(page)).toBe(false);
+  });
+});

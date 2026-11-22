@@ -263,6 +263,31 @@
   }
 }
 
+/* ─── Page transitions ─── */
+/* Moving between home and a game, a card's board and name morph into the game's board and
+   title (view-transition-name board-<game> and title-<game> on both pages). Browsers without
+   cross-document view transitions, and anyone who prefers reduced motion, just navigate. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* A card's square board and a game's board area differ in shape: letterbox both inside the
+   moving box instead of letting one spill out of it. */
+::view-transition-old(*.board),
+::view-transition-new(*.board) {
+  height: 100%;
+  object-fit: contain;
+}
+
 /* ─── Base ─── */
 html {
   -webkit-font-smoothing: antialiased;

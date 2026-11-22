@@ -15,7 +15,6 @@ interface Props {
   menu?: JSX.Element;
   children: JSX.Element;
   belowContent?: JSX.Element;
-  contentClass?: string;
 }
 
 const DEFAULT_CONTENT_CLASS =
@@ -26,6 +25,7 @@ const DEFAULT_CONTENT_CLASS =
  * page banner, then the board as the page's one main landmark.
  */
 export default function GameScreen(props: Props) {
+  const slug = () => props.title.toLowerCase();
   return (
     <div class="flex flex-col min-h-dvh">
       <header class="border-b border-border">
@@ -37,7 +37,10 @@ export default function GameScreen(props: Props) {
             data-title-block
             class="flex h-9 min-w-0 flex-col justify-between sm:h-auto sm:flex-row sm:items-baseline sm:gap-2.5 sm:pt-px"
           >
-            <h1 class="font-display text-[22px] leading-[22px] text-fg italic sm:text-[26px] sm:leading-[26px]">
+            <h1
+              style={{ "view-transition-name": `title-${slug()}` }}
+              class="w-fit font-display text-[22px] leading-[22px] text-fg italic sm:text-[26px] sm:leading-[26px]"
+            >
               {props.title}
             </h1>
             <span class="truncate text-[11px] leading-[14px] text-fg-tertiary sm:text-[13px] sm:leading-[18px]">
@@ -62,10 +65,14 @@ export default function GameScreen(props: Props) {
 
       {/* tabIndex -1: the new-game menu moves focus here when a game starts. */}
       <main tabIndex={-1} class="flex flex-1 flex-col outline-none">
-        <div
-          class={`${props.contentClass ?? DEFAULT_CONTENT_CLASS} animate-in fade-in duration-300`}
-        >
-          {props.children}
+        <div class={`${DEFAULT_CONTENT_CLASS} animate-in fade-in duration-300`}>
+          {/* The home card's board morphs into this box (view-transition-name board-<game>). */}
+          <div
+            style={{ "view-transition-name": `board-${slug()}`, "view-transition-class": "board" }}
+            class="flex flex-col items-center gap-6"
+          >
+            {props.children}
+          </div>
         </div>
 
         {props.belowContent}
