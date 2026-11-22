@@ -31,7 +31,8 @@ Available scripts:
 | `bun run lint:fix`       | Auto-fix lint issues                            |
 | `bun run format`         | Run Biome format (write)                        |
 | `bun run format:check`   | Check formatting                                |
-| `bun run test`           | Run Vitest once                                 |
+| `bun run test`           | Run Vitest once (unit and component tests)      |
+| `bun run test:coverage`  | Run Vitest once with a v8 coverage report       |
 | `bun run test:e2e`       | Run Playwright tests against an existing build  |
 | `bun run test:e2e:build` | Build, then run Playwright tests                |
 | `bun run test:watch`     | Run Vitest in watch mode                        |
@@ -129,11 +130,16 @@ Each game follows a consistent architecture. To add a new game:
 
 ## Testing
 
-Tests use Vitest. Engine logic must be tested. UI components are not currently
-tested.
+Tests use Vitest in two projects, both run by `bun run test`:
+
+- **unit**: `src/**/*.test.ts` in Node. Engine logic must be tested; these live
+  in `src/lib/__tests__/` alongside the code they test.
+- **components**: `src/**/*.test.tsx` in happy-dom with
+  `@solidjs/testing-library`. Test behaviour (roles, labels, focus, saved
+  state), not markup or snapshots. Shared UI tests live in
+  `src/components/ui/__tests__/`, game flows in `src/components/__tests__/`.
 
 ```bash
 bun run test
+bun run test:coverage   # writes coverage/
 ```
-
-Test files live in `src/lib/__tests__/` alongside the code they test.
