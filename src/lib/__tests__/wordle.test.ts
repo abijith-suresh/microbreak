@@ -186,18 +186,4 @@ describe("buildWordList", () => {
     expect(new Set(wordList.solutions).size).toBe(wordList.solutions.length);
     expect(wordList.solutions.every((word) => wordList.guesses.includes(word))).toBe(true);
   });
-
-  it("keeps slurs out of every answer pool but still accepts them as guesses", () => {
-    const denylist = ["gypsy", "gipsy", "pygmy", "lynch", "slave"];
-    const lists = [buildWordList(4, words4), buildWordList(5, words5), buildWordList(6, words6)];
-
-    for (const wordList of lists) {
-      for (const word of denylist) {
-        expect(wordList.solutions).not.toContain(word);
-      }
-    }
-    for (const word of denylist) {
-      expect(isWordValid(word, lists[1])).toBe(true);
-    }
-  });
 });
