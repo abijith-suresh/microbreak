@@ -6,6 +6,7 @@
  *   Wordle       fewest guesses per word length; the faster win breaks a tie
  *   2048         highest score
  *   Calcudoku    fastest win per size
+ *   Nonograms    fastest win per size
  *
  * Only the best result is stored: no history, streaks or counts.
  */
@@ -13,6 +14,7 @@
 import type { GridSize as CalcudokuSize } from "./calcudoku";
 import { formatDuration } from "./elapsedTimer";
 import type { Difficulty as MinesweeperDifficulty } from "./minesweeper";
+import type { NonogramSize } from "./nonogram";
 import { isRecord, loadStoredJSON, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import type { GridSize, Difficulty as SudokuDifficulty } from "./sudoku";
@@ -35,6 +37,7 @@ interface BestByGame {
   wordle: GuessBest;
   "2048": ScoreBest;
   calcudoku: TimeBest;
+  nonograms: TimeBest;
 }
 
 export type BestGame = keyof BestByGame;
@@ -75,6 +78,10 @@ export function calcudokuVariant(size: CalcudokuSize): string {
   return `${size}x${size}`;
 }
 
+export function nonogramVariant(size: NonogramSize): string {
+  return `${size}x${size}`;
+}
+
 // ── Rules ───────────────────────────────────────────────────────────────────
 
 const isCount = (value: unknown, min: number): value is number =>
@@ -87,6 +94,7 @@ const VALID: { [G in BestGame]: (value: unknown) => value is BestByGame[G] } = {
     isRecord(v) && Number.isInteger(v.guesses) && isCount(v.guesses, 1) && isCount(v.seconds, 0),
   "2048": (v): v is ScoreBest => isRecord(v) && isCount(v.score, 0),
   calcudoku: (v): v is TimeBest => isRecord(v) && isCount(v.seconds, 0),
+  nonograms: (v): v is TimeBest => isRecord(v) && isCount(v.seconds, 0),
 };
 
 const BEATS: { [G in BestGame]: (next: BestByGame[G], best: BestByGame[G]) => boolean } = {
@@ -96,6 +104,7 @@ const BEATS: { [G in BestGame]: (next: BestByGame[G], best: BestByGame[G]) => bo
     next.guesses < best.guesses || (next.guesses === best.guesses && next.seconds < best.seconds),
   "2048": (next, best) => next.score > best.score,
   calcudoku: (next, best) => next.seconds < best.seconds,
+  nonograms: (next, best) => next.seconds < best.seconds,
 };
 
 const GAMES = Object.keys(VALID) as BestGame[];
@@ -105,7 +114,7 @@ const GAMES = Object.keys(VALID) as BestGame[];
 function emptyBests(): StoredBests {
   return {
     version: 1,
-    games: { sudoku: {}, minesweeper: {}, wordle: {}, "2048": {}, calcudoku: {} },
+    games: { sudoku: {}, minesweeper: {}, wordle: {}, "2048": {}, calcudoku: {}, nonograms: {} },
   };
 }
 

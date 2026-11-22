@@ -8,6 +8,8 @@ export const STORAGE_KEYS = {
   sudokuSession: "microbreak-sudoku-session:v1",
   minesweeperPreferences: "microbreak-minesweeper-preferences:v1",
   minesweeperSession: "microbreak-minesweeper-session:v1",
+  nonogramPreferences: "microbreak-nonogram-preferences:v1",
+  nonogramSession: "microbreak-nonogram-session:v1",
   wordlePreferences: "microbreak-wordle-preferences:v1",
   wordleSession: "microbreak-wordle-session:v1",
   wordleRecentAnswers: "microbreak-wordle-recent-answers:v1",

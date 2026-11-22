@@ -5,6 +5,7 @@ import {
   GAME_2048_VARIANT,
   getBest,
   minesweeperVariant,
+  nonogramVariant,
   recordBest,
   sudokuVariant,
   wordleVariant,
@@ -48,6 +49,7 @@ describe("personal bests", () => {
         wordle: {},
         "2048": {},
         calcudoku: {},
+        nonograms: {},
       },
     });
   });
@@ -114,6 +116,21 @@ describe("personal bests", () => {
     expect(getBest("calcudoku", calcudokuVariant(6))).toBeNull();
     expect(stored().games.calcudoku).toEqual({ "5x5": { seconds: 150 }, "4x4": { seconds: 90 } });
     expect(describeBest("calcudoku", { seconds: 150 })).toBe("2m 30s");
+  });
+
+  it("keeps the fastest Nonograms win for each size", () => {
+    const ten = nonogramVariant(10);
+    expect(ten).toBe("10x10");
+    recordBest("nonograms", ten, { seconds: 240 });
+
+    expect(recordBest("nonograms", ten, { seconds: 300 }).isNew).toBe(false);
+    expect(recordBest("nonograms", ten, { seconds: 180 })).toEqual({
+      isNew: true,
+      previous: { seconds: 240 },
+    });
+    expect(getBest("nonograms", ten)).toEqual({ seconds: 180 });
+    expect(getBest("nonograms", nonogramVariant(15))).toBeNull();
+    expect(describeBest("nonograms", { seconds: 180 })).toBe("3m 00s");
   });
 
   describe("corrupt data", () => {

@@ -6,6 +6,7 @@
 
 import type { Difficulty as CalcudokuDifficulty } from "./calcudoku";
 import type { Difficulty as MinesweeperDifficulty } from "./minesweeper";
+import { isNonogramSize, type NonogramSize } from "./nonogram";
 import {
   isRecord,
   loadStoredJSON,
@@ -74,4 +75,16 @@ export function loadCalcudokuDifficulty(): CalcudokuDifficulty {
 
 export function saveCalcudokuDifficulty(difficulty: CalcudokuDifficulty) {
   saveStoredString(STORAGE_KEYS.calcudokuPreferences, difficulty);
+}
+
+function isNonogramPreferences(value: unknown): value is { size: NonogramSize } {
+  return isRecord(value) && isNonogramSize(value.size);
+}
+
+export function loadNonogramSize(): NonogramSize {
+  return loadStoredJSON(STORAGE_KEYS.nonogramPreferences, isNonogramPreferences)?.size ?? 10;
+}
+
+export function saveNonogramSize(size: NonogramSize) {
+  saveStoredJSON(STORAGE_KEYS.nonogramPreferences, { size });
 }

@@ -2,10 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   loadCalcudokuDifficulty,
   loadMinesweeperDifficulty,
+  loadNonogramSize,
   loadSudokuPreferences,
   loadWordleVariant,
   saveCalcudokuDifficulty,
   saveMinesweeperDifficulty,
+  saveNonogramSize,
   saveSudokuPreferences,
   saveWordleVariant,
 } from "../gamePreferences";
@@ -29,6 +31,7 @@ describe("game preferences", () => {
     expect(loadWordleVariant()).toBe(5);
     expect(loadMinesweeperDifficulty()).toBe("beginner");
     expect(loadCalcudokuDifficulty()).toBe("medium");
+    expect(loadNonogramSize()).toBe(10);
   });
 
   it("returns the settings the last game started with", () => {
@@ -36,11 +39,13 @@ describe("game preferences", () => {
     saveWordleVariant(4);
     saveMinesweeperDifficulty("expert");
     saveCalcudokuDifficulty("hard");
+    saveNonogramSize(15);
 
     expect(loadSudokuPreferences()).toEqual({ size: 6, difficulty: "hard" });
     expect(loadWordleVariant()).toBe(4);
     expect(loadMinesweeperDifficulty()).toBe("expert");
     expect(loadCalcudokuDifficulty()).toBe("hard");
+    expect(loadNonogramSize()).toBe(15);
   });
 
   it("reads the values the old setup screens wrote", () => {
@@ -64,10 +69,12 @@ describe("game preferences", () => {
     window.localStorage.setItem(STORAGE_KEYS.wordlePreferences, JSON.stringify({ variant: 7 }));
     window.localStorage.setItem(STORAGE_KEYS.minesweeperPreferences, "impossible");
     window.localStorage.setItem(STORAGE_KEYS.calcudokuPreferences, "extreme");
+    window.localStorage.setItem(STORAGE_KEYS.nonogramPreferences, JSON.stringify({ size: 20 }));
 
     expect(loadSudokuPreferences()).toEqual({ size: 9, difficulty: "medium" });
     expect(loadWordleVariant()).toBe(5);
     expect(loadMinesweeperDifficulty()).toBe("beginner");
     expect(loadCalcudokuDifficulty()).toBe("medium");
+    expect(loadNonogramSize()).toBe(10);
   });
 });
