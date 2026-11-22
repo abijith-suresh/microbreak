@@ -1,54 +1,86 @@
-import { createSignal, For, onCleanup, onMount } from "solid-js";
-import { GameIcon } from "@/components/previews/GameIcon";
-import GamePreview from "@/components/previews/GamePreview";
-import { getOrderedGames } from "@/data/games";
+import { type Component, createSignal, For, onCleanup, onMount } from "solid-js";
+import { getShownGames } from "@/data/games";
+import { MiniMinesweeperGrid } from "./previews/MiniMinesweeperGrid";
+import { MiniSudokuGrid } from "./previews/MiniSudokuGrid";
+import { MiniWordleGrid } from "./previews/MiniWordleGrid";
 
+const PREVIEWS: Record<string, Component<{ animated: boolean }>> = {
+  Sudoku: MiniSudokuGrid,
+  Wordle: MiniWordleGrid,
+  Minesweeper: MiniMinesweeperGrid,
+};
+
+/**
+ * The home page's game cards: a sample board, the name and one line, the whole card a link.
+ * The cards invite you to play; they never show your own game, which resumes when opened.
+ *
+ * A card's board plays its animation only while that card is hovered or focused, on devices
+ * with a fine pointer and without a reduced-motion preference. Everyone else sees it at rest.
+ */
 export default function GameGrid() {
-  const [animationsEnabled, setAnimationsEnabled] = createSignal(false);
+  const cards = getShownGames().filter((game) => game.name in PREVIEWS);
+  const [active, setActive] = createSignal<string | null>(null);
+  const [motion, setMotion] = createSignal(false);
 
   onMount(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => {
-      setAnimationsEnabled(document.visibilityState === "visible" && !mediaQuery.matches);
-    };
-
+    const query = window.matchMedia(
+      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)"
+    );
+    const update = () => setMotion(query.matches);
     update();
-    document.addEventListener("visibilitychange", update);
-    mediaQuery.addEventListener("change", update);
-
-    onCleanup(() => {
-      document.removeEventListener("visibilitychange", update);
-      mediaQuery.removeEventListener("change", update);
-    });
+    query.addEventListener("change", update);
+    onCleanup(() => query.removeEventListener("change", update));
   });
 
-  return (
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
-      <For each={getOrderedGames()}>
-        {(game) => {
-          const isAvailable = game.status === "available";
+  const start = (name: string) => setActive(name);
+  const stop = (name: string) => setActive((current) => (current === name ? null : current));
 
-          return isAvailable ? (
-            <a
-              href={game.href}
-              class="group relative flex flex-col items-center gap-4 rounded-2xl border border-border bg-surface p-6 pb-4 transition-all duration-300 hover:border-accent hover:shadow-xl hover:shadow-shadow-strong hover:-translate-y-1"
-            >
-              <h3 class="font-display text-3xl text-fg italic">{game.name}</h3>
-              <GamePreview game={game} animated={animationsEnabled()} />
-              <span class="text-xs text-fg-tertiary transition-colors group-hover:text-accent">
-                Play now →
-              </span>
-            </a>
-          ) : (
-            <div class="relative flex flex-col items-center gap-4 rounded-2xl border border-border bg-surface p-6 opacity-40 cursor-default select-none">
-              <h3 class="font-display text-3xl text-fg-tertiary italic">{game.name}</h3>
-              <div class="flex items-center justify-center w-full aspect-[4/3] max-h-24">
-                <GameIcon name={game.name} />
-              </div>
-            </div>
+  return (
+    <ul class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5">
+      <For each={cards}>
+        {(game) => {
+          const Preview = PREVIEWS[game.name];
+          const animated = () => motion() && active() === game.name;
+          // Morphs into the game's board and title (see GameScreen).
+          const slug = game.name.toLowerCase();
+          return (
+            <li>
+              <a
+                href={game.href}
+                data-animating={animated()}
+                onMouseEnter={() => start(game.name)}
+                onMouseLeave={() => stop(game.name)}
+                onFocus={() => start(game.name)}
+                onBlur={() => stop(game.name)}
+                class="group flex h-full items-center gap-4 rounded-[14px] border border-border bg-surface p-2.5 transition duration-200 hover:border-accent hover:shadow-[0_16px_32px_-12px_var(--color-shadow-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:flex-col sm:items-stretch sm:gap-4 sm:rounded-2xl sm:p-3.5 sm:pb-5 sm:hover:-translate-y-0.5"
+              >
+                <div
+                  aria-hidden="true"
+                  class="flex aspect-square w-22 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-surface-hover [container-type:size] sm:aspect-[4/3] sm:w-full"
+                >
+                  <div
+                    style={{
+                      "view-transition-name": `board-${slug}`,
+                      "view-transition-class": "board",
+                    }}
+                  >
+                    <Preview animated={animated()} />
+                  </div>
+                </div>
+                <div class="flex min-w-0 flex-col gap-1 sm:gap-1.5 sm:px-1">
+                  <h2
+                    style={{ "view-transition-name": `title-${slug}` }}
+                    class="w-fit font-display text-[24px] leading-none text-fg italic sm:text-[28px] lg:text-[32px]"
+                  >
+                    {game.name}
+                  </h2>
+                  <p class="text-[13px] leading-snug text-fg-secondary sm:text-sm">{game.line}</p>
+                </div>
+              </a>
+            </li>
           );
         }}
       </For>
-    </div>
+    </ul>
   );
 }

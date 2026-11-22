@@ -1,6 +1,6 @@
 import type { JSX } from "solid-js";
 
-// The one chip: a pill that toggles a choice.
+// The one chip: a pill. `Chip` toggles a choice; `Tag` labels a state with the same shape.
 
 interface ChipProps {
   pressed: boolean;
@@ -28,5 +28,21 @@ export function Chip(props: ChipProps) {
     >
       {props.children}
     </button>
+  );
+}
+
+/** A non-interactive pill in the accent tone, e.g. "New personal best". */
+export function Tag(props: { class?: string; children: JSX.Element }) {
+  return (
+    <span
+      class={[
+        "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border border-accent-subtle bg-accent-light px-2.5 text-xs font-medium text-accent",
+        props.class,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {props.children}
+    </span>
   );
 }

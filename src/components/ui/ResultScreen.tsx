@@ -1,6 +1,7 @@
 import { type JSX, onMount, Show } from "solid-js";
 import { formatDuration } from "@/lib/elapsedTimer";
 import Button from "./Button";
+import { Tag } from "./Chip";
 
 interface Props {
   type: "won" | "lost";
@@ -159,9 +160,7 @@ export default function ResultScreen(props: Props) {
             when={props.isNewBest}
             fallback={<p class="text-sm text-fg-tertiary tabular-nums">Best: {props.best}</p>}
           >
-            <span class="inline-flex h-6 items-center rounded-full border border-accent-subtle bg-accent-light px-2.5 text-xs font-medium text-accent">
-              New personal best
-            </span>
+            <Tag>New personal best</Tag>
           </Show>
         </div>
       </Show>

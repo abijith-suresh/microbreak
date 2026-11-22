@@ -4,13 +4,15 @@ import { Flag } from "@/lib/icons";
 import { PreviewFrame } from "./PreviewFrame";
 
 export function MiniMinesweeperGrid(props: { animated: boolean }) {
-  const totalCells = 64;
-  const [cells, setCells] = createSignal<("hidden" | "revealed" | "flagged")[]>(
-    Array(totalCells).fill("hidden")
-  );
+  const [cells, setCells] =
+    createSignal<("hidden" | "revealed" | "flagged")[]>(STATIC_MINESWEEPER_CELLS);
 
+  // Clears more of the resting board, then starts over from it. Stopping puts it back.
   createEffect(() => {
-    if (!props.animated) return;
+    if (!props.animated) {
+      setCells(STATIC_MINESWEEPER_CELLS);
+      return;
+    }
 
     const batchSize = 3;
     const interval = setInterval(() => {
@@ -21,9 +23,7 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
           return acc;
         }, []);
 
-        if (hiddenIndices.length <= 5) {
-          return Array(totalCells).fill("hidden");
-        }
+        if (hiddenIndices.length <= 5) return STATIC_MINESWEEPER_CELLS;
 
         for (let b = 0; b < batchSize && hiddenIndices.length - b > 5; b++) {
           const idx = Math.floor(Math.random() * (hiddenIndices.length - b));
@@ -33,27 +33,24 @@ export function MiniMinesweeperGrid(props: { animated: boolean }) {
 
         return next;
       });
-    }, 120);
+    }, 160);
 
     onCleanup(() => clearInterval(interval));
   });
 
-  const previewCells = () => (props.animated ? cells() : STATIC_MINESWEEPER_CELLS);
-
   return (
     <PreviewFrame>
-      <div class="grid grid-cols-8 gap-px rounded-lg bg-border p-2 overflow-hidden">
-        <For each={previewCells()}>
+      <div class="grid grid-cols-8 gap-px overflow-hidden rounded-md border border-border-strong bg-border-strong">
+        <For each={cells()}>
           {(cell) => (
             <div
               class="flex aspect-square items-center justify-center"
               style={{
-                "background-color": cell === "hidden" ? "var(--color-surface)" : "var(--color-bg)",
-                opacity: cell === "hidden" ? "0" : "0.9",
+                "background-color": cell === "revealed" ? "var(--color-bg)" : "var(--color-border)",
               }}
             >
               {cell === "flagged" ? (
-                <Flag size={7} strokeWidth={2.5} stroke="var(--color-accent)" />
+                <Flag strokeWidth={2.5} stroke="var(--color-accent)" class="size-[62%]" />
               ) : null}
             </div>
           )}

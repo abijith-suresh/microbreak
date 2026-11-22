@@ -191,6 +191,7 @@ export function Flag(props: IconProps) {
       stroke-width={sw()}
       stroke-linecap="round"
       stroke-linejoin="round"
+      class={props.class}
       aria-hidden="true"
     >
       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />

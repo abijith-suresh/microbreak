@@ -9,8 +9,7 @@ import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } fro
 import { recordBest, sudokuVariant } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import { loadSudokuPreferences, saveSudokuPreferences } from "./gamePreferences";
-import { loadSave } from "./gameSave";
-import { removeStoredValue, saveStoredJSON } from "./storage";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 import {
   type Board,
@@ -167,7 +166,7 @@ export function createSudokuGame() {
   }
 
   function restoreSession(): boolean {
-    const session = loadSave(STORAGE_KEYS.sudokuSession, isPersistedSudokuSession);
+    const session = loadStoredJSON(STORAGE_KEYS.sudokuSession, isPersistedSudokuSession);
     if (!session) return false;
 
     hasStartedFilling = session.hasStartedFilling;

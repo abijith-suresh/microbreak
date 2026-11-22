@@ -9,7 +9,7 @@ import { batch, createEffect, createSignal, onCleanup, onMount } from "solid-js"
 import { minesweeperVariant, recordBest } from "./bests";
 import { createElapsedTimer } from "./elapsedTimer";
 import { loadMinesweeperDifficulty, saveMinesweeperDifficulty } from "./gamePreferences";
-import { loadSave, type SaveStatus } from "./gameSave";
+import type { SaveStatus } from "./gameSave";
 import {
   type Board,
   checkWin,
@@ -21,6 +21,7 @@ import {
   getDifficultyPreset,
   getWrongFlags,
   isMine,
+  prefersMobilePresets,
   revealAllMines,
   revealCell,
   toggleFlag,
@@ -29,18 +30,11 @@ import {
   isPersistedMinesweeperSession,
   type PersistedMinesweeperSession,
 } from "./minesweeperSession";
-import { removeStoredValue, saveStoredJSON } from "./storage";
+import { loadStoredJSON, removeStoredValue, saveStoredJSON } from "./storage";
 import { STORAGE_KEYS } from "./storageKeys";
 
 /** "idle" until the page mounts and resumes or starts a game. */
 export type Phase = "idle" | "playing";
-
-/** Narrow screens get the taller mobile boards (same widths the setup screen used). */
-function prefersMobilePresets(): boolean {
-  return (
-    typeof window !== "undefined" && window.matchMedia?.("(max-width: 480px)").matches === true
-  );
-}
 
 export type { Difficulty };
 
@@ -131,7 +125,7 @@ export function createMinesweeperGame() {
   }
 
   function restoreSession(): boolean {
-    const session = loadSave(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
+    const session = loadStoredJSON(STORAGE_KEYS.minesweeperSession, isPersistedMinesweeperSession);
     if (!session) return false;
 
     hasStartedPlaying = session.hasStartedPlaying;

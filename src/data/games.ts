@@ -1,85 +1,20 @@
-export type GameStatus = "available" | "coming-soon";
-export type GameCategory = "logic" | "word" | "arcade";
-
-export interface GameCard {
+export interface Game {
   name: string;
-  icon: string;
-  status: GameStatus;
-  category: GameCategory;
-  sessionLength: string;
-  blurb: string;
-  tags: string[];
-  href?: string;
+  href: string;
+  /** One plain line about the game, shown on its home card. */
+  line: string;
   /** Set to false to hide the game everywhere. Omitted means shown. */
   enabled?: boolean;
 }
 
-export const games: GameCard[] = [
-  {
-    name: "Sudoku",
-    icon: "⊞",
-    status: "available",
-    category: "logic",
-    sessionLength: "3–8 min",
-    blurb: "Choose a 4×4, 6×6, or 9×9 board for a focused logic break.",
-    tags: ["numbers", "pencil-friendly", "calm"],
-    href: "/sudoku",
-  },
-  {
-    name: "Wordle",
-    icon: "W",
-    status: "available",
-    category: "word",
-    sessionLength: "1–5 min",
-    blurb: "Quick daily-style deduction with 4, 5, and 6 letter variants.",
-    tags: ["vocabulary", "deduction", "snappy"],
-    href: "/wordle",
-  },
-  {
-    name: "Minesweeper",
-    icon: "✱",
-    status: "available",
-    category: "logic",
-    sessionLength: "1–5 min",
-    blurb: "Classic mine-hunting with mobile presets and fast restart loops.",
-    tags: ["spatial", "risk", "classic"],
-    href: "/minesweeper",
-  },
-  {
-    name: "2048",
-    icon: "2",
-    status: "available",
-    category: "arcade",
-    sessionLength: "2–6 min",
-    blurb: "Swipe-friendly tile merging when you want momentum over rules lookup.",
-    tags: ["numbers", "swipe", "momentum"],
-    href: "/2048",
-    enabled: false,
-  },
-  {
-    name: "Chess",
-    icon: "♞",
-    status: "coming-soon",
-    category: "logic",
-    sessionLength: "5–15 min",
-    blurb: "A future quick-format strategy entry for slightly longer breaks.",
-    tags: ["strategy", "head-to-head", "planned"],
-  },
-  {
-    name: "Nonograms",
-    icon: "▦",
-    status: "coming-soon",
-    category: "logic",
-    sessionLength: "5–12 min",
-    blurb: "Picture logic puzzles that reward slow, deliberate pattern spotting.",
-    tags: ["grids", "pattern", "planned"],
-  },
+export const games: Game[] = [
+  { name: "Sudoku", href: "/sudoku", line: "Fill every row, column and box" },
+  { name: "Wordle", href: "/wordle", line: "Guess the hidden word" },
+  { name: "Minesweeper", href: "/minesweeper", line: "Clear the board, dodge the mines" },
+  { name: "2048", href: "/2048", line: "Slide the tiles to 2048", enabled: false },
 ];
 
-/** Return games sorted: available first (in defined order), then upcoming */
-export function getOrderedGames(): GameCard[] {
-  const shown = games.filter((game) => game.enabled !== false);
-  const available = shown.filter((game) => game.status === "available");
-  const upcoming = shown.filter((game) => game.status === "coming-soon");
-  return [...available, ...upcoming];
+/** The games shown on the site, in order. */
+export function getShownGames(): Game[] {
+  return games.filter((game) => game.enabled !== false);
 }

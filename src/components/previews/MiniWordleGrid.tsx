@@ -1,22 +1,29 @@
 import { createEffect, createSignal, For, onCleanup } from "solid-js";
-import { WORDLE_PREVIEW_COLORS, WORDLE_PREVIEW_WORDS } from "@/data/previewGrids";
+import {
+  WORDLE_PREVIEW_COLORS,
+  WORDLE_PREVIEW_WORDS,
+  WORDLE_RESTING_ROWS,
+} from "@/data/previewGrids";
 import { PreviewFrame } from "./PreviewFrame";
 
 const ticksPerRow = 10;
 const pauseTicks = 10;
 const cycle = ticksPerRow * 5 + pauseTicks;
+/** At rest the first rows are guessed and the rest are empty. */
+const restingTick = ticksPerRow * WORDLE_RESTING_ROWS;
 
 export function MiniWordleGrid(props: { animated: boolean }) {
-  const [tick, setTick] = createSignal(0);
+  const [tick, setTick] = createSignal(restingTick);
 
+  // Types and reveals the remaining guesses, then starts over from rest. Stopping puts it back.
   createEffect(() => {
     if (!props.animated) {
-      setTick(cycle - 1);
+      setTick(restingTick);
       return;
     }
 
     const interval = setInterval(() => {
-      setTick((value) => (value + 1) % cycle);
+      setTick((value) => (value + 1 >= cycle ? restingTick : value + 1));
     }, 100);
 
     onCleanup(() => clearInterval(interval));
@@ -26,16 +33,16 @@ export function MiniWordleGrid(props: { animated: boolean }) {
 
   return (
     <PreviewFrame>
-      <div class="grid grid-rows-5 gap-0.5 rounded-lg bg-border p-2 overflow-hidden">
+      <div class="grid" style={{ gap: "calc(var(--frame) * 0.045)" }}>
         <For each={rows}>
           {(letters, rowIdx) => {
             const rowTick = () => tick() - rowIdx() * ticksPerRow;
             const typedCount = () => (rowTick() >= 0 ? Math.min(Math.floor(rowTick()), 5) : 0);
             const revealedCount = () => (rowTick() >= 5 ? Math.min(rowTick() - 5, 5) : 0);
-            const isFullyRevealed = () => !props.animated || rowTick() >= 10;
+            const isFullyRevealed = () => rowTick() >= 10;
 
             return (
-              <div class="grid grid-cols-5 gap-0.5">
+              <div class="grid grid-cols-5" style={{ gap: "calc(var(--frame) * 0.045)" }}>
                 <For each={letters}>
                   {(letter, colIdx) => {
                     const isTyped = () => colIdx() < typedCount();
@@ -47,7 +54,7 @@ export function MiniWordleGrid(props: { animated: boolean }) {
 
                     return (
                       <div
-                        class="flex aspect-square items-center justify-center rounded-sm"
+                        class="flex aspect-square items-center justify-center rounded-[3px] border"
                         style={{
                           "background-color":
                             color() === "correct"
@@ -57,7 +64,11 @@ export function MiniWordleGrid(props: { animated: boolean }) {
                                 : color() === "absent"
                                   ? "var(--color-wl-absent)"
                                   : "var(--color-surface)",
-                          opacity: isTyped() || isFullyRevealed() ? "1" : "0",
+                          "border-color": color()
+                            ? "transparent"
+                            : isTyped()
+                              ? "var(--color-border-strong)"
+                              : "var(--color-border)",
                           color:
                             color() === "absent"
                               ? "var(--color-wl-absent-text)"
@@ -66,7 +77,10 @@ export function MiniWordleGrid(props: { animated: boolean }) {
                                 : "var(--color-fg)",
                         }}
                       >
-                        <span class="text-[7px] font-bold uppercase">
+                        <span
+                          class="font-bold uppercase leading-none"
+                          style={{ "font-size": "calc(var(--frame) / 5 * 0.42)" }}
+                        >
                           {isTyped() || isFullyRevealed() ? letter : ""}
                         </span>
                       </div>

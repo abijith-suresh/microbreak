@@ -5,6 +5,7 @@ import Game2048Board from "./Game2048Board";
 import Game2048WinOverlay from "./Game2048WinOverlay";
 import GameScreen from "./GameScreen";
 import Button from "./ui/Button";
+import { Tag } from "./ui/Chip";
 
 function formatNumber(n: number): string {
   return n.toLocaleString();
@@ -113,9 +114,7 @@ export default function Game2048App() {
                 </p>
               }
             >
-              <span class="mt-3 inline-flex h-6 items-center rounded-full border border-accent-subtle bg-accent-light px-2.5 text-xs font-medium text-accent">
-                New personal best
-              </span>
+              <Tag class="mt-3">New personal best</Tag>
             </Show>
             <div class="flex items-center gap-3 mt-8">
               <Button size="lg" onClick={game.playAgain}>
