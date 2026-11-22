@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://microbreak.vercel.app/sitemap-index.xml
