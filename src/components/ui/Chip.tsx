@@ -31,21 +31,12 @@ export function Chip(props: ChipProps) {
   );
 }
 
-export type TagTone = "neutral" | "accent" | "success";
-
-const TAG_TONES: Record<TagTone, string> = {
-  neutral: "border-border bg-surface text-fg-secondary",
-  accent: "border-accent-subtle bg-accent-light text-accent",
-  success:
-    "border-[color-mix(in_srgb,var(--color-success)_28%,transparent)] bg-[color-mix(in_srgb,var(--color-success)_10%,transparent)] text-success",
-};
-
-export function Tag(props: { tone?: TagTone; class?: string; children: JSX.Element }) {
+/** A non-interactive pill in the accent tone, e.g. "New personal best". */
+export function Tag(props: { class?: string; children: JSX.Element }) {
   return (
     <span
       class={[
-        "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 text-xs font-medium",
-        TAG_TONES[props.tone ?? "neutral"],
+        "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border border-accent-subtle bg-accent-light px-2.5 text-xs font-medium text-accent",
         props.class,
       ]
         .filter(Boolean)

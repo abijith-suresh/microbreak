@@ -1,119 +1,73 @@
-import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { type Component, createSignal, For, onCleanup, onMount } from "solid-js";
 import { getShownGames } from "@/data/games";
-import { type CardState, type CardStatus, placeholderCards, readCards } from "@/lib/cardState";
-import GameCardThumb from "./GameCardThumb";
-import { Tag, type TagTone } from "./ui/Chip";
+import { MiniMinesweeperGrid } from "./previews/MiniMinesweeperGrid";
+import { MiniSudokuGrid } from "./previews/MiniSudokuGrid";
+import { MiniWordleGrid } from "./previews/MiniWordleGrid";
 
-const STATUS: Record<CardStatus, { label: string; tone: TagTone; action: string }> = {
-  new: { label: "New game", tone: "neutral", action: "Play" },
-  playing: { label: "In progress", tone: "accent", action: "Resume" },
-  won: { label: "Solved", tone: "success", action: "See result" },
-  lost: { label: "Game over", tone: "neutral", action: "See result" },
+const PREVIEWS: Record<string, Component<{ animated: boolean }>> = {
+  Sudoku: MiniSudokuGrid,
+  Wordle: MiniWordleGrid,
+  Minesweeper: MiniMinesweeperGrid,
 };
 
-function accessibleName(name: string, card: CardState): string {
-  const parts = [STATUS[card.status].label, card.settings.replace(" · ", " ")];
-  if (card.time) parts.push(card.time);
-  const best = card.best
-    ? `Best ${card.best}${card.status === "won" && card.newBest ? ", new personal best" : ""}`
-    : "No best yet";
-  return `${name}: ${parts.join(", ")}. ${best}.`;
-}
-
 /**
- * The home page's game cards. Saves live in this browser only, so the server renders empty
- * boards at default settings and the cards read the real state on mount. Every card keeps
- * its size when that happens; only the text fades in.
+ * The home page's game cards: a sample board, the name and one line, the whole card a link.
+ * The cards invite you to play; they never show your own game, which resumes when opened.
+ *
+ * A card's board plays its animation only while that card is hovered or focused, on devices
+ * with a fine pointer and without a reduced-motion preference. Everyone else sees it at rest.
  */
 export default function GameGrid() {
-  const shown = new Set(getShownGames().map((game) => game.name.toLowerCase()));
-  const hrefs = Object.fromEntries(getShownGames().map((g) => [g.name.toLowerCase(), g.href]));
-  const names = Object.fromEntries(getShownGames().map((g) => [g.name.toLowerCase(), g.name]));
-  const visible = (cards: CardState[]) => cards.filter((card) => shown.has(card.game));
-
-  const [cards, setCards] = createSignal(visible(placeholderCards()));
-  const [ready, setReady] = createSignal(false);
+  const cards = getShownGames().filter((game) => game.name in PREVIEWS);
+  const [active, setActive] = createSignal<string | null>(null);
+  const [motion, setMotion] = createSignal(false);
 
   onMount(() => {
-    const refresh = () => setCards(visible(readCards()));
-    refresh();
-    setReady(true);
-
-    // Coming back from a game (including the back/forward cache) or from another tab.
-    const onShow = () => document.visibilityState === "visible" && refresh();
-    window.addEventListener("pageshow", refresh);
-    document.addEventListener("visibilitychange", onShow);
-    onCleanup(() => {
-      window.removeEventListener("pageshow", refresh);
-      document.removeEventListener("visibilitychange", onShow);
-    });
+    const query = window.matchMedia(
+      "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)"
+    );
+    const update = () => setMotion(query.matches);
+    update();
+    query.addEventListener("change", update);
+    onCleanup(() => query.removeEventListener("change", update));
   });
 
-  const fade = () => `transition-opacity duration-300 ${ready() ? "opacity-100" : "opacity-0"}`;
+  const start = (name: string) => setActive(name);
+  const stop = (name: string) => setActive((current) => (current === name ? null : current));
 
   return (
-    <ul class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5" data-ready={ready()}>
-      <For each={cards()}>
-        {(card) => (
-          <li>
-            <a
-              href={hrefs[card.game]}
-              aria-label={accessibleName(names[card.game], card)}
-              class="group flex h-full gap-3.5 rounded-[14px] border border-border bg-surface p-2.5 transition duration-200 hover:border-accent hover:shadow-[0_16px_32px_-12px_var(--color-shadow-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:flex-col sm:rounded-2xl sm:p-3.5 sm:pb-4 sm:hover:-translate-y-0.5"
-            >
-              <div class="flex aspect-square w-27 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-surface-hover [container-type:size] sm:aspect-[4/3] sm:w-full">
-                <GameCardThumb thumb={card.thumb} />
-              </div>
-
-              <div class="flex min-w-0 flex-1 flex-col justify-center gap-1.5 sm:gap-2 sm:px-1">
-                <div class="flex items-center justify-between gap-2">
-                  <h2 class="font-display text-[26px] leading-none text-fg italic sm:text-[28px] lg:text-[32px]">
-                    {names[card.game]}
+    <ul class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5">
+      <For each={cards}>
+        {(game) => {
+          const Preview = PREVIEWS[game.name];
+          const animated = () => motion() && active() === game.name;
+          return (
+            <li>
+              <a
+                href={game.href}
+                data-animating={animated()}
+                onMouseEnter={() => start(game.name)}
+                onMouseLeave={() => stop(game.name)}
+                onFocus={() => start(game.name)}
+                onBlur={() => stop(game.name)}
+                class="group flex h-full items-center gap-4 rounded-[14px] border border-border bg-surface p-2.5 transition duration-200 hover:border-accent hover:shadow-[0_16px_32px_-12px_var(--color-shadow-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:flex-col sm:items-stretch sm:gap-4 sm:rounded-2xl sm:p-3.5 sm:pb-5 sm:hover:-translate-y-0.5"
+              >
+                <div
+                  aria-hidden="true"
+                  class="flex aspect-square w-22 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-surface-hover [container-type:size] sm:aspect-[4/3] sm:w-full"
+                >
+                  <Preview animated={animated()} />
+                </div>
+                <div class="flex min-w-0 flex-col gap-1 sm:gap-1.5 sm:px-1">
+                  <h2 class="font-display text-[24px] leading-none text-fg italic sm:text-[28px] lg:text-[32px]">
+                    {game.name}
                   </h2>
-                  <svg
-                    class="size-4.5 shrink-0 text-fg-tertiary sm:hidden"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    aria-hidden="true"
-                  >
-                    <path d="m9 18 6-6-6-6" />
-                  </svg>
+                  <p class="text-[13px] leading-snug text-fg-secondary sm:text-sm">{game.line}</p>
                 </div>
-
-                <div
-                  class={`flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-fg-secondary tabular-nums sm:text-[13px] ${fade()}`}
-                >
-                  <Tag tone={STATUS[card.status].tone}>{STATUS[card.status].label}</Tag>
-                  <span>
-                    {card.settings}
-                    {card.time ? ` · ${card.time}` : ""}
-                  </span>
-                </div>
-
-                <div
-                  class={`flex items-center justify-between sm:mt-1 sm:border-t sm:border-border sm:pt-3 ${fade()}`}
-                >
-                  <span class="flex items-baseline gap-1.5 text-xs text-fg-tertiary sm:text-[13px]">
-                    <Show when={card.best} fallback="No best yet">
-                      Best
-                      <b class="text-[13px] font-semibold text-fg tabular-nums sm:text-[15px]">
-                        {card.best}
-                      </b>
-                      <Show when={card.status === "won" && card.newBest}>
-                        <span class="font-medium text-accent">New best</span>
-                      </Show>
-                    </Show>
-                  </span>
-                  <span class="hidden text-[13px] font-medium text-accent sm:inline">
-                    {STATUS[card.status].action} →
-                  </span>
-                </div>
-              </div>
-            </a>
-          </li>
-        )}
+              </a>
+            </li>
+          );
+        }}
       </For>
     </ul>
   );

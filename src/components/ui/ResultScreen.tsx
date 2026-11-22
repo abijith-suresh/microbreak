@@ -160,7 +160,7 @@ export default function ResultScreen(props: Props) {
             when={props.isNewBest}
             fallback={<p class="text-sm text-fg-tertiary tabular-nums">Best: {props.best}</p>}
           >
-            <Tag tone="accent">New personal best</Tag>
+            <Tag>New personal best</Tag>
           </Show>
         </div>
       </Show>

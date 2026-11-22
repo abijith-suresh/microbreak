@@ -7,17 +7,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 
 <BaseLayout>
   <div class="flex min-h-dvh flex-col">
-    {/* The same bar as the game screens: one line, then straight to the games. */}
+    {/* The same bar as the game screens, then straight to the games. */}
     <header class="border-b border-border">
-      <div class="page-frame flex h-14 items-center gap-2.5 sm:h-15 sm:gap-3">
+      <div class="page-frame flex h-14 items-center sm:h-15">
         <h1 class="font-display text-[24px] leading-none text-fg italic sm:text-[30px]">
           Microbreak
         </h1>
-        <p
-          class="border-l border-border-strong pl-2 text-xs leading-tight text-fg-secondary whitespace-nowrap max-[359px]:whitespace-normal sm:pl-3 sm:text-sm"
-        >
-          Think while your agents work.
-        </p>
         <div class="ml-auto">
           <ThemeToggle client:load />
         </div>

@@ -114,9 +114,7 @@ export default function Game2048App() {
                 </p>
               }
             >
-              <Tag tone="accent" class="mt-3">
-                New personal best
-              </Tag>
+              <Tag class="mt-3">New personal best</Tag>
             </Show>
             <div class="flex items-center gap-3 mt-8">
               <Button size="lg" onClick={game.playAgain}>
