@@ -1,0 +1,11 @@
+---
+import CalcudokuApp from "@/components/CalcudokuApp";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Calcudoku — Microbreak"
+  description="Fill a 4×4, 5×5 or 6×6 grid so every row, column and cage adds up."
+>
+  <CalcudokuApp client:load />
+</BaseLayout>

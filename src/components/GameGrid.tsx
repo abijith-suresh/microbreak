@@ -1,5 +1,6 @@
 import { type Component, createSignal, For, onCleanup, onMount } from "solid-js";
 import { getShownGames } from "@/data/games";
+import { MiniCalcudokuGrid } from "./previews/MiniCalcudokuGrid";
 import { MiniMinesweeperGrid } from "./previews/MiniMinesweeperGrid";
 import { MiniSudokuGrid } from "./previews/MiniSudokuGrid";
 import { MiniWordleGrid } from "./previews/MiniWordleGrid";
@@ -8,6 +9,7 @@ const PREVIEWS: Record<string, Component<{ animated: boolean }>> = {
   Sudoku: MiniSudokuGrid,
   Wordle: MiniWordleGrid,
   Minesweeper: MiniMinesweeperGrid,
+  Calcudoku: MiniCalcudokuGrid,
 };
 
 /**
@@ -36,7 +38,7 @@ export default function GameGrid() {
   const stop = (name: string) => setActive((current) => (current === name ? null : current));
 
   return (
-    <ul class="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-5">
+    <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
       <For each={cards}>
         {(game) => {
           const Preview = PREVIEWS[game.name];

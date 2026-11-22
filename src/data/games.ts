@@ -12,12 +12,7 @@ export const games: Game[] = [
   { name: "Wordle", href: "/wordle", line: "Guess the hidden word" },
   { name: "Minesweeper", href: "/minesweeper", line: "Clear the board, dodge the mines" },
   { name: "2048", href: "/2048", line: "Slide the tiles to 2048", enabled: false },
-  {
-    name: "Calcudoku",
-    href: "/calcudoku",
-    line: "Fill the grid so every cage hits its target",
-    enabled: false,
-  },
+  { name: "Calcudoku", href: "/calcudoku", line: "Fill the grid so every cage adds up" },
   {
     name: "Nonograms",
     href: "/nonograms",

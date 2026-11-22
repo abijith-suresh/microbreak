@@ -109,3 +109,113 @@ test("a solved Sudoku stays solved after a reload until a new game starts", asyn
   await expect(result(page)).toBeHidden();
   await expect(page.locator(".sudoku-cell")).toHaveCount(16);
 });
+
+test("a solved Calcudoku stays solved after a reload and keeps its best", async ({ page }) => {
+  const SAVE = "microbreak-calcudoku-session:v1";
+  const solution = [
+    [1, 2, 3, 4],
+    [3, 4, 1, 2],
+    [2, 1, 4, 3],
+    [4, 3, 2, 1],
+  ];
+  const cages = [
+    {
+      cells: [
+        [0, 0],
+        [1, 0],
+      ],
+      operation: "subtract",
+      target: 2,
+    },
+    {
+      cells: [
+        [0, 1],
+        [0, 2],
+      ],
+      operation: "multiply",
+      target: 6,
+    },
+    { cells: [[0, 3]], operation: "given", target: 4 },
+    {
+      cells: [
+        [1, 1],
+        [1, 2],
+      ],
+      operation: "divide",
+      target: 4,
+    },
+    {
+      cells: [
+        [1, 3],
+        [2, 3],
+      ],
+      operation: "add",
+      target: 5,
+    },
+    {
+      cells: [
+        [2, 0],
+        [3, 0],
+        [3, 1],
+      ],
+      operation: "add",
+      target: 9,
+    },
+    {
+      cells: [
+        [2, 1],
+        [2, 2],
+      ],
+      operation: "subtract",
+      target: 3,
+    },
+    {
+      cells: [
+        [3, 2],
+        [3, 3],
+      ],
+      operation: "divide",
+      target: 2,
+    },
+  ];
+  const values = solution.map((row, r) => row.map((v, c) => (r === 3 && c === 3 ? null : v)));
+  await page.goto("/");
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), {
+    key: SAVE,
+    value: {
+      status: "playing",
+      newBest: false,
+      timerSeconds: 30,
+      difficulty: "easy",
+      puzzle: { size: 4, cages, solution },
+      values,
+      notes: values.map((row) => row.map(() => [])),
+      selectedCell: null,
+      notesMode: false,
+      hasStartedFilling: true,
+    },
+  });
+  await page.goto("/calcudoku");
+
+  await page.getByRole("gridcell", { name: /^Row 4, column 4,/ }).click();
+  await page.keyboard.press("1");
+
+  await expect(result(page)).toContainText("Solved");
+  await expect(result(page)).toContainText("4×4 · Easy");
+  await expect(result(page)).toContainText("New personal best");
+  await expect(result(page)).toContainText("Nice break · Now back to your agents");
+
+  await page.reload();
+  await expect(result(page)).toContainText("Solved");
+  expect(await save(page, SAVE)).toMatchObject({ status: "won", newBest: true });
+  expect((await save(page, BESTS)).games.calcudoku["4x4"].seconds).toBeGreaterThanOrEqual(30);
+
+  await page.getByRole("button", { name: "New game" }).click();
+  await page
+    .getByRole("dialog", { name: "New game" })
+    .getByRole("button", { name: "Start new game" })
+    .click();
+  await expect(result(page)).toBeHidden();
+  await expect(page.locator(".calcudoku-cell")).toHaveCount(16);
+  await expect(page.getByRole("main")).toBeFocused();
+});

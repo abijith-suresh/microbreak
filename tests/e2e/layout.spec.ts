@@ -27,6 +27,19 @@ const PAGES: { name: string; path: string; ready: string; prefs?: [string, strin
     prefs: ["microbreak-wordle-preferences:v1", JSON.stringify({ variant: 6 })],
   },
   { name: "Minesweeper", path: "/minesweeper", ready: ".minesweeper-cell" },
+  { name: "Calcudoku 5×5", path: "/calcudoku", ready: "[role='gridcell']" },
+  {
+    name: "Calcudoku 4×4",
+    path: "/calcudoku",
+    ready: "[role='gridcell']",
+    prefs: ["microbreak-calcudoku-preferences:v1", "easy"],
+  },
+  {
+    name: "Calcudoku 6×6",
+    path: "/calcudoku",
+    ready: "[role='gridcell']",
+    prefs: ["microbreak-calcudoku-preferences:v1", "hard"],
+  },
   {
     name: "Minesweeper Medium",
     path: "/minesweeper",
@@ -35,7 +48,7 @@ const PAGES: { name: string; path: string; ready: string; prefs?: [string, strin
   },
 ];
 
-for (const width of [320, 375]) {
+for (const width of [320, 375, 1440]) {
   test.describe(`at ${width}px`, () => {
     test.use({ viewport: { width, height: 740 } });
 
@@ -50,3 +63,25 @@ for (const width of [320, 375]) {
     }
   });
 }
+
+test.describe("Calcudoku at 320px", () => {
+  test.use({ viewport: { width: 320, height: 740 } });
+
+  test("6×6 cells stay at least 40px and the clues at least 10px", async ({ page }) => {
+    await page.addInitScript(() =>
+      localStorage.setItem("microbreak-calcudoku-preferences:v1", "hard")
+    );
+    await page.goto("/calcudoku");
+    const cell = page.getByRole("gridcell").first();
+    await expect(cell).toBeVisible();
+    // Measured once the board's scale-in entrance has settled.
+    await expect
+      .poll(async () => (await cell.boundingBox())?.width ?? 0)
+      .toBeGreaterThanOrEqual(40);
+    const clue = await cell
+      .locator("span")
+      .first()
+      .evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize));
+    expect(clue).toBeGreaterThanOrEqual(10);
+  });
+});

@@ -7,6 +7,8 @@ import {
   clearCell,
   createBoard,
   DIFFICULTIES,
+  describeCage,
+  describeCell,
   evaluateCage,
   findSolutions,
   type Grid,
@@ -430,5 +432,52 @@ describe("board", () => {
       });
       expect(isSolved(puzzle, board.values)).toBe(true);
     });
+  });
+});
+
+describe("labels", () => {
+  it("names a cage the way a screen reader says it", () => {
+    expect(fixture.cages.map(describeCage)).toEqual([
+      "cage 2 minus, 2 cells",
+      "cage 6 times, 2 cells",
+      "given 4",
+      "cage 4 divided by, 2 cells",
+      "cage 5 plus, 2 cells",
+      "cage 9 plus, 3 cells",
+      "cage 3 minus, 2 cells",
+      "cage 2 divided by, 2 cells",
+    ]);
+  });
+
+  it("describes a cell's place, cage and contents", () => {
+    const base = {
+      row: 2,
+      col: 0,
+      cage: fixture.cages[5],
+      value: null,
+      notes: [],
+      conflict: false,
+      cageStatus: "incomplete" as const,
+    };
+    expect(describeCell(base)).toBe("Row 3, column 1, cage 9 plus, 3 cells, empty");
+    expect(describeCell({ ...base, notes: [1, 3, 4] })).toBe(
+      "Row 3, column 1, cage 9 plus, 3 cells, empty, notes 1, 3 and 4"
+    );
+    expect(describeCell({ ...base, value: 2, notes: [1] })).toBe(
+      "Row 3, column 1, cage 9 plus, 3 cells, 2"
+    );
+    expect(describeCell({ ...base, value: 4, conflict: true, cageStatus: "violated" })).toBe(
+      "Row 3, column 1, cage 9 plus, 3 cells, 4, repeats in its row or column, cage not met"
+    );
+    expect(
+      describeCell({
+        ...base,
+        row: 0,
+        col: 3,
+        cage: fixture.cages[2],
+        value: 4,
+        cageStatus: "satisfied",
+      })
+    ).toBe("Row 1, column 4, given 4");
   });
 });

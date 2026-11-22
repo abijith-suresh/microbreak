@@ -584,3 +584,60 @@ export function isSolved(puzzle: CalcudokuPuzzle, values: Grid): boolean {
     puzzle.cages.every((cage) => getCageStatus(cage, values) === "satisfied")
   );
 }
+
+// ── Labels ──────────────────────────────────────────────────────────────────
+
+const OPERATION_WORDS: Record<Operation, string> = {
+  given: "given",
+  add: "plus",
+  subtract: "minus",
+  multiply: "times",
+  divide: "divided by",
+};
+
+/** "1", "1 and 4", "1, 3 and 4". */
+function listDigits(digits: number[]): string {
+  if (digits.length <= 1) return digits.join("");
+  return `${digits.slice(0, -1).join(", ")} and ${digits.at(-1)}`;
+}
+
+/** The cage as a screen reader says it: "cage 12 times, 3 cells" or "given 4". */
+export function describeCage(cage: Cage): string {
+  if (cage.operation === "given") return `given ${cage.target}`;
+  return `cage ${cage.target} ${OPERATION_WORDS[cage.operation]}, ${cage.cells.length} cells`;
+}
+
+/**
+ * A cell's accessible name: where it is, its cage, then what it holds.
+ * "Row 2, column 3, cage 12 times, 3 cells, empty, notes 1 and 4".
+ */
+export function describeCell(options: {
+  row: number;
+  col: number;
+  cage: Cage;
+  value: Cell;
+  notes: number[];
+  conflict: boolean;
+  cageStatus: CageStatus;
+}): string {
+  const { row, col, cage, value, notes, conflict, cageStatus } = options;
+  const parts = [`Row ${row + 1}`, `column ${col + 1}`, describeCage(cage)];
+  if (cage.operation !== "given") {
+    parts.push(value === null ? "empty" : String(value));
+    if (value === null && notes.length > 0) parts.push(`notes ${listDigits(notes)}`);
+  }
+  if (conflict) parts.push("repeats in its row or column");
+  if (cageStatus === "violated") parts.push("cage not met");
+  return parts.join(", ");
+}
+
+/**
+ * A Calcudoku cell's size classes. Cells shrink on narrow phones so the whole board fits:
+ * never wider than (viewport − gutters and borders) / cells per row. A 6×6 cell stays above
+ * 40px on a 320px screen.
+ */
+export function calcudokuCellSize(size: GridSize): string {
+  if (size === 4) return "size-[min(4.5rem,calc((100vw_-_1.5rem)/4))] md:size-20";
+  if (size === 5) return "size-[min(3.75rem,calc((100vw_-_1.5rem)/5))] md:size-[4.5rem]";
+  return "size-[min(3.25rem,calc((100vw_-_1.5rem)/6))] md:size-16";
+}
