@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Index, onCleanup } from "solid-js";
 import { NONOGRAM_PREVIEW_PICTURE, NONOGRAM_RESTING_MARKS } from "@/data/previewGrids";
 import { type CellMark, deriveClues, lineClue } from "@/lib/nonogram";
 import { PreviewFrame } from "./PreviewFrame";
@@ -88,34 +88,34 @@ export function MiniNonogramsGrid(props: { animated: boolean }) {
             </div>
           )}
         </For>
-        <For each={marks()}>
+        <Index each={marks()}>
           {(row, r) => (
             <>
               <div
                 class="flex items-center justify-end pr-[6%]"
-                style={{ ...clueStyle(done().rows[r()]), gap: "calc(var(--frame) * 0.018)" }}
+                style={{ ...clueStyle(done().rows[r]), gap: "calc(var(--frame) * 0.018)" }}
               >
-                <For each={rowClues[r()]}>{(value) => <span>{value}</span>}</For>
+                <For each={rowClues[r]}>{(value) => <span>{value}</span>}</For>
               </div>
-              <For each={row}>
+              <Index each={row()}>
                 {(mark, c) => (
                   <div
-                    data-mark={mark}
+                    data-mark={mark()}
                     class="flex items-center justify-center border-border"
                     style={{
                       "background-color":
-                        mark === "filled" ? "var(--color-fg)" : "var(--color-surface)",
-                      "border-right-width": c() === SIZE - 1 ? "0" : "1px",
-                      "border-bottom-width": r() === SIZE - 1 ? "0" : "1px",
+                        mark() === "filled" ? "var(--color-fg)" : "var(--color-surface)",
+                      "border-right-width": c === SIZE - 1 ? "0" : "1px",
+                      "border-bottom-width": r === SIZE - 1 ? "0" : "1px",
                       "border-right-color":
-                        c() === 4 ? "var(--color-border-strong)" : "var(--color-border)",
+                        c === 4 ? "var(--color-border-strong)" : "var(--color-border)",
                       "border-bottom-color":
-                        r() === 4 ? "var(--color-border-strong)" : "var(--color-border)",
+                        r === 4 ? "var(--color-border-strong)" : "var(--color-border)",
                       "border-style": "solid",
                       "outline-offset": "-1px",
                     }}
                   >
-                    {mark === "crossed" && (
+                    {mark() === "crossed" && (
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -130,10 +130,10 @@ export function MiniNonogramsGrid(props: { animated: boolean }) {
                     )}
                   </div>
                 )}
-              </For>
+              </Index>
             </>
           )}
-        </For>
+        </Index>
       </div>
     </PreviewFrame>
   );
