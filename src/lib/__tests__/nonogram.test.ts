@@ -323,6 +323,8 @@ describe("saved game", () => {
     size: 10,
     solution: encodeSolution(puzzle.solution),
     marks: setMark(setMark(createEmptyMarks(10), 0, 0, "filled"), 9, 9, "crossed"),
+    mode: "cross",
+    selectedCell: [4, 7],
     hasStartedPlaying: true,
   };
 
@@ -349,6 +351,8 @@ describe("saved game", () => {
     ],
     ["marks of the wrong size", { marks: createEmptyMarks(5) }],
     ["no start flag", { hasStartedPlaying: "yes" }],
+    ["an unknown mode", { mode: "erase" }],
+    ["a selected cell off the board", { selectedCell: [10, 0] }],
   ])("rejects %s", (_, change) => {
     expect(isPersistedNonogramSession({ ...session, ...change })).toBe(false);
   });

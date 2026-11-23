@@ -127,3 +127,39 @@ export const WORDLE_PREVIEW_COLORS: ("absent" | "correct" | "present")[][] = [
   ["absent", "present", "correct", "absent", "correct"],
   ["correct", "correct", "correct", "correct", "correct"],
 ];
+
+/** The Nonograms preview's picture, a cup of coffee: "#" filled, "." empty. */
+export const NONOGRAM_PREVIEW_PICTURE = [
+  "...#..#...",
+  "..#..#....",
+  "...#..#...",
+  ".#######..",
+  ".#########",
+  ".#######.#",
+  ".#########",
+  ".#######..",
+  "..#####...",
+  "#########.",
+].map((row) => [...row].map((cell) => cell === "#"));
+
+/**
+ * The cells of the preview at rest, part way through: "#" filled, "x" crossed, "." not yet
+ * marked. Its marks all agree with the picture.
+ */
+const NONOGRAM_RESTING_MASK = [
+  "...#......",
+  "..........",
+  "x.........",
+  "........x.",
+  "x#########",
+  "x...#....#",
+  "x#########",
+  "x.....##xx",
+  "x.#####...",
+  "#########x",
+];
+
+export const NONOGRAM_RESTING_MARKS: ("empty" | "filled" | "crossed")[][] =
+  NONOGRAM_RESTING_MASK.map((row) =>
+    [...row].map((cell) => (cell === "#" ? "filled" : cell === "x" ? "crossed" : "empty"))
+  );

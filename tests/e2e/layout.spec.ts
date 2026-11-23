@@ -33,6 +33,12 @@ const PAGES: { name: string; path: string; ready: string; prefs?: [string, strin
     ready: ".minesweeper-cell",
     prefs: ["microbreak-minesweeper-preferences:v1", "intermediate"],
   },
+  ...([5, 10, 15] as const).map((size) => ({
+    name: `Nonograms ${size}×${size}`,
+    path: "/nonograms",
+    ready: "[data-cell]",
+    prefs: ["microbreak-nonogram-preferences:v1", JSON.stringify({ size })] as [string, string],
+  })),
 ];
 
 for (const width of [320, 375]) {

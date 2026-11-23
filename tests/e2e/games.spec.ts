@@ -17,6 +17,7 @@ test.describe("every game opens straight onto a board", () => {
   for (const [path, title, cell] of [
     ["/sudoku", "Sudoku", ".sudoku-cell"],
     ["/minesweeper", "Minesweeper", ".minesweeper-cell"],
+    ["/nonograms", "Nonograms", "[data-cell]"],
   ] as const) {
     test(title, async ({ page }) => {
       await page.goto(path);
@@ -110,4 +111,42 @@ test("keys typed in the open menu don't reach the board", async ({ page }) => {
     () => JSON.parse(localStorage.getItem("microbreak-wordle-session:v1") ?? "{}").currentInput
   );
   expect(input).toBe("");
+});
+
+test("a Nonograms game resumes after a reload with its marks, mode and clock", async ({ page }) => {
+  const SAVE = "microbreak-nonogram-session:v1";
+  const saved = () => page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null"), SAVE);
+
+  await page.goto("/nonograms");
+  await expect(topBar(page)).toContainText("10×10 · Medium");
+  await startFromMenu(page, ["5×5"]);
+  await expect(topBar(page)).toContainText("5×5 · Easy");
+  await expect(page.locator("[data-cell]")).toHaveCount(25);
+
+  // Drag along the first row, then cross a cell below it.
+  const first = await page.locator('[data-cell="0-0"]').boundingBox();
+  const last = await page.locator('[data-cell="0-4"]').boundingBox();
+  if (!first || !last) throw new Error("board not laid out");
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, { steps: 5 });
+  await page.mouse.up();
+  await page.getByRole("button", { name: "Cross", exact: true }).click();
+  await page.locator('[data-cell="1-0"]').click();
+
+  await expect.poll(async () => (await saved())?.marks?.[0]).toEqual(Array(5).fill("filled"));
+  await expect.poll(async () => (await saved())?.marks?.[1]?.[0]).toBe("crossed");
+  const before = await saved();
+
+  await page.reload();
+  await expect(topBar(page)).toContainText("5×5 · Easy");
+  await expect(page.getByRole("button", { name: "Row 1, column 5, filled" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Row 2, column 1, crossed" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cross", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  const after = await saved();
+  expect(after.solution).toEqual(before.solution);
+  expect(after.timerSeconds).toBeGreaterThanOrEqual(before.timerSeconds);
 });
